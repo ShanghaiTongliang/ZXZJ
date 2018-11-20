@@ -1,0 +1,8 @@
+{
+    "name": "oblind/yaf",
+    "type": "library",
+    "description": "oblind yaf framework",
+    "keywords": [
+        "oblind", "yaf"
+    ]
+}
