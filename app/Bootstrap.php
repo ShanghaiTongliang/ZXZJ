@@ -28,10 +28,13 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
     //在这里注册自己的路由协议,默认使用简单路由
     $r = $dispatcher->getRouter();
     $req = $dispatcher->getRequest();
-    if($req->method == 'POST')
-      $r->addRoute('calc', new Route\Rewrite('calc', ['controller' => 'index', 'action' => 'calc']));
-    $r->addRoute('aaa', new Route\Rewrite('aaa', ['controller' => 'index', 'action' => 'aaa']));
-    $r->addRoute('list', new Route\Rewrite('api/list', ['controller' => 'index', 'action' => 'list']));
+    $p = ['controller' => 'index'];
+    if($req->method == 'POST') {
+      $p['action'] = 'calc';
+      $r->addRoute('calc', new Route\Rewrite('calc', $p));
+    }
+    $p['action'] = 'list';
+    $r->addRoute('list', new Route\Rewrite('api/list', $p));
   }
 
   public function _initView(Dispatcher $dispatcher) {

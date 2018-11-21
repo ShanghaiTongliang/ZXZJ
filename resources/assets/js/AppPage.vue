@@ -4,13 +4,19 @@
   max-width: 640px;
   margin: 0 auto;
   padding: 1em;
-  display: flex;
 }
 .list {
   width: 200px;
+  background-color: white;
+  border: inset;
+  flex-shrink: 0;
+}
+.list div {padding: .5em}
+.select {
+  color: white;
+  background-color: blue;
 }
 .calc {
-  flex-grow: 1;
   width: 15em;
   background-color: lightgray;
   padding: 1em;
@@ -24,46 +30,63 @@
 .page {text-align: center}
 </style>
 <template>
-  <div class="app">
-    <!--div class="list">
-      <div v-for="(v, k) in list" :key="k">
-        <a>{{k + ' ' + v.name}}</a>
+  <tabs class="app" :tabs="tabs">
+    <template slot="0">
+      <div class="list">
+        <div v-for="(v, k) in list" :key="k" :class="k == index ? ['select'] : null" @click="select(k)">{{v.name}}</div>
       </div>
-    </div-->
-    <!--div>
-      <div class="calc">
-        <div style="height: 1.5em">{{result}}</div-->
-        <!--div style="height: 1.5em" :v-html="result"></div>
-        a: <input type="number" v-model="a">
-        b: <input type="number" v-model="b"><br>
-        <button @click.prevent="operate('+')">+</button> <button @click.prevent="operate('-')">-</button>
-        <br>
-      </div-->
-      子窗口<br>
-      <div class="tab">
-        <a href="#/page1">page1</a> <a href="#/page2">page2</a>
-        <router-view class="page"></router-view>
+      <div style="flex-grow: 1">
+        <div class="calc">
+          <div style="height: 1.5em">{{result}}</div>
+          a: <input type="number" v-model="a">
+          b: <input type="number" v-model="b"><br>
+          <button @click.prevent="operate('+')">+</button> <button @click.prevent="operate('-')">-</button>
+          <br>
+        </div>
+        子窗口<br>
+        <div class="tab">
+          <a href="#/page1">page1</a> <a href="#/page2">page2</a>
+          <router-view class="page"></router-view>
+        </div>
       </div>
-    </div>
-  </div>
+    </template>
+    <template slot="1">
+      输入界面
+    </template>
+  </tabs>
 </template>
 <script>
 import axios from 'axios'
+import Tabs from './components/Tabs'
 
 axios.defaults.headers.common = {
   'X-Requested-With': 'XMLHttpRequest',
   'Content-Type': 'application/json'
 }
 export default {
+  components: {Tabs},
   data() {
     return {
+      tabs: [
+        {
+          caption: '统计',
+          flex: true,
+          row: true
+        },
+        '输入'
+      ],
       list: {},
+      index: 0,
       a: Math.round(Math.random() * 10),
       b: Math.round(Math.random() * 10),
       result: null
     }
   },
   methods: {
+    select(k) {
+      if(k != this.index)
+        this.index = k
+    },
     operate(op) {
       axios.post('/calc', {a: this.a, b: this.b, op}).then(res => {
 

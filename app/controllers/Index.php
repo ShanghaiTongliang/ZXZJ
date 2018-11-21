@@ -37,12 +37,17 @@ class IndexController extends Yaf\Controller_Abstract {
   }
 
   function listAction() {
-    echo json_encode(['列表1' => [
-      '故障' => [
-        'a' => '内容1'
+    echo json_encode([[
+      'name' => '1月',
+      'error' => [
+        'a' => '故障1'
       ]
-    ],
-      '列表2' => ['name' => '内容2']]);
+    ], [
+      'name' => '2月',
+      'error' => [
+        'a' => '故障2'
+      ]
+    ]]);
     return false;
   }
 }
