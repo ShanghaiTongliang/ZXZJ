@@ -35,9 +35,12 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
     }
     $p['action'] = 'list';
     $r->addRoute('list', new Route\Rewrite('api/list', $p));
+    $p['action'] = 'cheXing';
+    $r->addRoute('cheXing', new Route\Rewrite('cheXing', $p));
   }
 
   public function _initView(Dispatcher $dispatcher) {
     //在这里注册自己的view控制器，例如smarty,firekylin
+    $dispatcher->disableView();
   }
 }

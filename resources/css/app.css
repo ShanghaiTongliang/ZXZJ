@@ -23,32 +23,3 @@ body {
   color:blue;
   font-size: 5px;
 }
-ul.menu {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 0 1.5em;
-}
-.menu li {position: relative}
-.menu img {
-  max-width: 24px;
-  max-height: 24px;
-}
-.menu span {
-  display: flex;
-  align-items: center;
-}
-.menu>li>a:hover, .menu>li>span:not(.deny):hover {
-  color: white;
-  background-color: #37f;
-}
-.menu>li>.select {
-  color: white;
-  background-color: blue;
-}
-.menu>li>span, .menu>li>a {
-  display: flex;
-  align-items: center;
-}
-.menu>li>a, .menu>li>span {
-  padding: .5em;
-}
