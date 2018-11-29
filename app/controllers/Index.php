@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @name IndexController
  * @author oblind-nb\oblind
@@ -7,14 +8,12 @@
  */
 class IndexController extends Yaf\Controller_Abstract {
 
-  public function indexAction($name = "Stranger") {
-    //return true;
-    //return false;
+  public function indexAction() {
+    $this->getView()->display('index.phtml');
   }
 
   function testAction() {
     echo $this->getRequest()->getLanguage();
-    return false;
   }
 
   function calcAction() {
@@ -26,14 +25,11 @@ class IndexController extends Yaf\Controller_Abstract {
       $r = $_POST['a'] - $_POST['b'];
     }
     echo json_encode(['result' => $r]);
-    return false;
   }
 
   function aaaAction() {
     if($this->getRequest())
     echo "aaa\n";
-    return false;
-    //ssddd
   }
 
   function listAction() {
@@ -48,6 +44,10 @@ class IndexController extends Yaf\Controller_Abstract {
         'a' => '故障2'
       ]
     ]]);
-    return false;
+  }
+
+  function cheXingAction() {
+    $t = new Table('cheXing');
+    echo json_encode($t::get());
   }
 }

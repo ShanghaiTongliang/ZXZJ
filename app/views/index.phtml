@@ -8,9 +8,13 @@
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <?php  ?>
-  <div id="app">
-    <router-view></router-view>
+  <div style="display: flex; flex-direction: column; height: 100%">
+    <div class="header">站修质检</div>
+    <div id="app" style="display: flex; flex-grow: 1; background-color: white">
+      <side-menu :menu="menu" :selection="selection" @select="menuSelect"></side-menu>
+      <router-view style="flex-grow: 1"></router-view>
+    </div>
+    <div class="footer">联系电话: 021-51244254</div>
   </div>
   <script src="js/manifest.js"></script>
   <script src="js/vendor.js"></script>

@@ -1,14 +1,8 @@
 <style>
-.app {
-  background-color: #eee;
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 1em;
-}
 .list {
   width: 200px;
   background-color: white;
-  border: inset;
+  border: 1px inset;
   flex-shrink: 0;
 }
 .list div {padding: .5em}
@@ -30,8 +24,11 @@
 .page {text-align: center}
 </style>
 <template>
-  <tabs class="app" :tabs="tabs">
+  <tabs :tabs="tabs">
     <template slot="0">
+      输入界面
+    </template>
+    <template slot="1">
       <div class="list">
         <div v-for="(v, k) in list" :key="k" :class="k == index ? ['select'] : null" @click="select(k)">{{v.name}}</div>
       </div>
@@ -50,9 +47,6 @@
         </div>
       </div>
     </template>
-    <template slot="1">
-      输入界面
-    </template>
   </tabs>
 </template>
 <script>
@@ -68,12 +62,12 @@ export default {
   data() {
     return {
       tabs: [
+        '输入',
         {
           caption: '统计',
           flex: true,
           row: true
-        },
-        '输入'
+        }
       ],
       list: {},
       index: 0,
@@ -89,9 +83,7 @@ export default {
     },
     operate(op) {
       axios.post('/calc', {a: this.a, b: this.b, op}).then(res => {
-
-        //this.result = `${this.a} ${op} ${this.b} = ${res.data.result}`
-        this.result = this.a + ' ' + op + ' ' + this.b + ' = ' + res.data.result
+        this.result = `${this.a} ${op} ${this.b} = ${res.data.result}`
       }).catch(res => {
         alert('发送失败')
       })

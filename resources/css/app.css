@@ -1,0 +1,19 @@
+
+html, body {height: 100%}
+body {
+  background-color: #777;
+  max-width: 1024px;
+  min-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+.header {
+  height: 2em;
+  line-height: 2em;
+  color: white;
+  background: linear-gradient(10deg, darkblue, lightblue);
+}
+.footer {
+  background-color: white;
+  border-top: gray solid 1px;
+}

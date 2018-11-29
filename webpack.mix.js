@@ -11,12 +11,11 @@ let mix = require('laravel-mix');
  |
  */
 
-
 mix
 .setPublicPath('public/')
-.js('resources/assets/js/main.js', 'js')
+.js('resources/js/main.js', 'js')
 .extract(['axios', 'js-cookie', 'vue', 'vuex', 'vue-router', 'chart.js', 'chartjs-plugin-zoom'], 'js/vendor')
-.combine(['resources/assets/css/app.css'], 'public/css/app.css')
+.combine(['resources/css/app.css', 'resources/css/menu.css'], 'public/css/app.css')
 if(!mix.inProduction())
   mix.sourceMaps()
 
