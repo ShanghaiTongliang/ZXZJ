@@ -8,10 +8,7 @@ ul.menu {
   max-width: 24px;
   max-height: 24px;
 }
-.menu span {
-  display: flex;
-  align-items: center;
-}
+.menu span {white-space: nowrap}
 .menu>li>a:hover, .menu>li>span:not(.deny):hover {
   color: white;
   background-color: #37f;
@@ -25,5 +22,5 @@ ul.menu {
   align-items: center;
 }
 .menu>li>a, .menu>li>span {
-  padding: .5em;
+  padding: .3em;
 }

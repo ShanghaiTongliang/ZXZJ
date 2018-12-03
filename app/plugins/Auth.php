@@ -8,18 +8,25 @@
 use Yaf\Request_Abstract;
 use Yaf\Response_Abstract;
 
-class SamplePlugin extends Yaf\Plugin_Abstract {
+class AuthPlugin extends Yaf\Plugin_Abstract {
 
-  public function routerStartup(Request_Abstract $request, Response_Abstract $response) {
+  /*public function routerStartup(Request_Abstract $request, Response_Abstract $response) {
   }
+  */
 
   public function routerShutdown(Request_Abstract $request, Response_Abstract $response) {
-    $s = 'application/json';
-    if($request->isPost() && strtolower(substr(getallheaders()['Content-Type'], 0, strlen($s))) == $s)
+    //if(in_array(Yaf\Dispatcher::getRouter()->getCurrentRoute(), [])
+    if(!in_array($request->controller . $request->action, ['Indexindex', 'Userstore', 'Authstore'])) {
+      if(isset($_COOKIE['id']) && ($u = UserModel::find($_COOKIE['id'])) && $u->token == $_COOKIE['token'])
+        UserModel::$user = $u;
+      else
+        throw new Exception('权限不足');
+    }
+    if($request->isPost() && strpos(strtolower(getallheaders()['Content-Type']), 'application/json') !== false)
       $_POST = json_decode(file_get_contents('php://input'), true);
   }
 
-  public function dispatchLoopStartup(Request_Abstract $request, Response_Abstract $response) {
+  /*public function dispatchLoopStartup(Request_Abstract $request, Response_Abstract $response) {
   }
 
   public function preDispatch(Request_Abstract $request, Response_Abstract $response) {
@@ -30,4 +37,5 @@ class SamplePlugin extends Yaf\Plugin_Abstract {
 
   public function dispatchLoopShutdown(Request_Abstract $request, Response_Abstract $response) {
   }
+  */
 }

@@ -12,6 +12,11 @@
       "type": "npm",
       "script": "prod",
       "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": []
     }
   ]
 }

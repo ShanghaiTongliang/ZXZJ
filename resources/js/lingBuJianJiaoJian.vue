@@ -1,5 +1,7 @@
 <style>
-.page2 {background-color: lightblue}
+.page2 {
+  /*background-color: lightblue*/
+}
 </style>
 <template>
   <div class="page2">

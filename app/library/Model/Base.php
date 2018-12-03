@@ -188,7 +188,7 @@ abstract class Base extends Decachable implements JsonSerializable {
       } else
         static::$tableNames[$cn] = $s . 's';
       */
-      static::$tableNames[$cn] = $s . 's';
+      static::$tableNames[$cn] = $s;
     }
     return static::$tableNames[$cn];
   }

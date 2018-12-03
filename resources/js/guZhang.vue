@@ -26,7 +26,7 @@
 <template>
   <tabs :tabs="tabs">
     <template slot="0">
-      输入界面
+      输入
     </template>
     <template slot="1">
       <div class="list">

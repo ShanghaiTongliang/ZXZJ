@@ -1,0 +1,43 @@
+.form {
+    width: 320px;
+    margin: .5em auto;
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: .2em;
+    background-color: #e0ffff;
+    box-shadow: .5em .5em .2em rgba(0, 0, 0, .5);
+}
+.form input[type=text], .form input[type=email], .form input[type=password], .form input[type=number], .form select {
+    font-size: 1em;
+    width: 10em;
+    margin: 2px 0 2px 10px;
+    border: 1px solid lightblue;
+    border-radius: .2em;
+}
+.form b {
+    display: inline-block;
+    margin-bottom: .5em;
+}
+.form .left {
+    display: inline-block;
+    text-align: left;
+    width: 10em;
+    margin: 2px 0 2px 10px;
+}
+.form input[type=submit], .form input[type=button] {
+    height: 3em;
+    min-width: 100px;
+    margin: 2px;
+    border: 1px solid gray;
+    border-radius: .2em;
+}
+.form p {
+    color: red;
+    max-height: 120px;
+}
+.submit {
+    color: white;
+    background-color: #8080FF;
+    font-weight: bold;
+}

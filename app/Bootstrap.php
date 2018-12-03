@@ -16,27 +16,55 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
     //把配置保存起来
     $arrConfig = Yaf\Application::app()->getConfig();
     Yaf\Registry::set('config', $arrConfig);
+
+    //本地化
+    $lang = str_replace('-', '_', explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0]) . '.UTF8';
+    putenv("LANG=$lang");
+    setlocale(LC_ALL, $lang);
+    $domain = 'zxzj';
+    bindtextdomain($domain, APP_PATH.'/locale');
+    bind_textdomain_codeset($domain, 'UTF-8');
+    textdomain($domain);
+    Validator::setFields([
+      'name' => _('name'),
+      'email' => _('email'),
+      'password' => _('password'),
+      'password_confirmation' => _('confirmation')
+    ]);
+
+    //辅助函数
+    Yaf\Loader::import(APP_PATH.'/app/helper.php');
   }
 
   public function _initPlugin(Dispatcher $dispatcher) {
     //注册一个插件
-    $objSamplePlugin = new SamplePlugin();
-    $dispatcher->registerPlugin($objSamplePlugin);
+    $dispatcher->registerPlugin(new AuthPlugin());
   }
 
   public function _initRoute(Dispatcher $dispatcher) {
-    //在这里注册自己的路由协议,默认使用简单路由
-    $r = $dispatcher->getRouter();
-    $req = $dispatcher->getRequest();
-    $p = ['controller' => 'index'];
-    if($req->method == 'POST') {
-      $p['action'] = 'calc';
-      $r->addRoute('calc', new Route\Rewrite('calc', $p));
-    }
+    Router::init($dispatcher->getRouter(), $dispatcher->getRequest()->method);
+    $p = [
+      'controller' => 'index',
+      'action' => 'calc'
+    ];
+    Router::post('calc', $p);
     $p['action'] = 'list';
-    $r->addRoute('list', new Route\Rewrite('api/list', $p));
+    Router::get('api/list', $p);
     $p['action'] = 'cheXing';
-    $r->addRoute('cheXing', new Route\Rewrite('cheXing', $p));
+    Router::get('cheXing', $p);
+
+    //注册
+    $p['controller'] = 'user';
+    $p['action'] = 'store';
+    Router::post('api/user', $p);
+
+    $p['controller'] = 'auth';
+    //查看信息
+    $p['action'] = 'index';
+    Router::get('api/auth', $p);
+    //登录
+    $p['action'] = 'store';
+    Router::post('api/auth', $p);
   }
 
   public function _initView(Dispatcher $dispatcher) {
