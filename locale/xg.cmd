@@ -1,0 +1,1 @@
+xgettext -d zxzj ../app/*.php ../app/library/*.php ../app/models/*.php

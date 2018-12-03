@@ -26,8 +26,8 @@ export default {
         ca.on = {
           click: e => {
             //e.stopPropagation()
-            this.$emit('select', mi)
             if(mi.onclick || mi.href) {
+              this.$emit('select', mi)
               this.s = mi
               if(mi.onclick)
                 mi.onclick.call(p, e)

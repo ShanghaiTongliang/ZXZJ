@@ -15,14 +15,16 @@ mix
 .setPublicPath('public/')
 .js('resources/js/main.js', 'js')
 .extract(['axios', 'js-cookie', 'vue', 'vuex', 'vue-router', 'chart.js', 'chartjs-plugin-zoom'], 'js/vendor')
-.combine(['resources/css/app.css', 'resources/css/menu.css'], 'public/css/app.css')
+.combine(['resources/css/app.css', 'resources/css/menu.css', 'resources/css/login.css'], 'public/css/app.css')
 if(!mix.inProduction())
   mix.sourceMaps()
 
 // Full API
 // mix.js(src, output);
 // mix.react(src, output); <-- Identical to mix.js(), but registers React Babel compilation.
-// mix.ts(src, output); <-- Requires tsconfig.json to exist in the same folder as webpack.mix.js
+// mix.preact(src, output); <-- Identical to mix.js(), but registers Preact compilation.
+// mix.coffee(src, output); <-- Identical to mix.js(), but registers CoffeeScript compilation.
+// mix.ts(src, output); <-- TypeScript support. Requires tsconfig.json to exist in the same folder as webpack.mix.js
 // mix.extract(vendorLibs);
 // mix.sass(src, output);
 // mix.standaloneSass('src', output); <-- Faster, but isolated from Webpack.
@@ -30,7 +32,7 @@ if(!mix.inProduction())
 // mix.less(src, output);
 // mix.stylus(src, output);
 // mix.postCss(src, output, [require('postcss-some-plugin')()]);
-// mix.browserSync('my-site.dev');
+// mix.browserSync('my-site.test');
 // mix.combine(files, destination);
 // mix.babel(files, destination); <-- Identical to mix.combine(), but also includes Babel compilation.
 // mix.copy(from, to);
@@ -45,6 +47,7 @@ if(!mix.inProduction())
 // mix.webpackConfig({}); <-- Override webpack.config.js, without editing the file directly.
 // mix.babelConfig({}); <-- Merge extra Babel configuration (plugins, etc.) with Mix's default.
 // mix.then(function () {}) <-- Will be triggered each time Webpack finishes building.
+// mix.extend(name, handler) <-- Extend Mix's API with your own components.
 // mix.options({
 //   extractVueStyles: false, // Extract .vue component styling to file, rather than inline.
 //   globalVueStyles: file, // Variables file to be imported in every component.

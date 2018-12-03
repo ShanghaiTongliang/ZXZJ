@@ -11,17 +11,19 @@
     "prod": "npm run production",
     "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
   },
-  "devDependencies": {
+  "dependencies": {
     "axios": "^0.18.0",
-    "babel-eslint": "^8.2.6",
-    "babel-preset-env": "^1.7.0",
-    "chart.js": "^2.7.2",
-    "chartjs-plugin-zoom": "^0.6.3",
+    "chart.js": "^2.7.3",
+    "chartjs-plugin-zoom": "^0.6.6",
     "js-cookie": "^2.2.0",
-    "laravel-mix": "^2.1.11",
     "vue": "^2.5.17",
-    "vue-template-compiler": "^2.5.17",
-    "vue-router": "^3.0.1",
+    "vue-router": "^3.0.2",
     "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "laravel-mix": "^3.0.0",
+    "ts-loader": "^5.3.1",
+    "typescript": "^3.2.1",
+    "vue-template-compiler": "^2.5.17"
   }
 }
