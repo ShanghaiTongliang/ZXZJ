@@ -8,6 +8,7 @@ body {
   text-align: center;
 }
 .header {
+<<<<<<< HEAD
   height:80px;
   width: 1024px;  
   color: white;
@@ -15,11 +16,20 @@ body {
   line-height: 80px;*/
   background-image:url(../images/headerBG.jpg);
   background-size: contain;
+=======
+  height: 2em;
+  line-height: 2em;
+  color: white;
+  background: linear-gradient(10deg, darkblue, lightblue);
+>>>>>>> 8e4db0cb4d0fcacf96958a92188650026fece49c
 }
 .footer {
   background-color: white;
   border-top: gray solid 1px;
+<<<<<<< HEAD
   background-color:rgb(193, 216, 146);
   color:blue;
   font-size: 5px;
+=======
+>>>>>>> 8e4db0cb4d0fcacf96958a92188650026fece49c
 }
