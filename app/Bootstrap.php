@@ -13,9 +13,7 @@ use Yaf\Route;
 class Bootstrap extends Yaf\Bootstrap_Abstract {
 
   public function _initConfig() {
-    //把配置保存起来
-    $arrConfig = Yaf\Application::app()->getConfig();
-    Yaf\Registry::set('config', $arrConfig);
+    define('PATH', '/');
 
     //本地化
     $lang = str_replace('-', '_', explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0]) . '.UTF8';
@@ -25,12 +23,7 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
     bindtextdomain($domain, APP_PATH.'/locale');
     bind_textdomain_codeset($domain, 'UTF-8');
     textdomain($domain);
-    Validator::setFields([
-      'name' => _('name'),
-      'email' => _('email'),
-      'password' => _('password'),
-      'password_confirmation' => _('confirmation')
-    ]);
+    Validator::init();
 
     //辅助函数
     Yaf\Loader::import(APP_PATH.'/app/helper.php');

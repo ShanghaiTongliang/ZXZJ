@@ -2,11 +2,7 @@
 .side-menu {
   margin-left: 0 !important;
   overflow: auto;
-<<<<<<< HEAD
- }
-=======
 }
->>>>>>> 8e4db0cb4d0fcacf96958a92188650026fece49c
 .click {cursor: pointer}
 </style>
 <script>

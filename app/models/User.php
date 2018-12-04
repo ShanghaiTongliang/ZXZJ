@@ -27,8 +27,10 @@ class UserModel extends BaseModel {
     if($u = static::where(['name' => $name])->first()) {
       if($u->password != crypt($password, $u->password))
         $err = '密码错误';
-      else
+      else {
+        static::$user = $u;
         return $u;
+      }
     } else
       $err = '用户不存在';
     return null;

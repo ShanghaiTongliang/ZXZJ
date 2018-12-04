@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,23 +7,19 @@
   <title>yaf</title>
   <link rel="stylesheet" href="css/app.css">
 </head>
-
 <body>
   <div id="app" style="display: flex; flex-direction: column; height: 100%">
-    <div class="header">站修质检</div>
-<<<<<<< HEAD
-    <div id="app" style="display: flex; flex-grow: 1; background-color: white">
-      <side-menu :menu="menu" :selection="selection" @select="menuSelect"></side-menu>
-      <router-view style="flex-grow: 1"></router-view>
+    <div class="header">站修质检
+      <menu></menu>
     </div>
-<<<<<<< HEAD:app/views/index.phtml
-    <div class="footer">上海申卡数字科技有限公司</div>
-=======
-=======
     <router-view style="background-color: #bdb; flex-grow: 1"></router-view>
->>>>>>> cf25a898385c2ca695999e0cd26248466405494a
     <div class="footer">联系电话: 021-51244254</div>
->>>>>>> 8e4db0cb4d0fcacf96958a92188650026fece49c:app/views/index.phtml
+    <message ref="message"></message>
+  </div>
+  <div id="loading" class="mask" style="display: none">
+    <div class="loading">
+      <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+    </div>
   </div>
   <script src="js/manifest.js"></script>
   <script src="js/vendor.js"></script>

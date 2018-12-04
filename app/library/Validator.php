@@ -16,6 +16,15 @@ class Validator {
     static::$fields = array_merge(static::$fields, $fields);
   }
 
+  static function init() {
+    static::setFields([
+      'name' => _('name'),
+      'email' => _('email'),
+      'password' => _('password'),
+      'password_confirmation' => _('confirmation')
+    ]);
+  }
+
   static function min($value, ?array $arg, &$err): bool {
     $r = strlen($value) >= ($a = intval($arg[0]));
     if(!$r)
