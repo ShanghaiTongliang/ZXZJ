@@ -8,17 +8,19 @@
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <div id="app" style="display: flex; flex-direction: column; height: 100%">
-    <div class="header">站修质检
-      <menu></menu>
+  <div id="app" style="display: flex; flex-direction: column; height: 100%; background-color: #bdb">
+    <div class="header" style="position: relative">站修质检
+      <drop-menu v-if="user" :menu="menu" style="position: absolute; right: .2em; top: .2em; line-height: 1em"></drop-menu>
     </div>
-    <router-view style="background-color: #bdb; flex-grow: 1"></router-view>
+    <div style="flex-grow: 1; display: flex; overflow: auto">
+      <router-view></router-view>
+    </div>
     <div class="footer">联系电话: 021-51244254</div>
     <message ref="message"></message>
-  </div>
-  <div id="loading" class="mask" style="display: none">
-    <div class="loading">
-      <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+    <div v-show="loading" class="mask">
+      <div class="loading">
+        <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+      </div>
     </div>
   </div>
   <script src="js/manifest.js"></script>

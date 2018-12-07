@@ -12,6 +12,10 @@ body {
   color: white;
   background: linear-gradient(10deg, darkblue, lightblue);
 }
+.container {
+  flex-grow: 1;
+  margin: .2em;
+}
 .footer {
   background-color: white;
   border-top: gray solid 1px;
@@ -98,24 +102,4 @@ body {
   left: 85.4%;
   top: 14.6%;
   animation: loading 1s .875s infinite;
-}
-.msg-wrap {
-  text-align: center;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 40px;
-  z-index: 100;
-  pointer-events: none;
-}
-.msg {
-  background: white;
-  padding: .2em .5em;
-  border-radius: .5em;
-  box-shadow: .2em .2em rgba(0, 0, 0, .5);
-  display: inline-block;
-}
-.err {
-  color: red;
-  background-color: yellow;
 }

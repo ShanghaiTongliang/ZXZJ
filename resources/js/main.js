@@ -2,8 +2,10 @@ import cookie from 'js-cookie'
 import axios from 'axios'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Vuex, {mapMutations} from 'vuex'
-import Message from './components/message'
+import Vuex, {mapMutations, mapState} from 'vuex'
+import './date'
+import Message from './components/Message'
+import DropMenu from './components/DropMenu'
 import routes from './routes'
 import Login from './Login'
 
@@ -11,8 +13,7 @@ Vue.use(Vuex)
 
 let store = new Vuex.Store({
   state: {
-    users: [], groups: [],
-    user: null,
+    users: null, groups: null, user: null,
   },
   mutations: {
     auth(state, {data, id, url}) {
@@ -21,6 +22,9 @@ let store = new Vuex.Store({
       if(!id)
         id = parseInt(cookie.get('id'))
       state.user = data.users.find(u => u.id == id)
+      app.menu[0].caption = state.user.name
+      app.menu[0].icon = state.user.icon
+      app.menu[0].href = `#/user/${state.user.id}`
       if(!state.routes) {
         state.routes = true
         router.addRoutes(routes)
@@ -28,15 +32,16 @@ let store = new Vuex.Store({
       let r = app.$route.name
       if(url && url != '/')
         router.replace(url)
-      else if(!r || r == 'login')
-        router.replace('/')
+      else if(!r || ['home', 'login', 'register', 'logout'].includes(r))
+        router.replace('/guZhang')
     },
-    logout() {
+    logout(state) {
+      state.users = state.groups = state.user = null
       cookie.remove('id')
       router.replace('/auth/login')
     },
     loading(state, v) {
-      window.loading.style.display = v ? '' : 'none'
+      app.loading = v
     },
     message(state, v) {
       app.$refs.message.message(v)
@@ -65,28 +70,56 @@ let router = new VueRouter({
   }]
 })
 Vue.use(VueRouter)
+
 let app = new Vue({
-  components: {Message},
   router,
   store,
+  components: {Message, DropMenu},
+  data() {
+    return {
+      loading: false,
+      menu: [{
+        caption: null,
+        icon: null,
+        href: null,
+        items: [{
+          caption: '退出',
+          onclick() {
+            this.logout()
+          }
+        }]
+      }]
+    }
+  },
+  computed: {
+    ...mapState(['user'])
+  },
   methods: {
-    ...mapMutations(['auth', 'loading', 'message', 'error']),
-    run() {
-      let id = parseInt(cookie.get('id'))
-      if(id) {
-        this.loading(true)
-        axios.get('api/auth').then(res => {
-          this.loading(false)
-          this.auth(res, id)
-        }).catch(res => {
-          this.loading(false)
-          this.$router.replace('/auth/login')
-        })
-      } else
-        this.$router.replace('/auth/login')
+    ...mapMutations(['auth', 'message', 'error', 'logout']),
+  },
+  mounted() {
+    let id = parseInt(cookie.get('id'))
+    if(id) {
+      this.loading = true
+      axios.get('api/auth').then(res => {
+        this.loading = false
+        this.auth({data: res.data, id})
+      }).catch(res => {
+        let a = location.hash.match(/\?.*url=(.*)/), url = a ? decodeURIComponent(a[1]) : location.hash
+        if(url[0] == '#')
+          url = url.substr(1)
+        router.push({name: 'login', query: url ? {url} : null})
+        this.loading = false
+        this.error(res.response.data)
+      })
+    } else {
+      if(this.$route.name != 'login' && this.$route.name != 'reset') {
+        let url = location.hash
+        if(url[0] == '#')
+          url = url.substr(1)
+        router.push({name: 'login', query: {url}})
+      }
     }
   }
 }).$mount('#app')
 window.app = app
-
-app.run()

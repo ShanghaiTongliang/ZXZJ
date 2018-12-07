@@ -10,14 +10,14 @@
   background-color: yellow;
   border: 1px outset white;
   cursor: pointer;
-  width: 1.5em;
+  width: 1em;
   height: 3em;
   line-height: 3em;
-  border-radius: 50%;
+  border-radius: .5em;
   text-align: center;
   position: absolute;
   top: 50%;
-  margin: -1.5em -.75em;
+  margin: -1.5em -.5em;
   box-sizing: border-box;
   z-index: 50;
 }

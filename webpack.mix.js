@@ -1,4 +1,5 @@
 let mix = require('laravel-mix');
+//let webpack = require('webpack');
 
 /*
  |--------------------------------------------------------------------------
@@ -13,11 +14,29 @@ let mix = require('laravel-mix');
 
 mix
 .setPublicPath('public/')
+/*.webpackConfig({
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
+    })
+  ],
+  module: {
+    rules: [{
+      test: /\.vue$/,
+      loader: 'vue-loader'
+    }]
+  },
+  resolve: {
+    alias: {
+      'vue$': 'vue/dist/vue.runtime.js'
+    }
+  }
+})*/
 .js('resources/js/main.js', 'js')
 .extract(['axios', 'js-cookie', 'vue', 'vuex', 'vue-router', 'chart.js', 'chartjs-plugin-zoom'], 'js/vendor')
-.combine(['resources/css/app.css', 'resources/css/menu.css', 'resources/css/login.css'], 'public/css/app.css')
+.combine(['resources/css/app.css', 'resources/css/menu.css', 'resources/css/login.css'], 'public/css/app.css');
 if(!mix.inProduction())
-  mix.sourceMaps()
+  mix.sourceMaps();
 
 // Full API
 // mix.js(src, output);

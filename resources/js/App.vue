@@ -1,9 +1,9 @@
 <template>
-  <div style="display: flex; background-color: white">
+  <div style="display: flex; flex-grow: 1">
     <resizer>
-      <side-menu :menu="menu" :selection="selection" @select="menuSelect" style="background-color: white; flex-grow: 1"></side-menu>
+      <side-menu class="test" :menu="menu" :selection="selection" @select="menuSelect" style="background-color: white; flex-grow: 1"></side-menu>
     </resizer>
-    <router-view style="flex-grow: 1"></router-view>
+    <router-view class="container"></router-view>
   </div>
 </template>
 <script>
@@ -50,9 +50,6 @@ export default {
         name: 'test',
         caption: '测试',
         href: '#/test'
-      }, {
-        caption: '退出',
-        href: '#/logout'
       }],
       selection: null
     }

@@ -7,7 +7,7 @@
 .form a {margin: 0 1em}
 </style>
 <template>
-  <div>
+  <div class="container">
     <form v-if="$route.name == 'login'" class="form" @submit.prevent="login">
       用户名<input type="text" v-model="data.name"><br>
       　密码<input type="password" v-model="data.password"><br>
@@ -71,7 +71,7 @@ export default {
       delete this.data.remember
       axios.post('api/user', this.data).then(r => {
         this.loading(false)
-        console.log(r.data)
+        this.auth({data: r.data})
       }).catch(r => {
         this.loading(false)
         this.err = r.response.data
