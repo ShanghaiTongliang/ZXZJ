@@ -1,98 +1,81 @@
 <template>
-  <div style="display: flex; flex-grow: 1">
-    <resizer>
-      <side-menu class="test" :menu="menu" :selection="selection" @select="menuSelect" style="background-color: white; flex-grow: 1"></side-menu>
-    </resizer>
-    <router-view class="container"></router-view>
+  <div id="app">
+    <div class="header" style="position: relative">站修质检
+      <drop-menu id="menu" v-if="user" :menu="menu"></drop-menu>
+    </div>
+    <div v-if="!$route.name" id="frame"></div>
+    <router-view v-else id="frame"></router-view>
+    <div class="footer">联系电话: 021-51244254</div>
+    <message :message="$store.state.message" :error="$store.state.error"></message>
+    <div v-show="$store.state.loading" class="mask">
+      <div class="loading">
+        <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
-import SideMenu from './components/SideMenu'
-import Resizer from './components/Resizer'
+import cookie from 'js-cookie'
+import axios from 'axios'
+import {mapMutations, mapState} from 'vuex'
+import Message from './components/Message'
+import DropMenu from './components/DropMenu'
 
 export default {
-  components: {SideMenu, Resizer},
+  components: {Message, DropMenu},
   data() {
     return {
       menu: [{
-        name: 'guZhang',
-        caption: '故障录入',
-        href: '#/guZhang',
+        caption: null,
+        icon: null,
+        href: null,
         items: [{
-          name: 'zhengCheJiaoJian',
-          caption: '整车交检故障',
-          href: '#/guZhang/zhengCheJiaoJian'
-        }, {
-          name: 'lingBuJianJiaoJian',
-          caption: '零部件交检故障',
-          href: '#/guZhang/lingBuJianJiaoJian'
-        }, {
-          name: 'lingBuJianChouYang',
-          caption: '零部件抽样故障',
-          href: '#/guZhang/lingBuJianChouYang'
-        }, {
-          name: 'lingBuJianFuJian',
-          caption: '零部件复检故障',
-          href: '#/guZhang/lingBuJianFuJian'
+          caption: '退出',
+          onclick() {
+            this.logout()
+          }
         }]
-      }, {
-        caption: '检查记录',
-        items: [{
-          name: 'chouYang',
-          caption: '抽样检查记录',
-          href: '#/jiLu/chouYang'
-        }, {
-          name: 'ruKu',
-          caption: '入库检查记录',
-          href: '#/jiLu/ruKu'
-        }]
-      }, {
-        name: 'test',
-        caption: '测试',
-        href: '#/test'
-      }],
-      selection: null
+      }]
+    }
+  },
+  computed: {
+    ...mapState(['user'])
+  },
+  watch: {
+    user(v) {
+      if(v) {
+        this.menu[0].caption = this.user.name
+        this.menu[0].icon = this.user.icon
+        this.menu[0].href = `#/user/${this.user.id}`
+      }
     }
   },
   methods: {
-    menuSelect(selection) {
-      this.selection = selection
-    },
-  },
-  beforeRouteEnter(to, from, next) {
-    next(v => {
-      console.log(to.name)
-    })
-  },
-  beforeRouteUpdate(to, from, next) {
-    if(to.name)
-      next()
-    else
-      this.$router.replace('/')
-  },
-  beforeRouteLeave(to, from, next) {
-    console.log(to)
-    if(to.name == 'logout') {
-      this.$store.commit('logout')
-    } else
-      next()
+    ...mapMutations(['auth', 'loading', 'message', 'error', 'logout'])
   },
   mounted() {
-    if(!this.$route.name) {
-      this.$router.replace('/guZhang')
-    }
-    function find(menu, n) {
-      for(let m of menu) {
-        if(m.name == n)
-          return m
-        if(m.items) {
-          let r = find(m.items, n)
-          if(r)
-            return r
-        }
+    let id = parseInt(cookie.get('id'))
+    if(id) {
+      this.loading(true)
+      axios.get('api/auth').then(res => {
+        this.loading(false)
+        this.auth({data: res.data, id})
+      }).catch(res => {
+        let a = location.hash.match(/\?.*url=(.*)/), url = a ? decodeURIComponent(a[1]) : location.hash
+        if(url[0] == '#')
+          url = url.substr(1)
+        this.$router.push({name: 'login', query: url ? {url} : null})
+        this.loading(false)
+        this.error(res.response.data)
+      })
+    } else {
+      if(this.$route.name != 'login' && this.$route.name != 'reset') {
+        let url = location.hash
+        if(url[0] == '#')
+          url = url.substr(1)
+        this.$router.push({name: 'login', query: {url}})
       }
     }
-    this.selection = find(this.menu, this.$route.name)
   }
 }
 </script>

@@ -21,40 +21,12 @@
 }
 </style>
 <template>
-  <div v-show="msg" class="msg-wrap" style="display: none">
-    <div :class="err ? ['msg-error'] : null" class="msg" v-html="msg"></div>
+  <div v-show="message" class="msg-wrap" style="display: none">
+    <div :class="error && 'msg-error'" class="msg" v-html="message"></div>
   </div>
 </template>
 <script>
 export default {
-  props: ['timeout'],
-  data() {
-    return {
-      msg: null,
-      err: false
-    }
-  },
-  methods: {
-    message(v) {
-      this.msg = v
-      if(v) {
-        if(this.tmr)
-          clearTimeout(this.tmr)
-        this.tmr = setTimeout(this.hide, this.timeout | 5000)
-      }
-    },
-    error(v) {
-      this.err = v
-      this.message(v)
-    },
-    hide() {
-      if(this.tmr) {
-        clearTimeout(this.tmr)
-        this.tmr = null
-      }
-      this.msg = null
-      this.err = false
-    }
-  }
+  props: ['message', 'error']
 }
 </script>

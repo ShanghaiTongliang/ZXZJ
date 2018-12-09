@@ -25,8 +25,9 @@ ul.drop-menu {
   left: 100%;
   top: 0;
 }
+.drop-menu .menu.right {left: -100%}
 .drop-menu>li>.menu {
-  left: 0;
+  left: 0 !important;
   top: 100%;
 }
 </style>
@@ -34,7 +35,7 @@ ul.drop-menu {
 import Vue from 'vue'
 
 export default {
-  props: ['menu'],
+  props: ['menu', 'right'],
   render(h) {
     let p = this.$parent, r = (menu, v) => {
       let a = {
@@ -45,8 +46,12 @@ export default {
       }
       if(v === undefined)
         a.class.push('drop-menu')
-      else if(!v)
-        a.style = {display: 'none'}
+      else {
+        if(!v)
+          a.style = {display: 'none'}
+        if(this.right)
+          a.class.push('right')
+      }
       return h('ul', a, menu.filter(mi => mi.condition === undefined || mi.condition instanceof Function && mi.condition.call(p) || mi.condition)
       .map((mi, i) => {
         let ct = 'span', ca = {domProps: {innerHTML: mi.caption}}, c

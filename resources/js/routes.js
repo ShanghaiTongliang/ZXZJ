@@ -1,4 +1,4 @@
-import App from './App.vue'
+import Frame from './Frame.vue'
 import GuZhang from './GuZhang.vue'
 import ZhengCheJiaoJian from './ZhengCheJiaoJian.vue'
 import LingBuJianJiaoJian from './LingBuJianJiaoJian.vue'
@@ -7,7 +7,7 @@ import Test from './Test.vue'
 export default [{
   name: 'home',
   path: '/',
-  component: App,
+  component: Frame,
   children: [{
     name: 'guZhang',
     path: '/guZhang',
@@ -25,7 +25,4 @@ export default [{
     path: '/test',
     component: Test
   }]
-}, {
-  name: 'logout',
-  path: '/logout'
 }]

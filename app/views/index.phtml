@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,21 +8,7 @@
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <div id="app" style="display: flex; flex-direction: column; height: 100%; background-color: #bdb">
-    <div class="header" style="position: relative">站修质检
-      <drop-menu v-if="user" :menu="menu" style="position: absolute; right: .2em; top: .2em; line-height: 1em"></drop-menu>
-    </div>
-    <div style="flex-grow: 1; display: flex; overflow: auto">
-      <router-view></router-view>
-    </div>
-    <div class="footer">联系电话: 021-51244254</div>
-    <message ref="message"></message>
-    <div v-show="loading" class="mask">
-      <div class="loading">
-        <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-      </div>
-    </div>
-  </div>
+  <div id="app"></div>
   <script src="js/manifest.js"></script>
   <script src="js/vendor.js"></script>
   <script src="js/main.js"></script>

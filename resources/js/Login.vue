@@ -7,29 +7,31 @@
 .form a {margin: 0 1em}
 </style>
 <template>
-  <div class="container">
-    <form v-if="$route.name == 'login'" class="form" @submit.prevent="login">
-      用户名<input type="text" v-model="data.name"><br>
-      　密码<input type="password" v-model="data.password"><br>
-      <label><input type="checkbox" v-model="data.remember">自动登录</label>
-      <input type="submit" value="登录"><br>
-      <a href="#/auth/register">注册</a> <a href="#/auth/reset">重置密码</a>
-      <div class="err">{{err}}</div>
-    </form>
-    <form v-else-if="$route.name == 'register'" class="form" @submit.prevent="register">
-      　用户名<input type="text" v-model="data.name"><br>
-      　　密码<input type="password" v-model="data.password"><br>
-      确认密码<input type="password" v-model="data.password_confirmation"><br>
-      <input type="submit" value="注册"><br>
-      <a href="#/auth/login">登录</a> <a href="#/auth/reset">重置密码</a>
-      <div class="err">{{err}}</div>
-    </form>
-    <form v-else class="form" @submit.prevent="reset">
-      用户名<input type="text" v-model="data.name"><br>
-      <input type="submit" value="重置"><br>
-      <a href="#/auth/login">登录</a> <a href="#/auth/register">注册</a>
-      <div class="err">{{err}}</div>
-    </form>
+  <div>
+    <div class="container">
+      <form v-if="$route.name == 'login'" class="form" @submit.prevent="login">
+        用户名<input type="text" v-model="data.name"><br>
+        　密码<input type="password" v-model="data.password"><br>
+        <label><input type="checkbox" v-model="data.remember">自动登录</label>
+        <input type="submit" value="登录"><br>
+        <a href="#/auth/register">注册</a> <a href="#/auth/reset">重置密码</a>
+        <div class="err">{{err}}</div>
+      </form>
+      <form v-else-if="$route.name == 'register'" class="form" @submit.prevent="register">
+        　用户名<input type="text" v-model="data.name"><br>
+        　　密码<input type="password" v-model="data.password"><br>
+        确认密码<input type="password" v-model="data.password_confirmation"><br>
+        <input type="submit" value="注册"><br>
+        <a href="#/auth/login">登录</a> <a href="#/auth/reset">重置密码</a>
+        <div class="err">{{err}}</div>
+      </form>
+      <form v-else class="form" @submit.prevent="reset">
+        用户名<input type="text" v-model="data.name"><br>
+        <input type="submit" value="重置"><br>
+        <a href="#/auth/login">登录</a> <a href="#/auth/register">注册</a>
+        <div class="err">{{err}}</div>
+      </form>
+    </div>
   </div>
 </template>
 <script>

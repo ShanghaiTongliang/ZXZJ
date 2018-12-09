@@ -6,11 +6,28 @@ body {
   margin: 0 auto;
   text-align: center;
 }
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #bdb;
+}
 .header {
   height: 2em;
   line-height: 2em;
   color: white;
   background: linear-gradient(10deg, darkblue, lightblue);
+}
+#menu {
+  position: absolute;
+  right: .2em;
+  top: .2em;
+  line-height: 1em;
+}
+#frame {
+  display: flex;
+  flex-grow: 1;
+  overflow: auto;
 }
 .container {
   flex-grow: 1;
