@@ -31,6 +31,11 @@ class Collection extends Decachable implements ArrayAccess, Countable, IteratorA
     }
   }
 
+  function save() {
+    foreach($this->_save as $f)
+      $this->_data[$f]->save();
+  }
+
   function toArray() {
     return $this->_data;
   }

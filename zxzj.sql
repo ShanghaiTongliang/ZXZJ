@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2018-12-03 13:14:39
+-- 生成日期： 2018-12-11 13:47:56
 -- 服务器版本： 10.2.13-MariaDB-log
 -- PHP 版本： 7.2.2
 
@@ -52,6 +52,17 @@ CREATE TABLE `cheZhong` (
   `name` varchar(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- 转存表中的数据 `cheZhong`
+--
+
+INSERT INTO `cheZhong` (`id`, `name`) VALUES
+(1, '通用型号'),
+(2, 'C车'),
+(3, 'P车'),
+(4, 'G车'),
+(5, 'N车');
+
 -- --------------------------------------------------------
 
 --
@@ -60,8 +71,23 @@ CREATE TABLE `cheZhong` (
 
 CREATE TABLE `daBuWei` (
   `id` tinyint(3) UNSIGNED NOT NULL,
-  `name` varchar(32) NOT NULL
+  `name` varchar(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `daBuWei`
+--
+
+INSERT INTO `daBuWei` (`id`, `name`) VALUES
+(1, '车体'),
+(2, '底架'),
+(3, '转向架'),
+(4, '基础制动装置'),
+(5, '空气制动装置'),
+(6, '制动阀内部装置'),
+(7, '车钩缓冲装置'),
+(8, '轮轴'),
+(9, '整车落成检查');
 
 -- --------------------------------------------------------
 
@@ -82,13 +108,43 @@ CREATE TABLE `dengJi` (
 
 CREATE TABLE `guZhang` (
   `id` smallint(5) UNSIGNED NOT NULL,
-  `daBuWei` tinyint(3) UNSIGNED DEFAULT NULL,
   `cheZhong` smallint(5) UNSIGNED DEFAULT NULL,
+  `daBuWei` tinyint(5) UNSIGNED DEFAULT NULL,
   `xiaoBuWei` smallint(5) UNSIGNED DEFAULT NULL,
   `juTiBuWei` smallint(5) UNSIGNED DEFAULT NULL,
   `name` varchar(64) DEFAULT NULL,
   `desc` varchar(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `guZhang`
+--
+
+INSERT INTO `guZhang` (`id`, `cheZhong`, `daBuWei`, `xiaoBuWei`, `juTiBuWei`, `name`, `desc`) VALUES
+(1, 1, 1, 1, 1, 'test', 'test'),
+(2, 1, 1, 1, 1, 'aaa', 'aaa');
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `juTiBuWei`
+--
+
+CREATE TABLE `juTiBuWei` (
+  `id` smallint(5) UNSIGNED NOT NULL,
+  `name` varchar(64) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `juTiBuWei`
+--
+
+INSERT INTO `juTiBuWei` (`id`, `name`) VALUES
+(1, '缓解阀拉杆座螺栓'),
+(2, '扶手'),
+(3, '漏雨试验'),
+(4, '水压试验'),
+(5, '安全阀试验');
 
 -- --------------------------------------------------------
 
@@ -163,7 +219,29 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `name`, `password`, `token`, `danWei`, `buMen`, `banZu`, `cheJian`) VALUES
-(1, 'oblind', 'ddHSDUw8lB75s', 55511, NULL, NULL, NULL, NULL);
+(1, 'oblind', 'ddHSDUw8lB75s', 19784, NULL, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `xiaoBuWei`
+--
+
+CREATE TABLE `xiaoBuWei` (
+  `id` smallint(5) UNSIGNED NOT NULL,
+  `name` varchar(32) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `xiaoBuWei`
+--
+
+INSERT INTO `xiaoBuWei` (`id`, `name`) VALUES
+(1, '缓解阀拉杆座'),
+(2, '车体检查'),
+(3, '地板'),
+(4, '端墙'),
+(5, '侧墙');
 
 -- --------------------------------------------------------
 
@@ -175,6 +253,18 @@ CREATE TABLE `xiuCheng` (
   `id` smallint(6) NOT NULL,
   `name` varchar(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `xiuCheng`
+--
+
+INSERT INTO `xiuCheng` (`id`, `name`) VALUES
+(1, '入段厂修'),
+(2, '段修'),
+(3, '辅修'),
+(4, '临修'),
+(5, '大修'),
+(6, '新造');
 
 -- --------------------------------------------------------
 
@@ -190,6 +280,13 @@ CREATE TABLE `zhengCheJiaoJian` (
   `dengJi` tinyint(3) UNSIGNED DEFAULT NULL,
   `zhiJianYuan` varchar(16) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `zhengCheJiaoJian`
+--
+
+INSERT INTO `zhengCheJiaoJian` (`id`, `date`, `xiuCheng`, `guZhang`, `dengJi`, `zhiJianYuan`) VALUES
+(1, '2018-12-11', 1, 1, 1, '一班');
 
 --
 -- 转储表的索引
@@ -226,6 +323,12 @@ ALTER TABLE `guZhang`
   ADD PRIMARY KEY (`id`);
 
 --
+-- 表的索引 `juTiBuWei`
+--
+ALTER TABLE `juTiBuWei`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- 表的索引 `lingBuJianChouJian`
 --
 ALTER TABLE `lingBuJianChouJian`
@@ -247,6 +350,12 @@ ALTER TABLE `lingBuJianJiaoJian`
 -- 表的索引 `user`
 --
 ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- 表的索引 `xiaoBuWei`
+--
+ALTER TABLE `xiaoBuWei`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -275,13 +384,13 @@ ALTER TABLE `cheXing`
 -- 使用表AUTO_INCREMENT `cheZhong`
 --
 ALTER TABLE `cheZhong`
-  MODIFY `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` smallint(6) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- 使用表AUTO_INCREMENT `daBuWei`
 --
 ALTER TABLE `daBuWei`
-  MODIFY `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- 使用表AUTO_INCREMENT `dengJi`
@@ -293,7 +402,13 @@ ALTER TABLE `dengJi`
 -- 使用表AUTO_INCREMENT `guZhang`
 --
 ALTER TABLE `guZhang`
-  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- 使用表AUTO_INCREMENT `juTiBuWei`
+--
+ALTER TABLE `juTiBuWei`
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- 使用表AUTO_INCREMENT `lingBuJianChouJian`
@@ -320,16 +435,22 @@ ALTER TABLE `user`
   MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- 使用表AUTO_INCREMENT `xiaoBuWei`
+--
+ALTER TABLE `xiaoBuWei`
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- 使用表AUTO_INCREMENT `xiuCheng`
 --
 ALTER TABLE `xiuCheng`
-  MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- 使用表AUTO_INCREMENT `zhengCheJiaoJian`
 --
 ALTER TABLE `zhengCheJiaoJian`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

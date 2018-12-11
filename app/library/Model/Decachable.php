@@ -10,13 +10,13 @@ abstract class Decachable {
 
   abstract function decache();
 
-  function __construct(&$data, $parent = null, $parentKey = null) {
+  function __construct(&$data, Decachable $parent = null, string $parentKey = null) {
     $this->_data = $data;
     $this->_parent = $parent;
     $this->_parentKey = $parentKey;
   }
 
-  function onChange($k) {
+  function onChange(string $k) {
     if(!($this->_decaching || in_array($k, $this->_save))) {
       $this->_save[] = $k;
       if($this->_parent)
@@ -25,11 +25,7 @@ abstract class Decachable {
   }
 
   function save() {
-    if(is_array($this->_data))
-      foreach($this->_save as $f)
-        $this->_data[$f]->save();
-    else
-      foreach($this->_save as $f)
-        $this->_data->$f->save();
+    foreach($this->_save as $f)
+      $this->_data->$f->save();
   }
 }

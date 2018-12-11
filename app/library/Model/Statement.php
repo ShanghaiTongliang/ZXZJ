@@ -36,7 +36,8 @@ class Statement {
         $s = $db->query($sql);
       }
     } catch(\Throwable $e) {
-      goto _getdb;
+      if($e->getCode() == 2006) //mysql has gone away
+        goto _getdb;
     }
     $this->class::putDatabase($db);
     return $s;

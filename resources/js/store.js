@@ -8,13 +8,23 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    users: null, groups: null, user: null,
+    users: null, groups: null, user: null, std: null, data: null,
     loading: false, message: null, error: false
   },
   mutations: {
     auth(state, {data, id, url}) {
       state.users = data.users
       state.groups = data.groups
+      state.std = data.std
+      data.data.zhengCheJiaoJian.forEach(d => {
+        //let std = data.std.find(s => s.id == )
+        let g = data.std.guZhang.find(g => g.id == d.guZhang)
+        for(let k in g)
+          if(k != 'id')
+            d[k] = g[k]
+      })
+      state.data = data.data
+
       if(!id)
         id = parseInt(cookie.get('id'))
       state.user = data.users.find(u => u.id == id)

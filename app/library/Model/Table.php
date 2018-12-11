@@ -9,4 +9,8 @@ abstract class Table extends Base {
     } else
       parent::__construct($name);
   }
+
+  static function open(string $name) {
+    return new static($name);
+  }
 }

@@ -18,7 +18,7 @@ abstract class Base extends Decachable implements JsonSerializable {
   protected $_data;
   protected $_col = [];
 
-  function __construct($data = null, $parent = null, $parentKey = null) {
+  function __construct($data = null, Decachable $parent = null, $parentKey = null) {
     $this->_parent = $parent;
     $this->_parentKey = $parentKey;
     if($data) {

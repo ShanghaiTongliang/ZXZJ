@@ -22,7 +22,7 @@ mix
 })
 .js('resources/js/main.js', 'js')
 .extract(['axios', 'js-cookie', 'vue', 'vuex', 'vue-router', 'chart.js', 'chartjs-plugin-zoom'], 'js/vendor')
-.combine(['resources/css/app.css', 'resources/css/menu.css', 'resources/css/login.css'], 'public/css/app.css');
+.combine(['resources/css/app.css', 'resources/css/menu.css', 'resources/css/table.css', 'resources/css/login.css'], 'public/css/app.css');
 if(!mix.inProduction())
   mix.sourceMaps();
 

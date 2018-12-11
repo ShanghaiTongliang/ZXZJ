@@ -9,7 +9,18 @@ class AuthController extends Yaf\Controller_Abstract {
     }
     echo json_encode([
       'users' => $us,
-      'groups' => []
+      'groups' => [],
+      'std' => [
+        'guZhang' => Table::open('guZhang')::get(),
+        'cheZhong' => Table::open('cheZhong')::get(),
+        'daBuWei' => Table::open('daBuWei')::get(),
+        'xiaoBuWei' => Table::open('xiaoBuWei')::get(),
+        'juTiBuWei' => Table::open('juTiBuWei')::get(),
+        'xiuCheng' => Table::open('xiuCheng')::get()
+      ],
+      'data' => [
+        'zhengCheJiaoJian' => Table::open('zhengCheJiaoJian')::get()
+      ]
     ], JSON_UNESCAPED_UNICODE);
   }
 
