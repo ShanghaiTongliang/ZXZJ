@@ -53,6 +53,14 @@ export default {
           href: '#/jiLu/ruKu'
         }]
       }, {
+        name: 'danWeis',
+        caption: '单位',
+        href: '#/danWei'
+      }, {
+        name: 'users',
+        caption: '用户',
+        href: '#/user',
+      }, {
         name: 'test',
         caption: '测试',
         href: '#/test'
@@ -60,27 +68,36 @@ export default {
       selection: null
     }
   },
+  watch: {
+    '$route': function(v) {
+      this.setRoute(v)
+    }
+  },
   methods: {
     select(selection) {
       this.selection = selection
     },
+    setRoute(r) {
+      function find(menu, r) {
+        for(let m of menu) {
+          for(let i = r.matched.length - 1; i > 0; i--)
+            if(m.name == r.matched[i].name)
+              return m
+          if(m.items) {
+            let v = find(m.items, r)
+            if(v)
+              return v
+          }
+        }
+      }
+      this.selection = find(this.menu, r)
+    }
   },
   mounted() {
     if(!this.$route.name) {
       this.$router.replace('/guZhang')
     }
-    function find(menu, n) {
-      for(let m of menu) {
-        if(m.name == n)
-          return m
-        if(m.items) {
-          let r = find(m.items, n)
-          if(r)
-            return r
-        }
-      }
-    }
-    this.selection = find(this.menu, this.$route.name)
+    this.setRoute(this.$route)
   }
 }
 </script>

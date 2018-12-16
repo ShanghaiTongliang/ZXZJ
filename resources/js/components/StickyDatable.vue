@@ -24,104 +24,79 @@ export default {
   //TableCell为functional, 父组件需引入其需要的子组件
   components: {Edit, TableCell},
   render(h) {
-    let tbl = [], body = [], th = [], hide = {}, c = this.tbl.caption instanceof Function ? this.tbl.caption.call(this.$parent) : this.tbl.caption, cols = this.tbl.columns
+    let tbl = [], head = [], bth = [], body = [], th = [], hide = {}, c = this.tbl.caption instanceof Function ? this.tbl.caption.call(this.$parent) : this.tbl.caption, cols = this.tbl.columns
     if(c || this.$slots.default)
-      tbl.push(h('caption', [c ? h('span', {domProps: {innerHTML: c}}) : null, this.$slots.default]))
+      head.push(h('caption', [c ? h('span', {domProps: {innerHTML: c}}) : null, this.$slots.default]))
     if(cols) {
       for(let i in cols) {
-        let c = cols[i], u
-        u = !(c instanceof Object) ?
-          h('div', {domProps: {innerHTML: c}}) :
+        let c = cols[i], u, v
+        [u, v] = !(c instanceof Object) ?
+          [h('div', {domProps: {innerHTML: c}}), h('div', {domProps: {innerHTML: c}})] :
           c.condition === undefined || !(hide[i] = !(c.condition instanceof Function ? c.condition.call(this.$parent, i) : c.condition)) ?
-            h('div', {domProps: {innerHTML: c.caption}, style: c.style}) :
-            null
-        if(u)
+            [h('div', {domProps: {innerHTML: c.caption}, style: c.style}), h('div', {domProps: {innerHTML: c.caption}, style: c.style})] :
+            [null, null]
+        if(v) {
           th.push(h('th', {on: {click: () => this.colClick(i)}, key: i}, [u, h('div', {style: {display: this.tbl.orderby != i ? 'none' : ''}, class: [this.tbl.desc ? 'desc' : 'asc']})]))
+          bth.push(h('th', {key: i}, [v, h('div', {style: {display: this.tbl.orderby != i ? 'none' : ''}, class: [this.tbl.desc ? 'desc' : 'asc']})]))
+        }
       }
-      if(this.tbl.action)
+      if(this.tbl.action) {
         th.push(h('th', [h('div', '操作')]))
-      tbl.push(h('thead', [h('tr', th)]))
+        bth.push(h('th', [h('div', '操作')]))
+      }
+      tbl.push(h('thead', [h('tr', {ref: 'bth'}, bth)]))
       if(this.tbl.data && this.tbl.data.length) {
-        for(let i = 0; i < this.tbl.data.length; i++) {
+        for(let i in this.tbl.data) {
           let row = this.tbl.data[i], td = []
           for(let j in cols) {
             let c = cols[j]
             if(!(c instanceof Object))
               td.push(h('td', {domProps: {innerHTML: row[j] instanceof Array ? row[j].join(', ') : row[j]}, key: j}))
             else if(!hide[j]) {
-              let p = {key: j}, l = c.master ? cols[c.master[0]] && cols[c.master[0]].items : c.items, t
-              if(l instanceof Function)
-                l = l.call(this.$parent, row, j)
-              const f = (c, l, d) => {
-                let key = c.key || this.options.key
-                for(let k = 0; k < c.master.length; k++) {
-                  l = l.find(v => v[key] == d[c.master[k]])
-                  if(!l || !(l = l.items))
-                    break
-                }
-                return l
-              }
+              let p = {key: j}, l = c.items instanceof Function ? c.items.call(this.$parent, row, j) : c.items, t
               if(!c.type || this.tbl.editingIndex != i) {
-                if(c.master && l)
-                  l = f(c, l, row)
                 if(l) {
-                  let key = c.key || this.options.key, value = c.value || this.options.value
                   if(c.filter) {
                     let a = []
                     if(row[j]) {
-                      for(let k of row[j]) {
-                        let v = l.find(v => v[key] == k)
-                        if(v) v = v[value]
-                        a.push(c.filter.call(this.$parent, v, j, row))
-                      }
+                      for(let k of row[j])
+                        a.push(c.filter.call(this.$parent, l[k], j, row))
                       t = a.join(', ')
                     }
-                  } else if(row[j] instanceof Array)
-                    t = row[j].map(i => {
-                      let v = l.find(v => v[key] == i)
-                      return v && v[value]
-                    }).join(', ')
-                  else {
-                    t = l.find(v => v[key] == row[j])
-                    if(t)
-                      t = t[value]
-                  }
+                  } else
+                    t = row[j] instanceof Array ?
+                      row[j].map(i => l[i]).join(', ') :
+                      l[row[j]]
                 } else
                   t = c.filter ? c.filter.call(this.$parent, row[j], j, row) : row[j]
                 if(row._td && row._td[j])
                   p = {...p, ...row._td[j]}
-                if(c.href && row[c.href])
+                if(c.href)
                   td.push(h('td', p, [h('a', {domProps: {href: row[c.href]}}, t)]))
                 else {
-                  p.domProps = {innerHTML: t === undefined ? null : t}
+                  p.domProps = {innerHTML: t}
                   if(c.type == 'pre')
                     td.push(h('td', [h('pre', p)]))
                   else
                     td.push(h('td', p))
                 }
-              } else {
-                if(c.master && l)
-                  l = f(c, l, this.tbl.__tmp)
-                td.push(h('table-cell', {props: {columns: cols, row: this.tbl.__tmp || row, key: j, items: l, slaves: this.slaves, options: this.options}, on: {
-                  change: d => {
-                    if(c.onchange)
-                      c.onchange.call(this.$parent, d, i)
-                  }
-                }}))
-              }
+              } else
+                td.push(h('table-cell', {props: {columns: this.tbl.columns, row: this.tbl.__tmp || row, key: j, items: l, slaves: this.slaves}}))
             }
           }
           if(this.tbl.action) {
-            let a = this.tbl.action
-            .filter(a => {
-              return a.condition === undefined || (a.condition instanceof Function ? a.condition.call(this.$parent, row, i) : a.condition)
-            })
-            .map((a, j) => a.href && row[a.href] ? h('a', {domProps: {href: row[a.href]}, key: j}, a.caption) : h('button', {
-              domProps: {innerHTML: a.caption},
-              on: {
-                click: e => a.onclick && a.onclick.call(this.$parent, row, i)
-              }})
-            )
+            let a = []
+            for(let j = 0; j < this.tbl.action.length; j++) {
+              let b = this.tbl.action[j]
+              if(b.condition === undefined || (b.condition instanceof Function ? b.condition.call(this.$parent, row, i) : b.condition))
+                a.push(b.href ? h('a', {domProps: {href: row[b.href]}, key: j}, b.caption) : h('button', {domProps: {innerHTML: b.caption}, on: {
+                  click: e => {
+                    if(b.onclick)
+                      b.onclick.call(this.$parent, row, i)
+                    e.preventDefault()
+                  }
+                }}))
+            }
             td.push(h('td', a))
           }
           body.push(h('tr', {
@@ -134,34 +109,37 @@ export default {
         }
       } else
         body.push(h('tr', [h('td', {attrs: {colspan: th.length}}, '无数据')]))
+      head.push(h('thead', [h('tr', {ref: 'th'}, th)]))
       tbl.push(h('tbody', body))
+      this.$nextTick(this.update)
     } else
       tbl.push(h('tbody', this.tbl.data && this.tbl.data.map((r, i) => h('tr', {key: i}, r && r.map((c, j) => h('td', {domProps: c, key: j}))))))
     return h('div', {staticClass: 'dt-out', on: {
-      scroll: e => this.$emit('scroll', e, e.target.clientHeight, e.target.scrollTop, e.target.clientHeight)
-    }}, [h('table', {staticClass: 'datable'}, tbl)])
+      scroll: e => {
+        e.target.children[0].style.top = e.target.scrollTop + 'px'
+        this.$emit('scroll', e, e.target.clientHeight, e.target.scrollTop, e.target.children[1].clientHeight)
+      }
+    }}, [h('table', {staticClass: 'datable dt-head', ref: 'head'}, head), h('div', {staticClass: 'dt-body', style: head.length > 1 ? {marginTop: '1.5em'} : null}, [h('table', {staticClass: 'datable'}, tbl)])])
   },
   data: function() {
     return {
       s: null,
-      hide: [],
-      options: Object.assign({
-        key: 'id',
-        value: 'name'
-      }, this.tbl.options)
+      hide: []
     }
   },
   computed: {
+    cols() {
+      return this.columns || this.tbl.columns
+    },
     slaves() {
       if(!this.s) {
         this.s = {}
         for(let k in this.tbl.columns) {
           let c = this.tbl.columns[k]
           if(c.master) {
-            c = c.master[c.master.length - 1]
-            if(!this.s[c])
-              this.s[c] = []
-            this.s[c].push(k)
+            if(!this.s[c.master])
+              this.s[c.master] = []
+            this.s[c.master].push(k)
           }
         }
       }
@@ -178,6 +156,16 @@ export default {
       }
       this.sort()
     },
+    selectChange(row, k, c) {
+      if(this.slaves[k])
+        for(let s of this.slaves[k])
+          for(let i in this.tbl.columns[s].items[row[k]]) {
+            row[s] = i
+            break
+          }
+      if(c.onchange)
+        c.onchange(row)
+    },
     sort: function() {
       let k = this.tbl.orderby, desc = this.tbl.desc
       if(this.tbl.data)
@@ -187,7 +175,25 @@ export default {
           let r = a > b ? 1 : (a < b ? -1 : 0)
           return desc ? -r : r
         })
+    },
+    update() {
+      if(this.$refs.th)
+        for(let i = 0; i < this.$refs.th.children.length; i++) {
+          let h = this.$refs.bth.children[i]
+          if(h.clientWidth)
+            this.$refs.th.children[i].children[0].style.width = (!h.children[1] || h.children[1].style == 'none' ? h.clientWidth : h.clientWidth - h.children[1].clientWidth) - 2 + 'px'
+        }
+    },
+    onResize() {
+      setTimeout(this.update, 0)
     }
+  },
+  mounted() {
+    window.addEventListener(resizeEvent, this.onResize)
+    this.onResize()
+  },
+  beforeDestroy() {
+    window.removeEventListener(resizeEvent, this.onResize)
   }
 }
 </script>

@@ -36,28 +36,47 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
 
   public function _initRoute(Dispatcher $dispatcher) {
     Router::init($dispatcher->getRouter(), $dispatcher->getRequest()->method);
-    $p = [
-      'controller' => 'index',
-      'action' => 'calc'
-    ];
-    Router::post('calc', $p);
-    $p['action'] = 'list';
-    Router::get('api/list', $p);
-    $p['action'] = 'cheXing';
-    Router::get('cheXing', $p);
+    Router::prefix('api', function($router) {
+      $auth = new Middleware\Auth;
+      $p = [
+        'controller' => 'index',
+        'action' => 'calc'
+      ];
+      $router->post('calc', $p);
+      $p['action'] = 'list';
+      $router->get('list', $p);
+      $p['action'] = 'cheXing';
+      $router->get('cheXing', $p);
 
-    //注册
-    $p['controller'] = 'user';
-    $p['action'] = 'store';
-    Router::post('api/user', $p);
+      //注册
+      $p['controller'] = 'user';
+      $p['action'] = 'store';
+      $router->post('user', $p);
+      $router->middleware($auth, function($router) use($p) {
+        //修改
+        $p['action'] = 'update';
+        $router->put('user/:id', $p);
+        //删除
+        $p['action'] = 'destroy';
+        $router->delete('user/:id', $p);
+      });
 
-    $p['controller'] = 'auth';
-    //查看信息
-    $p['action'] = 'index';
-    Router::get('api/auth', $p);
-    //登录
-    $p['action'] = 'store';
-    Router::post('api/auth', $p);
+      $p['controller'] = 'auth';
+      //登录
+      $p['action'] = 'store';
+      $router->post('auth', $p);
+      $router->middleware($auth, function($router) use($p) {
+        //查看信息
+        $p['action'] = 'index';
+        $router->get('auth', $p);
+
+        //单位
+        $p['controller'] = 'danWei';
+        //新建
+        $p['action'] = 'store';
+        $router->post('danWei', $p);
+      });
+    });
   }
 
   public function _initView(Dispatcher $dispatcher) {

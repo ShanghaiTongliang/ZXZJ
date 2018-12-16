@@ -2,6 +2,7 @@
 
 class UserModel extends BaseModel {
   protected static $hidden = ['password', 'token'];
+  protected static $jsonFields = ['groups'];
   protected static $cacheFields = ['icon'];
   static $user;
 
@@ -39,7 +40,7 @@ class UserModel extends BaseModel {
           return $u;
         }
       } else
-        $err = _('user not exists');
+        $err = _('user does not exists');
     }
     return null;
   }

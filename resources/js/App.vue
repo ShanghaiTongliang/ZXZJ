@@ -7,22 +7,19 @@
     <router-view v-else id="frame"></router-view>
     <div class="footer">联系电话: 021-51244254</div>
     <message :message="$store.state.message" :error="$store.state.error"></message>
-    <div v-show="$store.state.loading" class="mask">
-      <div class="loading">
-        <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-      </div>
-    </div>
+    <loading :loading="$store.state.loading"></loading>
   </div>
 </template>
 <script>
 import cookie from 'js-cookie'
 import axios from 'axios'
 import {mapMutations, mapState} from 'vuex'
+import Loading from './components/Loading'
 import Message from './components/Message'
 import DropMenu from './components/DropMenu'
 
 export default {
-  components: {Message, DropMenu},
+  components: {Loading, Message, DropMenu},
   data() {
     return {
       menu: [{

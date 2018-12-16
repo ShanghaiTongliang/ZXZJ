@@ -15,5 +15,5 @@ function response($msg, $code = RES_BAD_REQUEST) {
     RES_NOT_ALLOWED => 'Not Allowed'
   ];
   header("{$_SERVER['SERVER_PROTOCOL']} $code {$codes[$code]}");
-  echo $msg;
+  echo is_array($msg) || is_object($msg) ? json_encode($msg, JSON_UNESCAPED_UNICODE) : $msg;
 }

@@ -5,6 +5,12 @@
   position: relative;
   overflow: auto;
 }
+.dt-head {
+  position: absolute;
+  z-index: 1;
+}
+.dt-head caption {background-color: white}
+.dt-body thead {visibility: hidden}
 table.datable {
   border-spacing: 0;
   text-align: center;
@@ -38,13 +44,9 @@ table.datable {
 .datable button {white-space: nowrap}
 .datable input, .datable select {
   font-size: 1em;
-  width: 100%;
+  min-width: 100%;
   min-height: 1.8em;
   box-sizing: border-box;
-}
-.datable input[type=checkbox], .datable input[type=radio] {
-  width: auto;
-  min-height: auto;
 }
 .datable pre {
   margin: 0;
@@ -61,7 +63,7 @@ tr.selection {
   left: 0;
   bottom: 0;
 }
-div.act, a.act {
+div.act {
   padding: 0 .3em;
   border-radius: .3em;
   background-color: white;

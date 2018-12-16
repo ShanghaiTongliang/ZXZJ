@@ -7,16 +7,31 @@ class AuthController extends Yaf\Controller_Abstract {
       $f = "/img/user/$u->id.png";
       $u->icon = file_exists(APP_PATH . $f) ? $f : '/img/user16.png';
     }
+    $dws = Table::open('danWei')::get();
+    foreach($dws as $dw) {
+      $dw->cheJian = Table::open('cheJian')::where(['danWei' => $dw->id])->get();
+      foreach($dw->cheJian as $c) {
+        $c->banZu = Table::open('banZu')::where(['cheJian' => $c->id])->get();
+        foreach($c->banZu as $b) {
+          $b->user = [];
+          foreach($us as $u)
+            if($u->banZu == $b->id)
+              $b->user[] = $u->id;
+        }
+      }
+    }
     echo json_encode([
       'users' => $us,
-      'groups' => [],
+      'groups' => GroupModel::get(),
+      //单位人员信息
+      'danWei' => $dws,
       'std' => [
         'guZhang' => Table::open('guZhang')::get(),
         'cheZhong' => Table::open('cheZhong')::get(),
         'daBuWei' => Table::open('daBuWei')::get(),
         'xiaoBuWei' => Table::open('xiaoBuWei')::get(),
         'juTiBuWei' => Table::open('juTiBuWei')::get(),
-        'xiuCheng' => Table::open('xiuCheng')::get()
+        'xiuCheng' => Table::open('xiuCheng')::get(),
       ],
       'data' => [
         'zhengCheJiaoJian' => Table::open('zhengCheJiaoJian')::get()

@@ -3,6 +3,7 @@
 .resizer {
   width: .5em;
   background-color: rgba(0, 0, 0, .3);
+  position: relative;
   cursor: col-resize;
   flex-shrink: 0;
 }

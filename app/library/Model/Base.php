@@ -207,7 +207,7 @@ abstract class Base extends Decachable implements JsonSerializable {
           $s = $db->prepare('insert into ' . static::getTableName() . ' (' . implode(', ', $cs) . ') values (' . implode(', ', array_fill(0, count($this->_col), '?')) . ')');
           $s->execute($v);
           if($primary = $db->lastInsertId())
-            $this->{static::$primary} = $primary;
+            $this->{static::$primary} = intval($primary);
           $this->_create = false;
         } else {
           $k = [];

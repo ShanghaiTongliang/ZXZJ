@@ -15,7 +15,7 @@ class Statement {
     _getdb:
     try {
       $db = $this->class::getDatabase();
-      $sql = 'select ' . (is_array($col) ? implode(', ', $col) : $col) . ' from ' . $this->class::getTableName();
+      $sql = 'select ' . (is_array($col) ? implode(', ', $col) : $col) . ' from `' . $this->class::getTableName() . '`';
       if($this->condition) {
         $sql .= ' where ' . (($a = is_array($this->condition)) ? implode(' and ', array_map(function($k) {
           return $k . '=?';

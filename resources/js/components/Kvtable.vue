@@ -11,12 +11,12 @@
 .kvtable input[type=text] {min-width: 4em}
 </style>
 <script>
-import Editable from './Editable'
+import Edit from './Edit'
 import TableCell from './TableCell'
 import { install } from 'vuex';
 
 export default {
-  components: {Editable, TableCell},
+  components: {Edit, TableCell},
   props: ['tbl', 'vertical'],
   render(h) {
     let tbl = this.tbl, r = [], th = [], td = [], cols = tbl.columns, row = tbl.data, ne
@@ -24,7 +24,9 @@ export default {
     if(c || this.$slots.default)
       r.push(h('caption', [c ? h('span', {domProps: {innerHTML: c}}) : null, this.$slots.default]))
     if(cols) {
-      if(row)
+      if(tbl.editing)
+        ne = true
+      else if(row)
         for(let k in row) {
           ne = true
           break
@@ -32,7 +34,7 @@ export default {
       for(let i in cols) {
         c = cols[i]
         if(c instanceof Object) {
-          if(c.condition === undefined || (c.condition instanceof Function ? c.condition.call(this.$parent, i) : c.condition)) {
+          if((c.condition === undefined || (c.condition instanceof Function ? c.condition.call(this.$parent, i) : c.condition)) && (!tbl.editing || c.type)) {
             th.push({domProps: {innerHTML: c.caption}})
             if(ne)
               if(c.render instanceof Function) {
@@ -40,8 +42,8 @@ export default {
                 td.push(h('td', {key: i}, d instanceof Object ? [d] : d))
               } else {
                 let l = c.items instanceof Function ? c.items.call(this.$parent) : c.items
-                if(c.type)
-                  td.push(h('table-cell', {props: {columns: cols, row, key: i, items: l}}))
+                if(this.tbl.editing && c.type)
+                  td.push(h('table-cell', {props: {columns: cols, row, key: i, items: l, options: this.options}}))
                 else {
                   let t
                   if(l)
@@ -49,14 +51,14 @@ export default {
                       row[i].map(i => l[i]).join(', ') : l[row[i]]
                   else
                     t = c.filter ? c.filter.call(this.$parent, row[i], i, row) : row[i]
-                  if(c.href)
+                  if(c.href && row[c.href])
                     td.push(h('td', [h('a', {domProps: {href: row[c.href]}, key: i}, t)]))
                   else
                     td.push(h('td', {domProps: t !== undefined && {innerHTML: t}, key: i}))
                 }
               }
           }
-        } else {
+        } else if(!tbl.editing) {
           th.push({domProps: {innerHTML: c}})
           if(ne)
             td.push(h('td', {domProps: {innerHTML: row[i]}, key: i}))
@@ -64,11 +66,12 @@ export default {
       }
       if(tbl.action && ne) {
         let a = tbl.action.filter(a => a.condition === undefined || (a.condition instanceof Function ? a.condition.call(this.$parent) : a.condition))
-        if(a) {
+        if(a.length) {
           th.push('操作')
-          td.push(h('td', a.map((a, i) => h('button', {on: {
-            click: () => a.onclick.call(this.$parent)
-          }, key: i, domProps: {innerHTML: a.caption}}))))
+          td.push(h('td', a.map((a, j) => a.href && row[a.href] ? h('a', {domProps: {href: row[a.href]}, key: j}, a.caption) : h('button', {
+            on: {
+            click: () => a.onclick && a.onclick.call(this.$parent)
+          }, key: j, domProps: {innerHTML: a.caption}}))))
         }
       }
     } else {
@@ -89,6 +92,14 @@ export default {
       r.push(h('tbody', [h('tr', td)]))
     }
     return h('div', {class: {'dt-out': true}}, [h('table', {class: {datable: true, 'kv-ver': this.vertical}}, r)])
+  },
+  data() {
+    return {
+      options: Object.assign({
+        key: 'id',
+        value: 'name'
+      }, this.tbl.options)
+    }
   }
 }
 </script>
