@@ -2,10 +2,11 @@
   <moditable :tbl="tbl" @save="save" @delete="del"></moditable>
 </template>
 <script>
-import axios from 'axios';
+import axios from 'axios'
+import Vue from 'vue'
 import Datable from './components/Datable'
 import Moditable from './components/Moditable'
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   components: {Datable, Moditable},
@@ -39,6 +40,20 @@ export default {
             type: 'select',
             master: ['danWei', 'cheJian']
           },
+          test: {
+            caption: 'test',
+            type: 'combo',
+            items: [{
+              id: 1,
+              name: 'aaa'
+            }, {
+              id: 2,
+              name: 'bbb'
+            }, {
+              id: 3,
+              name: 'ccc'
+            }]
+          }
         },
         data: this.$store.state.users
       }
@@ -70,6 +85,9 @@ export default {
       }
       return false
     }
+  },
+  mounted() {
+    this.$store.state.users.forEach(u => Vue.set(u, 'test', 1))
   }
 }
 </script>

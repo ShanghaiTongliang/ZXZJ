@@ -46,7 +46,7 @@ export default {
           let row = this.tbl.data[i], td = []
           for(let j in cols) {
             let c = cols[j]
-            if(!(c instanceof Object))
+            if(!(c instanceof Object) || c.type == 'combo' && this.tbl.editingIndex != i)
               td.push(h('td', {domProps: {innerHTML: row[j] instanceof Array ? row[j].join(', ') : row[j]}, key: j}))
             else if(!hide[j]) {
               let p = {key: j}, l = c.master ? cols[c.master[0]] && cols[c.master[0]].items : c.items, t
@@ -61,7 +61,7 @@ export default {
                 }
                 return l
               }
-              if(!c.type || this.tbl.editingIndex != i) {
+              if(!c.type || c.type != 'combo' || this.tbl.editingIndex != i) {
                 if(c.master && l)
                   l = f(c, l, row)
                 if(l) {

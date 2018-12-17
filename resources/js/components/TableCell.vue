@@ -71,6 +71,11 @@ export default {
           input: v => p.row[p.key] = v
         }, props: {readonly: c.readonly instanceof Function ? c.readonly.call(ctx.parent) : c.readonly}})]
         break
+      case 'combo':
+        let id = 'dl' + Math.floor(Math.random() * 10000)
+        r = [h('input', {attrs: {type: 'text', list: id, value: p.row[p.key]}, on: {
+          change: e => p.row[p.key] = e.target.value
+        }}), h('datalist', {attrs: {id}}, p.items.map((o, k) => h('option', {attrs: {value: o}, key: k})))]
       default:
         r = [h('input', {attrs: {type: c.type, value: p.row[p.key]}, on: {
           change: e => p.row[p.key] = e.target.value
