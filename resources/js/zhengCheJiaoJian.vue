@@ -40,16 +40,19 @@ const columns = {
   danWei: {
     caption: '单位',
     type: 'select',
+    itemName: 'cheJian',
     items: null
   },
   cheJian: {
     caption: '车间',
     type: 'select',
+    itemName: 'banZu',
     master: ['danWei']
   },
   banZu: {
     caption: '班组',
     type: 'select',
+    itemName: 'user',
     master: ['danWei', 'cheJian']
   },
   user: {

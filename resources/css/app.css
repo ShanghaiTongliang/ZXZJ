@@ -2,7 +2,6 @@
 html, body {height: 100%}
 body {
   background-color: #777;
-  max-width: 1024px;
   margin: 0 auto;
   text-align: center;
 }

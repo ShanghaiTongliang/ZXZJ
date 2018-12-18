@@ -17,8 +17,7 @@ export default {
   },
   data() {
     return {
-      v: this.value,
-      locked: false
+      v: this.value
     }
   },
   watch: {

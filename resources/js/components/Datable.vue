@@ -13,16 +13,39 @@
 }
 </style>
 <script>
+import merge from 'merge'
 import Vue from 'vue'
 import Edit from './Edit'
+import ComboBox from './ComboBox'
+import Pinyin from './Pinyin'
 import TableCell from './TableCell'
 
 const resizeEvent = window.onorientationchange === undefined ? 'resize' : 'orientationchange'
 
 export default {
   props: ['tbl', 'selection'],
+  /*
+  tbl: {
+    caption: 标题
+    columns: {  表头列表
+      caption:  列名
+      items: { 选项列表
+        key1: value1
+        key2: value2
+        ...
+      }
+    }
+    actions: 按钮列表
+    data: 数据
+    options: {
+      itemName: string = items  级联选项名
+      keyName: string = id      级联键名
+      valueName: string = name  级联值名
+    }
+  }*/
+
   //TableCell为functional, 父组件需引入其需要的子组件
-  components: {Edit, TableCell},
+  components: {Edit, ComboBox, Pinyin, TableCell},
   render(h) {
     let tbl = [], body = [], th = [], hide = {}, c = this.tbl.caption instanceof Function ? this.tbl.caption.call(this.$parent) : this.tbl.caption, cols = this.tbl.columns
     if(c || this.$slots.default)
@@ -46,45 +69,44 @@ export default {
           let row = this.tbl.data[i], td = []
           for(let j in cols) {
             let c = cols[j]
-            if(!(c instanceof Object) || c.type == 'combo' && this.tbl.editingIndex != i)
+            if(!(c instanceof Object))
               td.push(h('td', {domProps: {innerHTML: row[j] instanceof Array ? row[j].join(', ') : row[j]}, key: j}))
             else if(!hide[j]) {
               let p = {key: j}, l = c.master ? cols[c.master[0]] && cols[c.master[0]].items : c.items, t
               if(l instanceof Function)
                 l = l.call(this.$parent, row, j)
               const f = (c, l, d) => {
-                let key = c.key || this.options.key
+                let keyName = c.keyName || this.options.keyName
                 for(let k = 0; k < c.master.length; k++) {
-                  l = l.find(v => v[key] == d[c.master[k]])
-                  if(!l || !(l = l.items))
+                  let cc = cols[c.master[k]], itemName = cc.itemName || this.options.itemName
+                  l = l.find(v => v[keyName] == d[c.master[k]])
+                  if(!l || !(l = l[itemName]))
                     break
                 }
                 return l
               }
-              if(!c.type || c.type != 'combo' || this.tbl.editingIndex != i) {
+              if(!c.type || this.tbl.editingIndex != i) {
                 if(c.master && l)
                   l = f(c, l, row)
-                if(l) {
-                  let key = c.key || this.options.key, value = c.value || this.options.value
-                  if(c.filter) {
-                    let a = []
-                    if(row[j]) {
-                      for(let k of row[j]) {
-                        let v = l.find(v => v[key] == k)
-                        if(v) v = v[value]
-                        a.push(c.filter.call(this.$parent, v, j, row))
+                if(l && c.type != 'combo' && c.type != 'pinyin') {
+                  let keyName = c.keyName || this.options.keyName, valueName = c.valueName || this.options.valueName, a
+                  switch(c.type) {
+                  case 'checkbox':
+                    t = row[j].map(d => {
+                      let v = l.find(i => i[keyName] == d)
+                      if(v) {
+                        v = v[valueName]
+                        return c.filter ? c.filter.call(this.$parent, v, j, row) : v
                       }
-                      t = a.join(', ')
-                    }
-                  } else if(row[j] instanceof Array)
-                    t = row[j].map(i => {
-                      let v = l.find(v => v[key] == i)
-                      return v && v[value]
                     }).join(', ')
-                  else {
-                    t = l.find(v => v[key] == row[j])
-                    if(t)
-                      t = t[value]
+                    break
+                  default:
+                    t = l.find(v => v[keyName] == row[j])
+                    if(t) {
+                      t = t[valueName]
+                      if(c.filter)
+                        t = c.filter.call(this.$parent, t, j, row)
+                    }
                   }
                 } else
                   t = c.filter ? c.filter.call(this.$parent, row[j], j, row) : row[j]
@@ -102,12 +124,12 @@ export default {
               } else {
                 if(c.master && l)
                   l = f(c, l, this.tbl.__tmp)
-                td.push(h('table-cell', {props: {columns: cols, row: this.tbl.__tmp || row, key: j, items: l, slaves: this.slaves, options: this.options}, on: {
-                  change: d => {
-                    if(c.onchange)
-                      c.onchange.call(this.$parent, d, i)
+                td.push(h('table-cell', {props: {columns: cols, row: this.tbl.__tmp || row,
+                  key: j, items: l, slaves: this.slaves, options: this.options},
+                  on: {
+                    input: d => c.onchange && c.onchange.call(this.$parent, d, i)
                   }
-                }}))
+                }))
               }
             }
           }
@@ -144,14 +166,17 @@ export default {
   data: function() {
     return {
       s: null,
-      hide: [],
-      options: Object.assign({
-        key: 'id',
-        value: 'name'
-      }, this.tbl.options)
+      hide: []
     }
   },
   computed: {
+    options() {
+      return merge({
+        itemName: 'items',
+        keyName: 'id',
+        valueName: 'name'
+      }, this.tbl.options)
+    },
     slaves() {
       if(!this.s) {
         this.s = {}

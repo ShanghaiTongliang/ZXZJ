@@ -20,14 +20,11 @@ export default new Vuex.Store({
       state.users = data.users
       data.danWei.forEach(d => {
         d.url = `#/danWei/${d.id}`
-        d.items = d.cheJian //菜单结构
         d.cheJian.forEach(c => {
           c.url = `#/danWei/${d.id}/${c.id}`
-          c.items = c.banZu
           c.banZu.forEach(b => {
             b.url = `#/danWei/${d.id}/${c.id}/${b.id}`
             b.user = b.user.map(id => state.users.find(u => u.id == id))
-            b.items = b.user
             b.user.forEach(u => {
               u.danWei = d.id
               u.cheJian = c.id

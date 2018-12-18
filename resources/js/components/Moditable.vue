@@ -21,7 +21,7 @@ export default {
           Vue.set(p.tbl, '__tmp', {...p.tbl.data[i]})
           Vue.set(p.tbl, 'editingIndex', i)
           if(ctx.listeners.edit)
-            ctx.listeners.edit(p.tbl.data[i], i)
+            ctx.listeners.edit(p.tbl.__tmp, i)
         }
       }, {
         caption: '保存',
