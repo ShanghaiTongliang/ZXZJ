@@ -3,8 +3,8 @@ import GuZhang from './GuZhang.vue'
 import ZhengCheJiaoJian from './ZhengCheJiaoJian.vue'
 import LingBuJianJiaoJian from './LingBuJianJiaoJian.vue'
 import DanWei from './DanWei.vue'
-import CheJian from './CheJian.vue'
 import User from './User.vue'
+import Group from './Group.vue'
 import Test from './Test.vue'
 
 export default [{
@@ -62,6 +62,21 @@ export default [{
     name: 'users',
     path: '/user',
     component: User
+  }, {
+    name: 'groups',
+    path: '/group',
+    component: Group,
+    children: [{
+      name: 'createGroup',
+      path: 'create'
+    }, {
+      name: 'group',
+      path: ':gid',
+      children: [{
+        name: 'createGroupCheJian',
+        path: 'create'
+      }]
+    }]
   }, {
     name: 'test',
     path: '/test',

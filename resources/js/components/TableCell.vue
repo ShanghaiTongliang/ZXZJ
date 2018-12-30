@@ -1,8 +1,13 @@
 <style>
 .tc-chk {text-align: left}
+.tc-chk label {
+  min-width: 6em;
+  white-space: nowrap;
+}
 </style>
 
 <script>
+import Vue from 'vue'
 import Edit from './Edit'
 import ComboBox from './ComboBox'
 import Pinyin from './Pinyin'
@@ -17,9 +22,13 @@ export default {
       let keyName = c.keyName || p.options.keyName, valueName = c.valueName || p.options.valueName
       switch(c.type) {
       case 'radio':
-        r = p.items.map((o, k) => h('label', {key: k}, [h('input', {domProps: {type: 'radio', checked: p.row[p.key] == o[keyName], value: o[keyName], on: {
-          change: e => p.row[p.key] = e.target.value
-        }}}), h('span', {domProps: {innerHTML: o[valueName]}})]))
+        r = p.items.map((o, k) => h('label', {key: k}, [h('input', {
+          attrs: {type: 'radio', value: o[keyName]},
+          domProps: {checked: p.row[p.key] == o[keyName]},
+          on: {
+            change: e => p.row[p.key] = e.target.value
+          }
+        }), h('span', {domProps: {innerHTML: o[valueName]}})]))
         break
       case 'select':
         let os = []
@@ -43,22 +52,28 @@ export default {
             if(p.slaves && p.slaves[p.key])
               for(let s of p.slaves[p.key]) {
                 let l = p.items.find(v => v[keyName] == p.row[p.key])
-                if(l && (l = l.items))
-                  for(let i in l[p.row[p.key]]) {
-                    p.row[s] = i
-                    break
-                  }
+                if(l && (l = l[s]) && l.length)
+                  Vue.set(p.row, s, l[0][keyName])
+                else
+                  Vue.set(p.row, s, null)
               }
-            if(ctx.data.on.input)
-              ctx.data.on.input(p.row)
+            if(ctx.listeners.input)
+              ctx.listeners.input(p.row)
           }
         }}, os)]
         break
       case 'checkbox':
-        r = p.items.map((o, k) => h('label', {key: k}, [h('input', {
-          domProps: {type: 'checkbox', checked: p.row[p.key].find(v => v == o[keyName]), value: o[keyName]}, on: {
+        r = p.items && p.items.map((o, k) => h('label', {key: k}, [h('input', {
+          attrs: {type: 'checkbox', value: o[keyName]},
+          domProps: {checked: p.row[p.key] && p.row[p.key].find(v => v == o[keyName])},
+          on: {
             change: e => {
-              let i = 0, c = p.row[p.key].length
+              let i = 0, c
+              if(p.row[p.key]) c = p.row[p.key].length
+              else {
+                c = 0
+                p.row[p.key] = []
+              }
               for(; i < c; i++)
                 if(p.row[p.key][i] == e.target.value)
                   break
@@ -70,7 +85,8 @@ export default {
               } else if(i < c)
                 p.row[p.key].splice(i, 1)
             }
-          }}), h('span', {domProps: {innerHTML: o[valueName]}})]))
+          }
+        }), h('span', {domProps: {innerHTML: o[valueName]}})]))
         return h('td', {class: 'tc-chk'}, r)
       case 'pre':
         r = [h('edit', {attrs: {value: p.row[p.key]}, on: {
@@ -78,21 +94,20 @@ export default {
         }, props: {readonly: c.readonly instanceof Function ? c.readonly.call(ctx.parent) : c.readonly}})]
         break
       case 'combo':
-        //console.log('combo render')
         r = [h('combo-box', {on: {
           input: v => {
             p.row[p.key] = v
-            ctx.data.on.input && ctx.data.on.input(v)
+            ctx.listeners.input && ctx.listeners.input(v)
           },
         }, props: {value: p.row[p.key], items: p.items}})]
         break
       case 'pinyin':
         r = [h('pinyin', {on: {
           input: v => {
-            p.row[p.key] = v
-            ctx.data.on.input && ctx.data.on.input(v)
+            Vue.set(p.row, p.key, v)
+            ctx.listeners.input && ctx.listeners.input(v)
           }
-        }, props: {value: p.row[p.key], items: p.items}})]
+        }, props: {value: p.row[p.key], items: p.items || []}})]
         break
       default:
         r = [h('input', {attrs: {type: c.type, value: p.row[p.key]}, on: {

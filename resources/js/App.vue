@@ -29,7 +29,11 @@ export default {
         items: [{
           caption: '退出',
           onclick() {
-            this.logout()
+            axios.delete('api/auth').then(() => {
+              let state = this.$store.state
+              state.users = state.groups = state.user = null
+              this.$router.replace('/auth/login')
+            }).catch(res => this.error(res.response.data))
           }
         }]
       }]
@@ -48,7 +52,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['auth', 'loading', 'message', 'error', 'logout'])
+    ...mapMutations(['auth', 'loading', 'message', 'error'])
   },
   mounted() {
     let id = parseInt(cookie.get('id'))
@@ -57,21 +61,19 @@ export default {
       axios.get('api/auth').then(res => {
         this.loading(false)
         this.auth({data: res.data, id})
-      }).catch(res => {
+      })/*.catch(res => {
         let a = location.hash.match(/\?.*url=(.*)/), url = a ? decodeURIComponent(a[1]) : location.hash
         if(url[0] == '#')
           url = url.substr(1)
         this.$router.push({name: 'login', query: url ? {url} : null})
         this.loading(false)
         this.error(res.response.data)
-      })
-    } else {
-      if(this.$route.name != 'login' && this.$route.name != 'reset') {
-        let url = location.hash
-        if(url[0] == '#')
-          url = url.substr(1)
-        this.$router.push({name: 'login', query: {url}})
-      }
+      })*/
+    } else if(!this.$route.name || this.$route.matched.length && this.$route.matched[0].name != 'auth') {
+      let url = location.hash
+      if(url[0] == '#')
+        url = url.substr(1)
+      this.$router.push({name: 'login', query: {url}})
     }
   }
 }

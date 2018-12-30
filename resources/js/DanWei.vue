@@ -52,7 +52,7 @@ export default {
       kvDanWei: {
         caption: '新建单位',
         columns,
-        action: [{
+        actions: [{
           caption: '新建',
           onclick() {
             let v = this.kvDanWei.data
@@ -85,7 +85,7 @@ export default {
       kvCheJian: {
         caption: '新建车间',
         columns,
-        action: [{
+        actions: [{
           caption: '新建',
           onclick() {
             let v = this.kvDanWei.data
@@ -125,7 +125,7 @@ export default {
       kvBanZu: {
         caption: '新建班组',
         columns,
-        action: [{
+        actions: [{
           caption: '新建',
           onclick() {
             let v = this.kvDanWei.data

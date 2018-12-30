@@ -1,4 +1,13 @@
 <style>
+.dt-resize {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
 .asc {
   width: 16px;
   height: 16px;
@@ -13,14 +22,12 @@
 }
 </style>
 <script>
-import merge from 'merge'
+import merge from './merge'
 import Vue from 'vue'
 import Edit from './Edit'
 import ComboBox from './ComboBox'
 import Pinyin from './Pinyin'
 import TableCell from './TableCell'
-
-const resizeEvent = window.onorientationchange === undefined ? 'resize' : 'orientationchange'
 
 export default {
   props: ['tbl', 'selection'],
@@ -47,23 +54,27 @@ export default {
   //TableCell为functional, 父组件需引入其需要的子组件
   components: {Edit, ComboBox, Pinyin, TableCell},
   render(h) {
-    let tbl = [], body = [], th = [], hide = {}, c = this.tbl.caption instanceof Function ? this.tbl.caption.call(this.$parent) : this.tbl.caption, cols = this.tbl.columns
+    let tbl = [], head = [], body = [], th = [], bth = [], hide = {}, c = this.tbl.caption instanceof Function ? this.tbl.caption.call(this.$parent) : this.tbl.caption, cols = this.tbl.columns
     if(c || this.$slots.default)
-      tbl.push(h('caption', [c ? h('span', {domProps: {innerHTML: c}}) : null, this.$slots.default]))
+      head.push(h('caption', [c ? h('span', {domProps: {innerHTML: c}}) : null, this.$slots.default]))
     if(cols) {
       for(let i in cols) {
-        let c = cols[i], u
-        u = !(c instanceof Object) ?
-          h('div', {domProps: {innerHTML: c}}) :
+        let c = cols[i], u, v
+        [u, v] = !(c instanceof Object) ?
+          [h('div', {domProps: {innerHTML: c}}), h('div', {domProps: {innerHTML: c}})] :
           c.condition === undefined || !(hide[i] = !(c.condition instanceof Function ? c.condition.call(this.$parent, i) : c.condition)) ?
-            h('div', {domProps: {innerHTML: c.caption}, style: c.style}) :
-            null
-        if(u)
+            [h('div', {domProps: {innerHTML: c.caption}, style: c.style}), h('div', {domProps: {innerHTML: c.caption}, style: c.style})] :
+            [null, null]
+        if(v) {
           th.push(h('th', {on: {click: () => this.colClick(i)}, key: i}, [u, h('div', {style: {display: this.tbl.orderby != i ? 'none' : ''}, class: [this.tbl.desc ? 'desc' : 'asc']})]))
+          bth.push(h('th', {key: i}, [v, h('div', {style: {display: this.tbl.orderby != i ? 'none' : ''}, class: [this.tbl.desc ? 'desc' : 'asc']})]))
+        }
       }
-      if(this.tbl.action)
+      if(this.tbl.actions) {
         th.push(h('th', [h('div', '操作')]))
-      tbl.push(h('thead', [h('tr', th)]))
+        bth.push(h('th', [h('div', '操作')]))
+      }
+      tbl.push(h('thead', [h('tr', {ref: 'bth'}, bth)]))
       if(this.tbl.data && this.tbl.data.length) {
         for(let i = 0; i < this.tbl.data.length; i++) {
           let row = this.tbl.data[i], td = []
@@ -85,7 +96,12 @@ export default {
                 }
                 return l
               }
-              if(!c.type || this.tbl.editingIndex != i) {
+              if(c.render instanceof Function) {
+                if(c.master && l)
+                  l = f(c, l, row)
+                let d = c.render.call(this.$parent, h, this.tbl.editingIndex == i ? this.tbl.__tmp : row, j, i, l)
+                td.push(h('td', p, d instanceof Object ? [d] : d))
+              } else if(!c.type || this.tbl.editingIndex != i || c.editable !== undefined && !(c.editable instanceof Function ? c.editable.call(this.$parent) : c.editable)) {
                 if(c.master && l)
                   l = f(c, l, row)
                 if(l && c.type != 'combo' && c.type != 'pinyin') {
@@ -99,6 +115,15 @@ export default {
                         return c.filter ? c.filter.call(this.$parent, v, j, row) : v
                       }
                     }).join(', ')
+                    break
+                  case undefined:
+                    if(c.filter)
+                      t = c.filter.call(this.$parent, row[j], j, row)
+                    else {
+                      t = l.find(v => v[keyName] == row[j])
+                      if(t)
+                        t = t[valueName]
+                    }
                     break
                   default:
                     t = l.find(v => v[keyName] == row[j])
@@ -124,8 +149,11 @@ export default {
               } else {
                 if(c.master && l)
                   l = f(c, l, this.tbl.__tmp)
-                td.push(h('table-cell', {props: {columns: cols, row: this.tbl.__tmp || row,
-                  key: j, items: l, slaves: this.slaves, options: this.options},
+                td.push(h('table-cell', {
+                  props: {
+                    columns: cols, row: this.tbl.editingIndex == i ? this.tbl.__tmp : row,
+                    key: j, items: l, slaves: this.slaves, options: this.options
+                  },
                   on: {
                     input: d => c.onchange && c.onchange.call(this.$parent, d, i)
                   }
@@ -133,8 +161,8 @@ export default {
               }
             }
           }
-          if(this.tbl.action) {
-            let a = this.tbl.action
+          if(this.tbl.actions) {
+            let a = this.tbl.actions
             .filter(a => {
               return a.condition === undefined || (a.condition instanceof Function ? a.condition.call(this.$parent, row, i) : a.condition)
             })
@@ -156,26 +184,52 @@ export default {
         }
       } else
         body.push(h('tr', [h('td', {attrs: {colspan: th.length}}, '无数据')]))
+      head.push(h('thead', [h('tr', {ref: 'th'}, th)]))
       tbl.push(h('tbody', body))
+      this.$nextTick(this.onScroll) //对齐表头
     } else
-      tbl.push(h('tbody', this.tbl.data && this.tbl.data.map((r, i) => h('tr', {key: i}, r && r.map((c, j) => h('td', {domProps: c, key: j}))))))
-    return h('div', {staticClass: 'dt-out', on: {
-      scroll: e => this.$emit('scroll', e, e.target.clientHeight, e.target.scrollTop, e.target.clientHeight)
-    }}, [h('table', {staticClass: 'datable'}, tbl)])
+      tbl.push(h('tbody', this.tbl.data && this.tbl.data.map(
+        (r, i) => h('tr', {key: i}, r && r.map((c, j) => h('td', {domProps: c, key: j})))
+      )))
+    return h('div', {staticClass: 'dt-out',
+      on: {
+        scroll: e => this.$emit('scroll', e, e.target.clientHeight, e.target.scrollTop, e.target.clientHeight),
+      }}, [h('div', {ref: 'r1', attrs: {class: 'dt-resize'}, on: {
+        scroll: this.onScroll
+      }}, [h('div', {style: {width: '10000px', height: '10000px'}})]),
+      h('div', {ref: 'r2', attrs: {class: 'dt-resize'}, on: {
+        scroll: this.onScroll
+      }}, [h('div', {style: {width: '200%', height: '200%'}})]),
+      h('table', {staticClass: 'datable dt-head', ref: 'head'}, head),
+      h('table', {staticClass: 'datable', style: head.length > 1 ? {marginTop: '-2em'} : null}, tbl)
+    ])
   },
   data: function() {
     return {
       s: null,
-      hide: []
+      hide: [],
+      uc: 0
     }
   },
   computed: {
     options() {
+      /*let r = {
+        itemName: 'items',
+        keyName: 'id',
+        valueName: 'name'
+      }
+      for(let k in this.tbl.options)
+        r[k] = this.tbl.options[k]
+      */
       return merge({
         itemName: 'items',
         keyName: 'id',
         valueName: 'name'
       }, this.tbl.options)
+    },
+    keys() {
+      let c = this.tbl.columns
+      return Object.keys(c).filter(k => c[k] instanceof Object && c[k].type)
     },
     slaves() {
       if(!this.s) {
@@ -212,7 +266,20 @@ export default {
           let r = a > b ? 1 : (a < b ? -1 : 0)
           return desc ? -r : r
         })
+    },
+    onScroll() {
+      if(this.$refs.th) {
+        this.$refs.r1.scrollLeft = this.$refs.r2.scrollLeft = 10000
+        for(let i = 0; i < this.$refs.th.children.length; i++) {
+          let h = this.$refs.bth.children[i]
+          if(h.clientWidth)
+            this.$refs.th.children[i].children[0].style.width = (!h.children[1] || h.children[1].style == 'none' ? h.clientWidth : h.clientWidth - h.children[1].clientWidth) - 2 + 'px'
+        }
+      }
     }
+  },
+  mounted() {
+    this.$refs.r1.scrollLeft = this.$refs.r2.scrollLeft = 10000
   }
 }
 </script>

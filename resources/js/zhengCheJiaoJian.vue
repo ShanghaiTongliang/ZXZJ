@@ -1,21 +1,21 @@
 <style>
 </style>
 <template>
-  <div>
-    <moditable v-if="$route.name == 'zhengCheJiaoJian'" :tbl="tbl" @save="save" @delete="del">
-      <a href="#/guZhang/zhengCheJiaoJian/create" class="act">新建</a>
-    </moditable>
-    <kvtable v-else :tbl="kv" :vertical="$store.state.vertical">
-      <a href="#/guZhang/zhengCheJiaoJian" class="act">返回</a>
-    </kvtable>
-  </div>
+  <moditable v-if="$route.name == 'zhengCheJiaoJian'" :tbl="tbl" @save="save" @delete="del">
+    <a href="#/guZhang/zhengCheJiaoJian/create" class="act">新建</a>
+  </moditable>
+  <kvtable v-else :tbl="kv" :vertical="$store.state.vertical">
+    <a href="#/guZhang/zhengCheJiaoJian" class="act">返回</a>
+  </kvtable>
 </template>
 <script>
 import axios from 'axios'
-import {mapState} from 'vuex'
+import {mapState, mapMutations} from 'vuex'
 import Datable from './components/Datable'
 import Kvtable from './components/Kvtable'
 import Moditable from './components/Moditable'
+import {fixGuZhang} from './store'
+import {fields} from './global'
 
 const columns = {
   date: {
@@ -27,13 +27,33 @@ const columns = {
     type: 'select',
     items: null
   },
-  daBuWei: {
-    caption: '大部位',
-    type: 'select',
-    items: null
-  },
   cheZhong: {
     caption: '车种',
+    type: 'pinyin',
+    items: null
+  },
+  daBuWei: {
+    caption: '大部位',
+    type: 'pinyin',
+    items: null
+  },
+  xiaoBuWei: {
+    caption: '小部位',
+    type: 'pinyin',
+    items: null
+  },
+  juTiBuWei: {
+    caption: '具体部位',
+    type: 'pinyin',
+    items: null
+  },
+  guZhang: {
+    caption: '故障',
+    type: 'pinyin',
+    items: null
+  },
+  dengJi: {
+    caption: '等级',
     type: 'select',
     items: null
   },
@@ -47,13 +67,13 @@ const columns = {
     caption: '车间',
     type: 'select',
     itemName: 'banZu',
-    master: ['danWei']
+    master: ['danWei'],
   },
   banZu: {
     caption: '班组',
     type: 'select',
     itemName: 'user',
-    master: ['danWei', 'cheJian']
+    master: ['danWei', 'cheJian'],
   },
   user: {
     caption: '质检员',
@@ -76,65 +96,108 @@ export default {
         caption: '故障',
         columns,
         editing: true,
-        data: {},
-        action: [{
+        data: {date: (new Date).toDate()},
+        actions: [{
           caption: '保存',
-          onclick() {
-            console.log(this.kv.data)
+          onclick(d) {
+            this.saveFields(d, r => {
+              axios.post('api/guZhang/zhengCheJiaoJian', r).then(res => {
+                r.id = res.data
+                fixGuZhang.call(this.$store.state, r)
+                this.$store.state.guZhang.zhengCheJiaoJian.push(r)
+                this.message('新建成功')
+                this.$router.push('/guZhang/zhengCheJiaoJian')
+              })
+            })
           }
         }]
       }
     }
   },
+  computed: {
+    ...mapState(['user', 'std'])
+  },
   watch: {
-    '$store.state.std': {
+    std: {
       deep: true,
+      immediate: true,
       handler(v) {
-        this.setStd(v)
+        fields.forEach(f => columns[f].items = v[f])
+        columns.xiuCheng.items = v.xiuCheng
+        columns.dengJi.items = v.dengJi
+        columns.user.items = v
       },
     },
     '$store.state.danWei': {
       deep: true,
+      immediate: true,
       handler(v) {
-        this.setDanWei(v)
+        columns.danWei.items = v
       }
     },
-    '$store.state.data': {
+    '$store.state.guZhang': {
       deep: true,
+      immediate: true,
       handler(v) {
-        this.setData(v)
+        this.tbl.data = v.zhengCheJiaoJian
       }
     },
   },
   methods: {
-    save(d, i) {
-      console.log(d, i)
+    ...mapMutations(['loading', 'message', 'error']),
+    saveFields(d, next) {
+      let std = this.std, r = {date: d.date, xiuCheng: d.xiuCheng, dengJi: d.dengJi, user: d.user}, a = []
+      if(!d.date)
+        this.error('请选择 日期')
+      else if(!d.user)
+        this.error(`请选择 质检员`)
+      else {
+        for(let f of fields)
+          if(!d[f]) {
+            this.error(`请输入${columns[f].caption}`)
+            return
+          } else {
+            let v = std[f].find(v => v.name == d[f])
+            if(v)
+              r[f] = v.id
+            else
+              if(confirm(`是否添加新的 ${columns[f].caption}: ${d[f]} ?`)) {
+                this.loading(true)
+                a.push(axios.post(`api/standard/${f}`, d[f]).then(res => {
+                  std[f].push(res.data)
+                  this.$store.state.dict[res.data.id] = res.data.name
+                  r[f] = res.data.id
+                }))
+              } else
+                return
+          }
+        Promise.all(a).then(() => next(r))
+      }
     },
-    del(d, i) {
-      console.log(this, d, i)
-      if(!confirm('确定要删除数据 ?'))
-        return false
+    save(d, i, next) {
+      this.saveFields(d, r => {
+        this.loading(true)
+        axios.put(`api/guZhang/zhengCheJiaoJian/${d.id}`, r).then(() => {
+          this.loading(false)
+          this.message('保存成功')
+          next()
+        })
+      })
     },
-    setStd(std) {
-      ['xiuCheng', 'daBuWei', 'cheZhong'].forEach(k => columns[k].items = std[k])
-      columns.user.items = std
-    },
-    setDanWei(v) {
-      columns.danWei.items = v
-    },
-    setData(v) {
-      this.tbl.data = v.zhengCheJiaoJian
-    },
+    del(d, i, next) {
+      if(confirm('确定要删除数据 ?')) {
+        axios.delete(`api/guZhang/zhengCheJiaoJian/${d.id}`).then(() => {
+          this.loading(false)
+          this.message('删除成功')
+          next()
+        })
+      }
+    }
   },
   beforeRouteUpdate(to, from, next) {
     if(to.name == 'zhengCheJiaoJianCreate')
       this.kv.data = {}
     next()
-  },
-  mounted() {
-    this.setStd(this.$store.state.std)
-    this.setDanWei(this.$store.state.danWei)
-    this.setData(this.$store.state.data)
   }
 }
 </script>

@@ -9,7 +9,7 @@
     <resizer>
       <side-menu id="nav" :menu="menu" :selection="selection" @select="select"></side-menu>
     </resizer>
-    <router-view class="container"></router-view>
+    <router-view :key="$route.fullPath" class="container"></router-view>
   </div>
 </template>
 <script>
@@ -61,6 +61,10 @@ export default {
         caption: '用户',
         href: '#/user',
       }, {
+        name: 'groups',
+        caption: '用户组',
+        href: '#/group'
+      }, {
         name: 'test',
         caption: '测试',
         href: '#/test'
@@ -69,8 +73,28 @@ export default {
     }
   },
   watch: {
-    '$route': function(v) {
-      this.setRoute(v)
+    '$route': {
+      immediate: true,
+      handler(r) {
+        if(!r.name) {
+          this.$router.replace('/guZhang')
+          console.log('path not found')
+        } else {
+          function find(menu, r) {
+            for(let m of menu) {
+              for(let i = r.matched.length - 1; i > 0; i--)
+                if(m.name == r.matched[i].name)
+                  return m
+              if(m.items) {
+                let v = find(m.items, r)
+                if(v)
+                  return v
+              }
+            }
+          }
+          this.selection = find(this.menu, r)
+        }
+      }
     }
   },
   methods: {
@@ -94,10 +118,9 @@ export default {
     }
   },
   mounted() {
-    if(!this.$route.name) {
+    /*if(!this.$route.name) {
       this.$router.replace('/guZhang')
-    }
-    this.setRoute(this.$route)
+    }*/
   }
 }
 </script>

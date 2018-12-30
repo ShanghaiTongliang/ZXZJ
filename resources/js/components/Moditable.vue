@@ -1,4 +1,5 @@
 <script>
+import {clone} from './merge'
 import Vue from 'vue'
 import Datable from './Datable'
 
@@ -10,15 +11,17 @@ export default {
     let p = ctx.props
     if(!p.tbl.__moditable) {
       p.tbl.__moditable = true
-      if(!p.tbl.action)
-        p.tbl.action = []
-      p.tbl.action.splice(p.tbl.action.length, 0, ...[{
+      if(!p.tbl.actions)
+        p.tbl.actions = []
+      const condition = function(d, i) {
+        let h
+        return (p.tbl.editingIndex === undefined || p.tbl.editingIndex < 0) && ((h = ctx.listeners.editable) === undefined || (h instanceof Function ? h.call(ctx.parent, d, i) : h))
+      }
+      p.tbl.actions.splice(p.tbl.actions.length, 0, ...[{
         caption: '编辑',
-        condition() {
-          return p.tbl.editingIndex === undefined || p.tbl.editingIndex < 0
-        },
+        condition,
         onclick(d, i) {
-          Vue.set(p.tbl, '__tmp', {...p.tbl.data[i]})
+          Vue.set(p.tbl, '__tmp', clone(p.tbl.data[i]))
           Vue.set(p.tbl, 'editingIndex', i)
           if(ctx.listeners.edit)
             ctx.listeners.edit(p.tbl.__tmp, i)
@@ -29,10 +32,15 @@ export default {
           return p.tbl.editingIndex == i
         },
         onclick(d, i) {
-          p.tbl.editingIndex = -1
-          if(ctx.listeners.save === undefined || ctx.listeners.save(p.tbl.__tmp, i) !== false)
-            p.tbl.data[i] = p.tbl.__tmp
-          p.tbl.__tmp = null
+          const save = function() {
+            p.tbl.editingIndex = -1
+            Vue.set(p.tbl.data, i, p.tbl.__tmp)
+            p.tbl.__tmp = null
+          }
+          if(ctx.listeners.save)
+            ctx.listeners.save(p.tbl.__tmp, i, save)
+          else
+            save()
         }
       }, {
         caption: '取消',
@@ -45,12 +53,12 @@ export default {
         }
       }, {
         caption: '删除',
-        condition() {
-          return p.tbl.editingIndex === undefined || p.tbl.editingIndex < 0
-        },
+        condition,
         onclick(d, i) {
           const del = () => p.tbl.data.splice(i, 1)
-          if(ctx.listeners.delete === undefined || ctx.listeners.delete(d, i, del) !== false)
+          if(ctx.listeners.delete)
+            ctx.listeners.delete(d, i, del)
+          else
             del()
         }
       }])

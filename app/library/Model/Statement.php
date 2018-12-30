@@ -38,6 +38,8 @@ class Statement {
     } catch(\Throwable $e) {
       if($e->getCode() == 2006) //mysql has gone away
         goto _getdb;
+      else
+        throw $e;
     }
     $this->class::putDatabase($db);
     return $s;

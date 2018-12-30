@@ -83,7 +83,10 @@ abstract class Base extends Decachable implements JsonSerializable {
       $db = static::getDatabase();
       $r = $db->exec($sql);
     } catch(\Throwable $e) {
-      goto _getdb;
+      if($e->getCode() == 2006)
+        goto _getdb;
+      else
+        throw $e;
     }
     static::putDatabase($db);
     return $r;
@@ -95,7 +98,10 @@ abstract class Base extends Decachable implements JsonSerializable {
       $db = static::getDatabase();
       $r = $db->query($sql);
     } catch(\Throwable $e) {
-      goto _getdb;
+      if($e->getCode() == 2006)
+        goto _getdb;
+      else
+        throw $e;
     }
     static::putDatabase($db);
     return $r;
@@ -219,7 +225,10 @@ abstract class Base extends Decachable implements JsonSerializable {
           $r = $s->execute($v);
         }
       } catch(\Throwable $e) {
-        goto _getdb;
+        if($e->getCode() == 2006)
+          goto _getdb;
+        else
+          throw $e;
       }
       $this->_col = [];
       static::putDatabase($db);
@@ -233,7 +242,10 @@ abstract class Base extends Decachable implements JsonSerializable {
       $db = static::getDatabase();
       $r = $db->exec('delete from ' . static::getTableName() . ' where ' . static::$primary . '=' . $this->{static::$primary});
     } catch(\Throwable $e) {
-      goto _getdb;
+      if($e->getCode() == 2006)
+        goto _getdb;
+      else
+        throw $e;
     }
     static::putDatabase($db);
     return $r;

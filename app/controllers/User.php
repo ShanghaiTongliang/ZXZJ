@@ -6,10 +6,21 @@ class UserController extends Yaf\Controller_Abstract {
     if($u = UserModel::register($_POST, $err)) {
       $t = time();
       setcookie('id', $u->id, $t + 1800, PATH);
-      setcookie('token', $u->token, $t + 86400 * 365, PATH, '', false, true);
+      //setcookie('token', $u->token, $t + 86400 * 365, PATH, '', false, true);
+      setcookie('token', JWT::encode(['id' => $u->id], 'tongliang'), $t + 86400 * 365, PATH, '', false, true);
       $this->forward('auth', 'index');
     } else
       response($err);
+  }
+
+  //修改用户
+  function updateAction() {
+    if($u = UserModel::find($id = $this->getRequest()->getParams()['id'])) {
+      $p = json_decode(file_get_contents('php://input'));
+      foreach($p as $k => $v)
+        $u->$k = $v;
+      $u->save();
+    }
   }
 
   //删除用户

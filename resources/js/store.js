@@ -1,21 +1,42 @@
-import cookie from 'js-cookie'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import router from './router'
 import routes from './routes'
+import {fields} from './global'
 
 Vue.use(Vuex)
 
+export function fixGuZhang(g) {
+  fields.forEach(f => g[f] = this.dict[f][g[f]])
+  let u = this.users.find(u => u.id == g.user)
+  if(u) {
+    g.danWei = u.danWei
+    g.cheJian = u.cheJian
+    g.banZu = u.banZu
+  }
+}
+
 export default new Vuex.Store({
   state: {
-    users: null, groups: null, user: null, std: null, data: null,
+    users: null, groups: null, user: null, std: null, guZhang: null, dict: null,
     vertical: false, loading: false, message: null, error: false
   },
   mutations: {
     auth(state, {data, id, url}) {
+      let dict = {groups: {}}
+      fields.forEach(f => dict[f] = [])
+      data.groups.forEach(g => dict.groups[g.id] = g.name)
       state.groups = data.groups
+      state.groups.forEach(g => g.id != 255 && (g.url = `#/group/${g.id}`))
       data.users.filter(u => u.banZu == null).forEach(u => {
         u.danWei = u.cheJian = null
+      })
+      data.users.forEach(u => {
+        let p = []
+        for(let i = 0; i < 2; i++)
+          if(u.permission >> i & 1)
+            p.push(i)
+        u.permission = p
       })
       state.users = data.users
       data.danWei.forEach(d => {
@@ -33,25 +54,13 @@ export default new Vuex.Store({
           })
         })
       })
-      //data.danWei.unshift({name: '无'})
       state.danWei = data.danWei
+      fields.forEach(f => data.std[f].forEach(d => dict[f][d.id] = d.name))
       state.std = data.std
-      data.data.zhengCheJiaoJian.forEach(d => {
-        //let std = data.std.find(s => s.id == )
-        let g = data.std.guZhang.find(g => g.id == d.guZhang), u
-        for(let k in g)
-          if(k != 'id')
-            d[k] = g[k]
-        if(u = data.users.find(u => u.id == d.user)) {
-          d.danWei = u.danWei
-          d.cheJian = u.cheJian
-          d.banZu = u.banZu
-        }
-      })
-      state.data = data.data
+      state.guZhang = data.guZhang
+      state.dict = dict
+      state.guZhang.zhengCheJiaoJian.forEach(fixGuZhang, state)
 
-      if(!id)
-        id = parseInt(cookie.get('id'))
       state.user = data.users.find(u => u.id == id)
       if(!state.routes) {
         state.routes = true
@@ -62,11 +71,6 @@ export default new Vuex.Store({
         router.replace(url)
       else if(!r || ['home', 'login', 'register', 'reset'].includes(r))
         router.replace('/guZhang')
-    },
-    logout(state) {
-      state.users = state.groups = state.user = null
-      cookie.remove('id')
-      router.replace('/auth/login')
     },
     loading(state, v) {
       state.loading = v

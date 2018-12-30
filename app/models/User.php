@@ -17,7 +17,7 @@ class UserModel extends BaseModel {
         $u = new static;
         $u->name = $data['name'];
         $u->password = crypt($data['password'], md5(rand(0x7fff, 0xffff)));
-        $u->token = rand(1, 0xffff);
+        //$u->token = rand(1, 0xffff);
         $u->save();
         return $u;
       }
@@ -34,7 +34,7 @@ class UserModel extends BaseModel {
         if($u->password != crypt($data['password'], $u->password))
           $err = _('password incorrect');
         else {
-          $u->token = rand(1, 0xffff);
+          //$u->token = rand(1, 0xffff);
           $u->save();
           static::$user = $u;
           return $u;

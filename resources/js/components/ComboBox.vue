@@ -8,7 +8,8 @@ export default {
       while(document.querySelector('#' + this.id))
     return h('input', {attrs: {type: 'text', list: this.id, value: this.value}, on: {
       input: e => this.$emit('input', e.target.value)
-    }}, [h('datalist', {attrs: {id: this.id}}, this.items.map((o, k) => h('option', {attrs: {value: o[valueName]}, key: k})))])
+    }}, [h('datalist', {attrs: {id: this.id}},
+      this.items.map((o, k) => h('option', {attrs: {value: o[valueName]}, key: k})))])
   }
 }
 </script>

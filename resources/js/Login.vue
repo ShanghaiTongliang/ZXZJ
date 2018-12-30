@@ -62,7 +62,7 @@ export default {
       axios.post('api/auth', this.data).then(r => {
         cookie.set('remember', this.data.remember ? 1 : 0)
         this.loading(false)
-        this.auth({data: r.data})
+        this.auth({data: r.data, id: parseInt(cookie.get('id'))})
       }).catch(r => {
         this.loading(false)
         this.err = r.response.data
@@ -73,7 +73,7 @@ export default {
       delete this.data.remember
       axios.post('api/user', this.data).then(r => {
         this.loading(false)
-        this.auth({data: r.data})
+        this.auth({data: r.data, id: parseInt(cookie.get('id'))})
       }).catch(r => {
         this.loading(false)
         this.err = r.response.data

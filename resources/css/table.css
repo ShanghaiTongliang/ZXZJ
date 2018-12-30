@@ -5,6 +5,11 @@
   position: relative;
   overflow: auto;
 }
+.dt-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
 table.datable {
   border-spacing: 0;
   text-align: center;
@@ -15,6 +20,7 @@ table.datable {
   padding-top: .2em;
   position: relative;
 }
+.dt-head, .datable caption {background-color: #bdb}
 .datable tbody {background-color: white}
 .datable thead {white-space: nowrap}
 .datable tr {height: 2em}

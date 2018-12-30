@@ -31,7 +31,7 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
 
   public function _initPlugin(Dispatcher $dispatcher) {
     //注册一个插件
-    $dispatcher->registerPlugin(new AuthPlugin());
+    $dispatcher->registerPlugin(new MiddlewarePlugin());
   }
 
   public function _initRoute(Dispatcher $dispatcher) {
@@ -69,12 +69,33 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         //查看信息
         $p['action'] = 'index';
         $router->get('auth', $p);
+        $p['action'] = 'destroy';
+        $router->delete('auth', $p);
 
         //单位
         $p['controller'] = 'danWei';
         //新建
         $p['action'] = 'store';
         $router->post('danWei', $p);
+      });
+
+      //新建标准参数
+      $p['controller'] = 'standard';
+      $p['action'] = 'store';
+      $router->post('standard/:type', $p, null, $auth);
+
+      //故障
+      $p['controller'] = 'guZhang';
+      $router->middleware($auth, function($router) use($p) {
+        //新建
+        $p['action'] = 'store';
+        $router->post('guZhang/:type', $p);
+        //修改
+        $p['action'] = 'update';
+        $router->put('guZhang/:type/:id', $p);
+        //删除
+        $p['action'] = 'destroy';
+        $router->delete('guZhang/:type/:id', $p);
       });
     });
   }

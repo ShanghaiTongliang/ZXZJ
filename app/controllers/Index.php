@@ -13,7 +13,8 @@ class IndexController extends Yaf\Controller_Abstract {
   }
 
   function testAction() {
-    echo $this->getRequest()->getLanguage();
+    //echo $this->getRequest()->getLanguage();
+    echo json_encode(JWT::decode(JWT::encode(['id' => 1], 'tongliang'), 'tongliang'));
   }
 
   function calcAction() {

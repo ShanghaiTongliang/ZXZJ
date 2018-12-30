@@ -1,4 +1,5 @@
 <?php
+use Zxzj\Redis;
 
 class AuthController extends Yaf\Controller_Abstract {
   function indexAction() {
@@ -26,14 +27,15 @@ class AuthController extends Yaf\Controller_Abstract {
       //单位人员信息
       'danWei' => $dws,
       'std' => [
-        'guZhang' => Table::open('guZhang')::get(),
+        'xiuCheng' => Table::open('xiuCheng')::get(),
         'cheZhong' => Table::open('cheZhong')::get(),
         'daBuWei' => Table::open('daBuWei')::get(),
         'xiaoBuWei' => Table::open('xiaoBuWei')::get(),
         'juTiBuWei' => Table::open('juTiBuWei')::get(),
-        'xiuCheng' => Table::open('xiuCheng')::get(),
+        'guZhang' => Table::open('guZhang')::get(),
+        'dengJi' => Table::open('dengJi')::get(),
       ],
-      'data' => [
+      'guZhang' => [
         'zhengCheJiaoJian' => Table::open('zhengCheJiaoJian')::get()
       ]
     ], JSON_UNESCAPED_UNICODE);
@@ -43,10 +45,20 @@ class AuthController extends Yaf\Controller_Abstract {
   function storeAction() {
     if($u = UserModel::login($_POST, $err)) {
       $t = time();
+      $token = rand(1, 0xffff);
+      $redis = Redis::instance();
+      $redis->set("token$u->id", $token);
       setcookie('id', $u->id, $t + ($_POST['remember'] ?? false ? 86400 * 7 : 1800), PATH);
-      setcookie('token', $u->token, $t + 86400 * 365, PATH, '', false, true);
+      //setcookie('token', $u->token, $t + 86400 * 365, PATH, '', false, true);
+      setcookie('token', JWT::encode(['id' => $u->id, 'token' => $token], 'tongliang'), $t + 86400 * 365, PATH, '', false, true);
       $this->indexAction();
     } else
       response($err);
+  }
+
+  function destroyAction() {
+    $t = time();
+    setcookie('id', 0, $t - 3600, PATH);
+    setcookie('token', 0, $t - 3600, PATH);
   }
 }

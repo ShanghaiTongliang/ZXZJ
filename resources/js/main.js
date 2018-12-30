@@ -1,6 +1,5 @@
 import axios from 'axios'
 import Vue from 'vue'
-import Datable from './components/Datable'
 import router from './router'
 import store from './store'
 import App from './App'

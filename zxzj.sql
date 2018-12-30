@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2018-12-17 03:28:16
+-- 生成日期： 2018-12-31 00:24:04
 -- 服务器版本： 10.2.13-MariaDB-log
 -- PHP 版本： 7.2.2
 
@@ -159,6 +159,16 @@ CREATE TABLE `dengJi` (
   `name` varchar(8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- 转存表中的数据 `dengJi`
+--
+
+INSERT INTO `dengJi` (`id`, `name`) VALUES
+(1, 'A'),
+(2, 'B'),
+(3, 'C'),
+(4, '无');
+
 -- --------------------------------------------------------
 
 --
@@ -187,21 +197,21 @@ INSERT INTO `group` (`id`, `name`, `cheJian`) VALUES
 
 CREATE TABLE `guZhang` (
   `id` smallint(5) UNSIGNED NOT NULL,
-  `cheZhong` smallint(5) UNSIGNED DEFAULT NULL,
-  `daBuWei` tinyint(5) UNSIGNED DEFAULT NULL,
-  `xiaoBuWei` smallint(5) UNSIGNED DEFAULT NULL,
-  `juTiBuWei` smallint(5) UNSIGNED DEFAULT NULL,
-  `name` varchar(64) DEFAULT NULL,
-  `desc` varchar(64) DEFAULT NULL
+  `name` varchar(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- 转存表中的数据 `guZhang`
 --
 
-INSERT INTO `guZhang` (`id`, `cheZhong`, `daBuWei`, `xiaoBuWei`, `juTiBuWei`, `name`, `desc`) VALUES
-(1, 1, 1, 1, 1, 'test', 'test'),
-(2, 1, 1, 1, 1, 'aaa', 'aaa');
+INSERT INTO `guZhang` (`id`, `name`) VALUES
+(1, '鞍形'),
+(2, '安定起紧急'),
+(3, '凹痕'),
+(4, '凹凸'),
+(5, '凹陷'),
+(6, '剥离1处'),
+(7, '剥离2处');
 
 -- --------------------------------------------------------
 
@@ -235,6 +245,9 @@ CREATE TABLE `lingBuJianChouJian` (
   `id` int(10) UNSIGNED NOT NULL,
   `date` date DEFAULT NULL,
   `xiuCheng` tinyint(3) UNSIGNED DEFAULT NULL,
+  `daBuWei` tinyint(3) UNSIGNED DEFAULT NULL,
+  `xiaoBuWei` smallint(5) UNSIGNED DEFAULT NULL,
+  `juTiBuWei` smallint(5) UNSIGNED DEFAULT NULL,
   `guZhang` smallint(5) UNSIGNED DEFAULT NULL,
   `dengJi` tinyint(3) UNSIGNED DEFAULT NULL,
   `zhiJianYuan` varchar(16) DEFAULT NULL,
@@ -296,7 +309,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `name`, `password`, `token`, `groups`, `banZu`) VALUES
-(1, 'oblind', 'ddHSDUw8lB75s', 59192, '[255]', NULL),
+(1, 'oblind', 'ddHSDUw8lB75s', 26440, '[255]', NULL),
 (2, 'realarzt', '938/kIkECvYAc', 63246, '[255]', NULL),
 (3, '关强', 'ddHSDUw8lB75s', 123, '[1]', 1),
 (4, '夏云飞', 'ddHSDUw8lB75s', 123, '[1]', 2);
@@ -356,6 +369,10 @@ CREATE TABLE `zhengCheJiaoJian` (
   `id` int(11) NOT NULL,
   `date` date DEFAULT NULL,
   `xiuCheng` tinyint(4) DEFAULT NULL,
+  `cheZhong` smallint(5) UNSIGNED DEFAULT NULL,
+  `daBuWei` tinyint(3) UNSIGNED DEFAULT NULL,
+  `xiaoBuWei` smallint(5) UNSIGNED DEFAULT NULL,
+  `juTiBuWei` smallint(5) UNSIGNED DEFAULT NULL,
   `guZhang` smallint(5) UNSIGNED DEFAULT NULL,
   `dengJi` tinyint(3) UNSIGNED DEFAULT NULL,
   `user` smallint(5) UNSIGNED DEFAULT NULL
@@ -365,9 +382,10 @@ CREATE TABLE `zhengCheJiaoJian` (
 -- 转存表中的数据 `zhengCheJiaoJian`
 --
 
-INSERT INTO `zhengCheJiaoJian` (`id`, `date`, `xiuCheng`, `guZhang`, `dengJi`, `user`) VALUES
-(1, '2018-12-11', 3, 1, 1, 3),
-(2, '2018-12-11', 2, 2, 1, 4);
+INSERT INTO `zhengCheJiaoJian` (`id`, `date`, `xiuCheng`, `cheZhong`, `daBuWei`, `xiaoBuWei`, `juTiBuWei`, `guZhang`, `dengJi`, `user`) VALUES
+(1, '2018-12-11', 3, 4, 9, 2, 1, 1, 3, 3),
+(2, '2018-12-11', 2, 1, 2, 3, 2, 2, 1, 4),
+(4, '2018-12-30', 1, 1, 1, 1, 4, 1, 1, 3);
 
 --
 -- 转储表的索引
@@ -519,13 +537,13 @@ ALTER TABLE `danWei`
 -- 使用表AUTO_INCREMENT `dengJi`
 --
 ALTER TABLE `dengJi`
-  MODIFY `id` tinyint(4) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` tinyint(4) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- 使用表AUTO_INCREMENT `guZhang`
 --
 ALTER TABLE `guZhang`
-  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- 使用表AUTO_INCREMENT `juTiBuWei`
@@ -573,7 +591,7 @@ ALTER TABLE `xiuCheng`
 -- 使用表AUTO_INCREMENT `zhengCheJiaoJian`
 --
 ALTER TABLE `zhengCheJiaoJian`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -119,6 +119,10 @@ export default {
     touchEnd(e) {
       if(this.move) {
         this.move = false
+        if(this.w < 50) {
+          this.w = 50
+          this.$emit('visible', this.v = false)
+        }
         this.$emit('resize', this.w + 'px')
       }
     }
