@@ -55,7 +55,9 @@ export default {
         caption: '删除',
         condition,
         onclick(d, i) {
-          const del = () => p.tbl.data.splice(i, 1)
+          const del = () => {
+            p.tbl.data.splice(i, 1)
+          }
           if(ctx.listeners.delete)
             ctx.listeners.delete(d, i, del)
           else

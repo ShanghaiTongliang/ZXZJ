@@ -1,13 +1,42 @@
 <?php
+
 class StandardController extends Yaf\Controller_Abstract {
-  function storeAction() {
-    $t = $this->getRequest()->getParams()['type'];
-    if(in_array($t, ['cheZhong', 'daBuWei', 'xiaoBuWei', 'juTiBuWei', 'guZhang'])) {
-      $o = Table::open($t);
-      $o->name = file_get_contents('php://input');
-      $o->save();
-      echo $o;
-    } else
+  function getParams() {
+    $p = $this->getRequest()->getParams();
+    if(in_array($p['type'], ['xiuCheng', 'cheZhong', 'daBuWei', 'xiaoBuWei', 'juTiBuWei', 'guZhang', 'dengJi']))
+      return $p;
+    else
       response(_('standard type not found'), RES_NOT_FOUND);
+  }
+
+  function storeAction() {
+    if($p = $this->getParams()) {
+      $s = Table::open($p['type']);
+      $s->name = file_get_contents('php://input');
+      $s->save();
+      echo $s;
+    }
+  }
+
+  function updateAction() {
+    if($p = $this->getParams()) {
+      if($s = Table::open($p['type'])::find($p['id'])) {
+        $a = json_decode(file_get_contents('php://input'));
+        foreach($a as $k => $v)
+          $s->$k = $v;
+        $s->save();
+      } else
+        response(_('standard not found'), RES_NOT_FOUND);
+    }
+  }
+
+  function destroyAction() {
+    if($p = $this->getParams()) {
+      if($s = Table::open($p['type'])::find($p['id'])) {
+        $s->delete();
+        $s->resetAutoIncrement();
+      } else
+        response(_('standard not found'), RES_NOT_FOUND);
+    }
   }
 }

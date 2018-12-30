@@ -21,7 +21,7 @@ export default {
   data() {
     return {
       menu: [{
-        name: 'guZhang',
+        name: '_guZhang',
         caption: '故障录入',
         href: '#/guZhang',
         items: [{
@@ -65,6 +65,37 @@ export default {
         caption: '用户组',
         href: '#/group'
       }, {
+        caption: '基础数据',
+        items: [{
+          name: 'xiuCheng',
+          caption: '修程',
+          href: '#/standard/xiuCheng'
+        }, {
+          name: 'cheZhong',
+          caption: '车种',
+          href: '#/standard/cheZhong'
+        }, {
+          name: 'daBuWei',
+          caption: '大部位',
+          href: '#/standard/daBuWei'
+        }, {
+          name: 'xiaoBuWei',
+          caption: '小部位',
+          href: '#/standard/xiaoBuWei'
+        }, {
+          name: 'juTiBuWei',
+          caption: '具体部位',
+          href: '#/standard/juTiBuWei'
+        }, {
+          name: 'guZhang',
+          caption: '故障',
+          href: '#/standard/guZhang'
+        }, {
+          name: 'dengJi',
+          caption: '等级',
+          href: '#/standard/dengJi'
+        }]
+      }, {
         name: 'test',
         caption: '测试',
         href: '#/test'
@@ -100,27 +131,7 @@ export default {
   methods: {
     select(selection) {
       this.selection = selection
-    },
-    setRoute(r) {
-      function find(menu, r) {
-        for(let m of menu) {
-          for(let i = r.matched.length - 1; i > 0; i--)
-            if(m.name == r.matched[i].name)
-              return m
-          if(m.items) {
-            let v = find(m.items, r)
-            if(v)
-              return v
-          }
-        }
-      }
-      this.selection = find(this.menu, r)
     }
-  },
-  mounted() {
-    /*if(!this.$route.name) {
-      this.$router.replace('/guZhang')
-    }*/
   }
 }
 </script>

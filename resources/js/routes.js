@@ -5,6 +5,7 @@ import LingBuJianJiaoJian from './LingBuJianJiaoJian.vue'
 import DanWei from './DanWei.vue'
 import User from './User.vue'
 import Group from './Group.vue'
+import Standard from './Standard.vue'
 import Test from './Test.vue'
 
 export default [{
@@ -12,7 +13,7 @@ export default [{
   path: '/',
   component: Frame,
   children: [{
-    name: 'guZhang',
+    name: '_guZhang',
     path: '/guZhang',
     component: GuZhang,
   }, {
@@ -76,6 +77,32 @@ export default [{
         name: 'createGroupCheJian',
         path: 'create'
       }]
+    }]
+  }, {
+    name: 'standard',
+    path: 'standard',
+    component: Standard,
+    children: [{
+      name: 'xiuCheng',
+      path: 'xiuCheng'
+    }, {
+      name: 'cheZhong',
+      path: 'cheZhong'
+    }, {
+      name: 'daBuWei',
+      path: 'daBuWei'
+    }, {
+      name: 'xiaoBuWei',
+      path: 'xiaoBuWei'
+    }, {
+      name: 'juTiBuWei',
+      path: 'juTiBuWei'
+    }, {
+      name: 'guZhang',
+      path: 'guZhang'
+    }, {
+      name: 'dengJi',
+      path: 'dengJi'
     }]
   }, {
     name: 'test',

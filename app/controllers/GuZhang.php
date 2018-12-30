@@ -1,4 +1,5 @@
 <?php
+
 class GuZhangController extends Yaf\Controller_Abstract {
   function getParams() {
     $p = $this->getRequest()->getParams();
@@ -10,23 +11,18 @@ class GuZhangController extends Yaf\Controller_Abstract {
 
   function storeAction() {
     if($p = $this->getParams()) {
-      $t = $p['type'];
-      if($g = Table::open($t)) {
-        foreach($_POST as $k => $v)
-          $g->$k = $v;
-        $g->save();
-        //echo json_encode(['id' => $g->id]);
-        echo $g->id;
-      } else
-        response(_('guZhang not found'), RES_NOT_FOUND);
+      $g = Table::open($p['type']);
+      foreach($_POST as $k => $v)
+        $g->$k = $v;
+      $g->save();
+      echo $g->id;
     }
   }
 
   function updateAction() {
     if($p = $this->getParams()) {
-      $t = $p['type'];
-      $a = json_decode(file_get_contents('php://input'));
-      if($g = Table::open($t)::find($p['id'])) {
+      if($g = Table::open($p['type'])::find($p['id'])) {
+        $a = json_decode(file_get_contents('php://input'));
         foreach($a as $k => $v)
           $g->$k = $v;
         $g->save();

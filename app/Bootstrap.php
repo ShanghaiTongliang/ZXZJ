@@ -79,10 +79,19 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $router->post('danWei', $p);
       });
 
-      //新建标准参数
+      //标准参数
       $p['controller'] = 'standard';
-      $p['action'] = 'store';
-      $router->post('standard/:type', $p, null, $auth);
+      $router->middleware($auth, function($router) use($p) {
+        //新建
+        $p['action'] = 'store';
+        $router->post('standard/:type', $p);
+        //修改
+        $p['action'] = 'update';
+        $router->put('standard/:type/:id', $p);
+        //删除
+        $p['action'] = 'destroy';
+        $router->delete('standard/:type/:id', $p);
+      });
 
       //故障
       $p['controller'] = 'guZhang';
