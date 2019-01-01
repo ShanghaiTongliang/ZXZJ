@@ -2,7 +2,12 @@
 import {clone} from './merge'
 import Vue from 'vue'
 import Datable from './Datable'
-
+/**
+ * 事件
+ * editable(row, i) 返回true/false决定某行是否可编辑
+ * edit(row, i) 点击编辑按钮
+ * save(row, i, next) 点击保存按钮, 调用next()进行保存，可用于异步
+ */
 export default {
   functional: true,
   props: ['tbl', 'selection'],

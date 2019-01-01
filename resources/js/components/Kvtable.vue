@@ -11,10 +11,10 @@
 .kvtable input[type=text] {min-width: 4em}
 </style>
 <script>
+import Vue from 'vue'
 import Edit from './Edit'
 import Pinyin from './Pinyin'
 import TableCell from './TableCell'
-import { install } from 'vuex';
 
 export default {
   components: {Edit, Pinyin, TableCell},
@@ -42,15 +42,14 @@ export default {
               let l = c.master ? cols[c.master[0]] && cols[c.master[0]].items : c.items
               if(l instanceof Function)
                 l = l.call(this.$parent, row, i)
-              if(c.master && l) {
-                let keyName = c.keyName || this.options.keyName
+              let keyName = c.keyName || this.options.keyName
+              if(c.master && l)
                 for(let k = 0; k < c.master.length; k++) {
                   let cc = cols[c.master[k]], itemName = cc.itemName || this.options.itemName
                   l = l.find(v => v[keyName] == row[c.master[k]])
                   if(!l || !(l = l[itemName]))
                     break
                 }
-              }
               if(c.render instanceof Function) {
                 //if(c.master && l)
                 //  l = f(c, l, row)
@@ -59,8 +58,20 @@ export default {
               } else if(this.tbl.editing && c.type && (c.editable === undefined || (c.editable instanceof Function ? c.editable.call(this.$parent) : c.editable))) {
                 //if(c.master && l)
                 //  l = f(c, l, row)
-                td.push(h('table-cell', {props: {columns: cols, row, key: i, items: l, slaves: this.slaves, options: this.options}, on: {
-                  input: d => c.onchange && c.onchange.call(this.$parent, d, i)
+                td.push(h('table-cell', {props: {column: cols[i], value: row[i], items: l, options: this.options}, on: {
+                  input: d => {
+                    let c = cols[i]
+                    row[i] = d
+                    if(c.type == 'select' && this.slaves && this.slaves[i])
+                      for(let s of this.slaves[i]) {
+                        let sl = l.find(v => v[keyName] == row[i])
+                        if(sl && (sl = sl[s]) && sl.length)
+                          Vue.set(row, s, sl[0][keyName])
+                        else
+                          Vue.set(row, s, null)
+                      }
+                    c.onchange && c.onchange.call(this.$parent, d, i)
+                  }
                 }}))
               } else {
                 let t

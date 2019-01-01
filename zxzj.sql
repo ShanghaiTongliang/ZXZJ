@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2018-12-31 00:24:04
+-- 生成日期： 2019-01-02 06:06:10
 -- 服务器版本： 10.2.13-MariaDB-log
 -- PHP 版本： 7.2.2
 
@@ -186,7 +186,9 @@ CREATE TABLE `group` (
 --
 
 INSERT INTO `group` (`id`, `name`, `cheJian`) VALUES
-(1, '杭州北车辆段', '[{\"id\":1,\"permission\":255},{\"id\":2,\"permission\":255},{\"id\":3,\"permission\":255}]'),
+(1, '上海东车辆段管理员', '[{\"id\":1,\"permission\":255},{\"id\":3,\"permission\":3},{\"id\":2,\"permission\":3}]'),
+(2, '上海东车辆段质检员', '[{\"id\":1,\"permission\":1},{\"id\":2,\"permission\":1},{\"id\":3,\"permission\":1}]'),
+(3, '上海东车辆段', '[{\"id\":1,\"permission\":0},{\"id\":2,\"permission\":0},{\"id\":3,\"permission\":0}]'),
 (255, '管理员', '[]');
 
 -- --------------------------------------------------------
@@ -216,6 +218,28 @@ INSERT INTO `guZhang` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
+-- 表的结构 `guZhangList`
+--
+
+CREATE TABLE `guZhangList` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `daBuWei` tinyint(3) UNSIGNED DEFAULT NULL,
+  `xiaoBuWei` smallint(5) UNSIGNED DEFAULT NULL,
+  `juTiBuWei` smallint(5) UNSIGNED DEFAULT NULL,
+  `guZhang` smallint(5) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `guZhangList`
+--
+
+INSERT INTO `guZhangList` (`id`, `daBuWei`, `xiaoBuWei`, `juTiBuWei`, `guZhang`) VALUES
+(1, 2, 1, 2, 1),
+(2, 1, 2, 1, 2);
+
+-- --------------------------------------------------------
+
+--
 -- 表的结构 `juTiBuWei`
 --
 
@@ -238,10 +262,10 @@ INSERT INTO `juTiBuWei` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `lingBuJianChouJian`
+-- 表的结构 `lingBuJianChouYang`
 --
 
-CREATE TABLE `lingBuJianChouJian` (
+CREATE TABLE `lingBuJianChouYang` (
   `id` int(10) UNSIGNED NOT NULL,
   `date` date DEFAULT NULL,
   `xiuCheng` tinyint(3) UNSIGNED DEFAULT NULL,
@@ -383,9 +407,11 @@ CREATE TABLE `zhengCheJiaoJian` (
 --
 
 INSERT INTO `zhengCheJiaoJian` (`id`, `date`, `xiuCheng`, `cheZhong`, `daBuWei`, `xiaoBuWei`, `juTiBuWei`, `guZhang`, `dengJi`, `user`) VALUES
-(1, '2018-12-11', 3, 4, 9, 2, 1, 1, 3, 3),
+(1, '2018-12-11', 3, 3, 9, 2, 1, 1, 3, 3),
 (2, '2018-12-11', 2, 1, 2, 3, 2, 2, 1, 4),
-(4, '2018-12-30', 1, 1, 1, 1, 4, 1, 1, 3);
+(4, '2018-12-30', 1, 1, 1, 1, 4, 1, 1, 3),
+(5, '2018-12-31', 1, 5, 2, 4, 5, 6, 1, 3),
+(6, '2019-01-01', 1, 3, 2, 1, 2, 1, 1, 4);
 
 --
 -- 转储表的索引
@@ -446,15 +472,21 @@ ALTER TABLE `guZhang`
   ADD PRIMARY KEY (`id`);
 
 --
+-- 表的索引 `guZhangList`
+--
+ALTER TABLE `guZhangList`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- 表的索引 `juTiBuWei`
 --
 ALTER TABLE `juTiBuWei`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `lingBuJianChouJian`
+-- 表的索引 `lingBuJianChouYang`
 --
-ALTER TABLE `lingBuJianChouJian`
+ALTER TABLE `lingBuJianChouYang`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -546,15 +578,21 @@ ALTER TABLE `guZhang`
   MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- 使用表AUTO_INCREMENT `guZhangList`
+--
+ALTER TABLE `guZhangList`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- 使用表AUTO_INCREMENT `juTiBuWei`
 --
 ALTER TABLE `juTiBuWei`
   MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- 使用表AUTO_INCREMENT `lingBuJianChouJian`
+-- 使用表AUTO_INCREMENT `lingBuJianChouYang`
 --
-ALTER TABLE `lingBuJianChouJian`
+ALTER TABLE `lingBuJianChouYang`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -591,7 +629,7 @@ ALTER TABLE `xiuCheng`
 -- 使用表AUTO_INCREMENT `zhengCheJiaoJian`
 --
 ALTER TABLE `zhengCheJiaoJian`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

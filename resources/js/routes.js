@@ -2,6 +2,8 @@ import Frame from './Frame.vue'
 import GuZhang from './GuZhang.vue'
 import ZhengCheJiaoJian from './ZhengCheJiaoJian.vue'
 import LingBuJianJiaoJian from './LingBuJianJiaoJian.vue'
+import LingBuJianChouYang from './LingBuJianChouYang.vue'
+import LingBuJianFuJian from './LingBuJianFuJian.vue'
 import DanWei from './DanWei.vue'
 import User from './User.vue'
 import Group from './Group.vue'
@@ -28,6 +30,14 @@ export default [{
     name: 'lingBuJianJiaoJian',
     path: '/guZhang/lingBuJianJiaoJian',
     component: LingBuJianJiaoJian
+  }, {
+    name: 'lingBuJianChouYang',
+    path: '/guZhang/lingBuJianChouYang',
+    component: LingBuJianChouYang
+  }, {
+    name: 'lingBuJianFuJian',
+    path: '/guZhang/lingBuJianFuJian',
+    component: LingBuJianFuJian
   }, {
     name: 'chouYangJianCha',
     path: '/jianCha/chouYang'

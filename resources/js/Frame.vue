@@ -9,7 +9,7 @@
     <resizer>
       <side-menu id="nav" :menu="menu" :selection="selection" @select="select"></side-menu>
     </resizer>
-    <router-view :key="$route.fullPath" class="container"></router-view>
+    <router-view class="container"></router-view>
   </div>
 </template>
 <script>
@@ -104,13 +104,12 @@ export default {
     }
   },
   watch: {
-    '$route': {
+    $route: {
       immediate: true,
-      handler(r) {
-        if(!r.name) {
+      handler(r, from) {
+        if(!r.name)
           this.$router.replace('/guZhang')
-          console.log('path not found')
-        } else {
+        else {
           function find(menu, r) {
             for(let m of menu) {
               for(let i = r.matched.length - 1; i > 0; i--)

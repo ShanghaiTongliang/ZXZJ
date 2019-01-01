@@ -1,8 +1,5 @@
 <style>
-.side-menu {
-  margin: 0;
-  overflow: auto;
-}
+.side-menu {overflow: auto}
 .side-menu .menu {margin: 0 0 0 1.5em}
 .click {cursor: pointer}
 </style>

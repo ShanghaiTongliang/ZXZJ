@@ -20,7 +20,6 @@ function base64url_decode(string $s): string {
 }
 
 function response($msg, $code = RES_BAD_REQUEST) {
-  //header("{$_SERVER['SERVER_PROTOCOL']} $code {$codes[$code]}");
   header("{$_SERVER['SERVER_PROTOCOL']} $code");
   echo is_array($msg) || is_object($msg) ? json_encode($msg, JSON_UNESCAPED_UNICODE) : $msg;
 }

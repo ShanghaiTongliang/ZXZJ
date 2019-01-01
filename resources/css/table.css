@@ -16,6 +16,7 @@ table.datable {
   width: 100%;
 }
 .datable caption {
+  min-height: 1.2em;
   font-weight: bold;
   padding-top: .2em;
   position: relative;

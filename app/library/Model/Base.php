@@ -210,7 +210,7 @@ abstract class Base extends Decachable implements JsonSerializable {
         if($this->_create) {
           foreach($this->_col as $c)
             $cs[] = "`$c`";
-          $s = $db->prepare('insert into ' . static::getTableName() . ' (' . implode(', ', $cs) . ') values (' . implode(', ', array_fill(0, count($this->_col), '?')) . ')');
+          $s = $db->prepare('insert into `' . static::getTableName() . '` (' . implode(', ', $cs) . ') values (' . implode(', ', array_fill(0, count($this->_col), '?')) . ')');
           $s->execute($v);
           if($primary = $db->lastInsertId())
             $this->{static::$primary} = intval($primary);
@@ -219,7 +219,7 @@ abstract class Base extends Decachable implements JsonSerializable {
           $k = [];
           foreach($this->_col as $c)
             $k[] = "`$c`=?";
-          $sql = 'update ' . static::getTableName() . ' set ' . implode(', ', $k) . ' where ' . static::$primary . '=' . $this->{static::$primary};
+          $sql = 'update `' . static::getTableName() . '` set ' . implode(', ', $k) . ' where ' . static::$primary . '=' . $this->{static::$primary};
           $s = $db->prepare($sql);
           //$s = $db->prepare('update ' . static::getTableName() . ' set ' . implode(', ', $k) . ' where ' . static::$primary . '=' . $this->{static::$primary});
           $r = $s->execute($v);

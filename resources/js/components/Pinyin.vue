@@ -12,6 +12,7 @@
   min-width: 100%;
   max-height: 6.5em;
   overflow: auto;
+  z-index: 100;
 }
 .pinyin li {padding: 0 .2em}
 .pinyin li.select {background-color: lightblue}
@@ -53,13 +54,10 @@ export default {
             e.stopPropagation()
             e.target.value = this.match[this.index][valueName]
             this.$emit('input', e.target.value)
-            this.popup = false
           }
         },
         focus: () => this.popup = true,
-        blur: () => {
-          setTimeout(() => this.popup = false, 200)
-        }
+        blur: () => setTimeout(() => this.popup = false, 200)
       }}), h('ul', {style: {display: this.popup ? null : 'none'}, ref: 'items'}, this.match.map((o, i) => {
         let a = {key: i, on: {
           mouseenter: () => this.index = i,

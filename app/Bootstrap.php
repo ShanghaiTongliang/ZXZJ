@@ -79,6 +79,18 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $router->post('danWei', $p);
       });
 
+      //用户组
+      $p['controller'] = 'group';
+      $router->middleware($auth, function($router) use($p) {
+        //组
+        $p['action'] = 'store';
+        $router->post('group', $p);
+        $p['action'] = 'update';
+        $router->put('group/:id', $p);
+        $p['action'] = 'destroy';
+        $router->delete('group/:id', $p);
+      });
+
       //标准参数
       $p['controller'] = 'standard';
       $router->middleware($auth, function($router) use($p) {

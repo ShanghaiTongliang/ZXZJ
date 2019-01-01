@@ -3,7 +3,7 @@
 class StandardController extends Yaf\Controller_Abstract {
   function getParams() {
     $p = $this->getRequest()->getParams();
-    if(in_array($p['type'], ['xiuCheng', 'cheZhong', 'daBuWei', 'xiaoBuWei', 'juTiBuWei', 'guZhang', 'dengJi']))
+    if(in_array($p['type'], ['xiuCheng', 'cheZhong', 'daBuWei', 'xiaoBuWei', 'juTiBuWei', 'guZhang', 'dengJi', 'guZhangList']))
       return $p;
     else
       response(_('standard type not found'), RES_NOT_FOUND);

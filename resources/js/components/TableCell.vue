@@ -13,105 +13,91 @@ import ComboBox from './ComboBox'
 import Pinyin from './Pinyin'
 
 export default {
-  functional: true,
-  props: ['columns', 'row', 'key', 'items', 'slaves', 'options'],
+  props: ['column', 'value', 'items', 'options'],
   components: {Edit, ComboBox, Pinyin},
-  render(h, ctx) {
-    let p = ctx.props, c = p.columns[p.key], r
+  render(h) {
+    let c = this.column, r
     if(c.type) {
-      let keyName = c.keyName || p.options.keyName, valueName = c.valueName || p.options.valueName
+      let keyName = c.keyName || this.options.keyName, valueName = c.valueName || this.options.valueName
       switch(c.type) {
       case 'radio':
-        r = p.items.map((o, k) => h('label', {key: k}, [h('input', {
+        r = this.items.map((o, k) => h('label', {key: k}, [h('input', {
           attrs: {type: 'radio', value: o[keyName]},
-          domProps: {checked: p.row[p.key] == o[keyName]},
+          domProps: {checked: this.value == o[keyName]},
           on: {
-            change: e => p.row[p.key] = e.target.value
+            change: e => this.$emit('input', e.target.value)
           }
         }), h('span', {domProps: {innerHTML: o[valueName]}})]))
         break
       case 'select':
         let os = []
-        if(p.items && p.items.length) {
+        if(this.items && this.items.length) {
           let f
-          p.items.forEach((v, i) => {
+          this.items.forEach((v, i) => {
             let o = {value: v[keyName], innerHTML: v[valueName]}
-            if(p.row[p.key] == v[keyName]) {
+            if(this.value == v[keyName]) {
               o.selected = true
               f = true
             }
             os.push(h('option', {domProps: o, key: i}))
           })
-          if(!f && p.items && p.items.length)
-            p.row[p.key] = p.items[0][keyName]
-        } else if(p.row[p.key] !== undefined && p.row[p.key] !== null)
-          p.row[p.key] = null
+          if(!f && this.items && this.items.length)
+            this.$emit('input', this.items[0][keyName])
+        } else if(this.value !== undefined && this.value !== null)
+          this.$emit('input', null)
         r = [h('select', {on: {
-          change: e => {
-            p.row[p.key] = e.target.value === '' ? null : isNaN(e.target.value) ? e.target.value : parseInt(e.target.value)
-            if(p.slaves && p.slaves[p.key])
-              for(let s of p.slaves[p.key]) {
-                let l = p.items.find(v => v[keyName] == p.row[p.key])
-                if(l && (l = l[s]) && l.length)
-                  Vue.set(p.row, s, l[0][keyName])
-                else
-                  Vue.set(p.row, s, null)
-              }
-            if(ctx.listeners.input)
-              ctx.listeners.input(p.row)
-          }
+          change: e => this.$emit('input', e.target.value === '' ? null : isNaN(e.target.value) ? e.target.value : parseInt(e.target.value))
         }}, os)]
         break
       case 'checkbox':
-        r = p.items && p.items.map((o, k) => h('label', {key: k}, [h('input', {
+        r = this.items && this.items.map((o, k) => h('label', {key: k}, [h('input', {
           attrs: {type: 'checkbox', value: o[keyName]},
-          domProps: {checked: p.row[p.key] && p.row[p.key].find(v => v == o[keyName])},
+          domProps: {checked: this.value && this.value.find(v => v == o[keyName])},
           on: {
             change: e => {
-              let i = 0, c
-              if(p.row[p.key]) c = p.row[p.key].length
-              else {
+              let i, c, v
+              if(this.value) {
+                v = this.value
+                c = v.length
+              } else {
+                v = []
                 c = 0
-                p.row[p.key] = []
               }
-              for(; i < c; i++)
-                if(p.row[p.key][i] == e.target.value)
+              for(i = 0; i < c; i++)  //indexOf不能类型转换
+                if(v[i] == e.target.value)
                   break
               if(e.target.checked) {
                 if(i >= c) {
-                  p.row[p.key].push(o[keyName])
-                  p.row[p.key].sort()
+                  v.push(o[keyName])
+                  v.sort()
                 }
               } else if(i < c)
-                p.row[p.key].splice(i, 1)
+                v.splice(i, 1)
+              this.$emit('input', v)
             }
           }
         }), h('span', {domProps: {innerHTML: o[valueName]}})]))
         return h('td', {class: 'tc-chk'}, r)
       case 'pre':
-        r = [h('edit', {attrs: {value: p.row[p.key]}, on: {
-          input: v => p.row[p.key] = v
+        r = [h('edit', {props: {value: this.value}, on: {
+          input: v => this.$emit('input', v)
         }, props: {readonly: c.readonly instanceof Function ? c.readonly.call(ctx.parent) : c.readonly}})]
         break
       case 'combo':
-        r = [h('combo-box', {on: {
-          input: v => {
-            p.row[p.key] = v
-            ctx.listeners.input && ctx.listeners.input(v)
-          },
-        }, props: {value: p.row[p.key], items: p.items}})]
+        r = [h('combo-box', {props: {value: this.value, items: this.items}, on: {
+          input: v => this.$emit('input', v)
+        }})]
         break
       case 'pinyin':
-        r = [h('pinyin', {on: {
+        r = [h('pinyin', {props: {value: this.value, items: this.items || []}, on: {
           input: v => {
-            Vue.set(p.row, p.key, v)
-            ctx.listeners.input && ctx.listeners.input(v)
+            this.$emit('input', v)
           }
-        }, props: {value: p.row[p.key], items: p.items || []}})]
+        }})]
         break
       default:
-        r = [h('input', {attrs: {type: c.type, value: p.row[p.key]}, on: {
-          input: e => p.row[p.key] = e.target.value
+        r = [h('input', {attrs: {id: this.key, type: c.type}, domProps: {value: this.value}, on: {
+          input: e => this.$emit('input', e.target.value)
         }})]
       }
     }

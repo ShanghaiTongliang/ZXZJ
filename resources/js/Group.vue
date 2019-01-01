@@ -8,37 +8,26 @@
   min-width: 3em;
 }
 .group, .group span {display: inline-block}
+.green, .red {font-weight: bold}
+.green {color: green}
+.red {color: red}
 </style>
-<template>
-  <moditable v-if="$route.name == 'groups'" :tbl="tbl" @editable="editable">
-    <a href="#/group/create" class="act">新建用户组</a>
-  </moditable>
-  <moditable v-else-if="$route.name == 'group'" :tbl="tblGroup">
-    <div class="act">
-      <a href="#/group">返回</a>
-      <a :href="`#/group/${$route.params.gid}/create`">添加车间</a>
-    </div>
-  </moditable>
-  <kvtable v-else-if="$route.name == 'createGroupCheJian'" :tbl="kvPermission" :vertical="vertical">
-    <a :href="`#/group/${$route.params.gid}`" class="act">返回</a>
-  </kvtable>
-  <kvtable v-else :tbl="kv" :vertical="vertical">
-    <a href="#/group" class="act">返回</a>
-  </kvtable>
-</template>
-
 <script>
-import {mapState} from 'vuex'
+import axios from 'axios'
+import {mapState, mapMutations} from 'vuex'
 import Kvtable from './components/Kvtable'
 import Datable from './components/Datable'
 import Moditable from './components/Moditable'
+import {fixGroup} from './store'
 
 const cp = [{
   id: 1,
-  name: '数据'
+  name: '数据',
+  color: 'green'
 }, {
   id: 2,
-  name: '管理'
+  name: '管理',
+  color: 'red'
 }]
 const columns = {
   id: {
@@ -56,42 +45,23 @@ const columns = {
   cheJian: {
     caption: '车间',
     filter(cs) {
-      return cs.map(o => this.cheJian.find(c => c.id == o.id).name).join(', ')
+      let d = this.$store.state.dict.cheJian
+      return cs.map(c => {
+        let i, r = d[c.id].name
+        for(i = 0; i < cp.length; i++)
+          if(c.permission & cp[i].id)
+            r += ':' + `<span class="${cp[i].color}">${cp[i].name}</span>`
+        return r
+      }).join(', ')
     },
     items: null,
-    /*render(h, d, k, i, l) {
-      if(l) {
-        if(this.tbl.editingIndex == i) {
-          return d[k].map((c, i) => {
-            let r = [], j
-            for(j = 0; j < cp.length; j++)
-              r.push(h('label', [h('input', {
-                attrs: {type: 'checkbox', value: 1 << j},
-                domProps: {checked: c.permission >> j & 1},
-                on: {
-                  change: e => {
-                    d[k][i].permission ^= e.target.value
-                    console.log(e.target.value, e.target.checked, c.id, d[k][i].permission)
-                  }
-                }
-              }), h('span', cp[j].name)]))
-            return h('div', {class: 'group'}, [l.find(o => o.id == c.id).name, h('div', r)])
-          })
-        } else {
-          return d[k].map(c => {
-            let r = [], i
-            for(i = 0; i < cp.length; i++)
-              if(c.permission >> i & 1)
-                r.push(cp[i].name)
-            return l.find(o => o.id == c.id).name + '(' + r.join(',') + ')'
-          }).join(', ')
-        }
-      }
-    }*/
   }
 }, colGroup = {
-  id: 'id',
-  name: '车间',
+  id: {
+    caption: '车间',
+    type: 'select',
+    items: null
+  },
   permission: {
     caption: '权限',
     type: 'checkbox',
@@ -101,12 +71,40 @@ const columns = {
 
 export default {
   components: {Kvtable, Datable, Moditable},
+  render(h) {
+    switch(this.$route.name) {
+    case 'groups':
+      return h('moditable', {props: {tbl: this.tbl}, on: {
+        editable: this.editable,
+        save: this.save,
+        delete: this.del
+      }}, [h('a', {attrs: {href: '#/group/create', class: 'act'}}, '新建用户组')])
+      break
+    case 'group':
+      return h('moditable', {props: {tbl: this.tblGroup}, on: {
+        save: this.groupSave,
+        delete: this.groupDel
+      }}, [h('div', {attrs: {class: 'act'}}, [
+        h('a', {attrs: {href: '#/group'}}, '返回'), ' ',
+        h('a', {attrs: {href: `#/group/${this.$route.params.gid}/create`}}, '添加车间')
+      ])])
+      break
+    case 'createGroupCheJian':
+      this.kvPermission.columns.id.items = this.cheJian.filter(c => !this.group.cheJian.find(v => v.id == c.id))
+      return h('kvtable', {props: {tbl: this.kvPermission, vertical: this.vertical}},
+        [h('a', {attrs: {href: `#/group/${this.$route.params.gid}`, class: 'act'}}, '返回')])
+      break
+    default:
+      return h('kvtable', {props: {tbl: this.kv, vertical: this.vertical}},
+        [h('a', {attrs: {href: `#/group/${this.$route.params.gid}`, class: 'act'}}, '返回')])
+    }
+  },
   data() {
     return {
       tbl: {
         caption: '用户组',
         columns,
-        data: this.$store.state.groups
+        data: null
       },
       kv: {
         caption: '新建用户组',
@@ -114,11 +112,30 @@ export default {
         actions: [{
           caption: '保存',
           onclick(d) {
-            this.$store.state.groups.push(d)
-            this.$router.push('/group')
+            let id = parseInt(d.id), g
+            if(isNaN(id) || id < 1 || id > 254)
+              this.error('id 范围: 1~254')
+            else if(!d.name)
+              this.error('请输入用户组名称')
+            else if(g = this.groups.find(g => g.id == d.id || g.name == d.name))
+              this.error(`${g.id}: ${g.name} 已经存在`)
+            else {
+              this.loading(true)
+              axios.post('api/group', d).then(() => {
+                this.groups.push(d)
+                this.groups.sort((a, b) => a.id - b.id)
+                fixGroup(d)
+                this.$router.push('/group')
+                this.loading(false)
+                this.message('保存成功')
+              }).catch(r => {
+                this.loading(false)
+                this.error(r.response.data)
+              })
+            }
           }
         }],
-        data: {},
+        data: null,
         editing: true
       },
       tblGroup: {
@@ -143,7 +160,24 @@ export default {
         actions: [{
           caption: '保存',
           onclick(d) {
-            console.log(d)
+            if(!d.id) {
+              this.error('请选择车间')
+              return
+            }
+            let g = {cheJian: [...this.group.cheJian]}, i, p = 0
+            if(!d.permission) d.permission = []
+            d.permission.forEach(v => p |= v)
+            g.cheJian.push({id: d.id, permission: p})
+            this.loading(true)
+            axios.put(`api/group/${this.group.id}`, g).then(() => {
+              this.group.cheJian = g.cheJian
+              this.loading(false)
+              this.message('保存成功')
+              this.$router.push(`/group/${this.group.id}`)
+            }).catch(r => {
+              this.loading(false)
+              this.error(r.response.data)
+            })
           }
         }],
         editing: true,
@@ -152,42 +186,133 @@ export default {
     }
   },
   computed: {
-    ...mapState(['vertical']),
+    ...mapState(['vertical', 'groups', 'dict']),
+    group() {
+      let id = this.$route.params.gid
+      return id && this.groups.find(g => g.id == id)
+    },
     cheJian() {
       let r = []
       this.$store.state.danWei.forEach(d => d.cheJian.forEach(c => r.push(c)))
       return r
-    },
+    }
+  },
+  watch: {
+    $route: {
+      immediate: true,
+      handler(to, from) {
+        switch(to.name) {
+        case 'groups':
+          this.tbl.columns.cheJian.items = this.cheJian
+          this.tbl.data = this.groups
+          break
+        case 'createGroup':
+          let i
+          for(i = 1; i < 255; i++)
+            if(!this.groups.find(g => g.id == i))
+              break
+          this.kv.data = {id: i, name: null, cheJian: []}
+          break
+        default:
+          let g = this.group
+          if(g) {
+            if(to.name == 'group') {
+              this.tblGroup.caption = g.name + ' 用户组'
+              this.tblGroup.data = g.cheJian.map(c => {
+                let t = this.cheJian.find(v => v.id == c.id), p = [], i
+                for(i = 0; i < cp.length; i++)
+                  if(c.permission & cp[i].id)
+                    p.push(cp[i].id)
+                return {id: t.id, name: t.name, permission: p}
+              })
+              this.tblGroup.columns.id.items = this.cheJian
+            } else
+              this.kvPermission.caption = g.name + ' 添加车间'
+          } else
+            this.$router.replace('/group')
+        }
+      }
+    }
   },
   methods: {
+    ...mapMutations(['loading', 'message', 'error']),
     editable(d) {
       return d.id != 255
     },
-    setGroup(gid) {
-      let g = this.$store.state.groups.find(g => g.id == gid)
-      this.tblGroup.caption = g.name + ' 用户组'
-      this.tblGroup.data = g.cheJian.map(c => {
-        let t = this.cheJian.find(v => v.id == c.id), p = [], i
-        for(i = 0; i < cp.length; i++)
-          if(c.permission & cp[i].id)
-            p.push(cp[i].id)
-        return {id: t.id, name: t.name, permission: p}
+    save(d, i, next) {
+      if(this.groups.find(g => g.name == d.name))
+        this.error(`用户组 ${d.name} 已经存在`)
+      else {
+        this.loading(true)
+        axios.put(`api/group/${d.id}`, {name: d.name}).then(() => {
+          this.loading(false)
+          this.message('保存成功')
+          next()
+        }).catch(r => {
+          this.loading(false)
+          this.error(r.response.data)
+        })
+      }
+    },
+    del(d, i, next) {
+      if(this.$store.state.users.find(u => u.groups.find(g => g == d.id)))
+        this.error(`请先删除 ${d.name} 下所有用户`)
+      else if(confirm(`确定要删除 ${d.name} ?`)) {
+        this.loading(true)
+        axios.delete(`api/group/${d.id}`).then(() => {
+          this.loading(false)
+          this.message('删除成功')
+          next()
+        }).catch(r => {
+          this.loading(false)
+          this.error(r.response.data)
+        })
+      }
+    },
+    groupSave(d, i, next) {
+      let g, j, p = 0, cs = this.tblGroup.data
+      for(j = 0; j < cs.length; j++)
+        if(j != i && cs[j].id == d.id) {
+          this.error(`${cs[j].name} 已经存在`)
+          return
+        }
+      for(j = 0; j < d.permission.length; j++)
+        p |= d.permission[j]
+      g = this.group
+      cs = g.cheJian.map(c => ({...c}))
+      cs[i].id = d.id
+      cs[i].permission = p
+      this.loading(true)
+      axios.put(`api/group/${g.id}`, {cheJian: cs}).then(() => {
+        g.cheJian[i].id = cs[i].id
+        g.cheJian[i].permission = cs[i].permission
+        this.loading(false)
+        this.message('保存成功')
+        next()
+      }).catch(r => {
+        this.loading(false)
+        this.error(r.response.data)
       })
-      this.kvPermission.caption = g.name + ' 添加车间'
-      this.kvPermission.columns.id.items = this.cheJian
-    }
+    },
+    groupDel(d, i, next) {
+      if(confirm(`确定要删除 ${d.name} ?`)) {
+        this.loading(true)
+        let c = [...this.group.cheJian]
+        c.splice(i, 1)
+        axios.put(`api/group/${this.group.id}`, {cheJian: c}).then(() => {
+          this.group.cheJian.splice(i, 1)
+          this.loading(false)
+          this.message('保存成功')
+          next()
+        }).catch(r => {
+          this.loading(false)
+          this.error(r.response.data)
+        })
+      }
+    },
   },
   mounted() {
-    this.tbl.columns.cheJian.items = this.cheJian
-    if(this.$route.params.gid)
-      this.setGroup(this.$route.params.gid)
-  },
-  beforeRouteUpdate(to, from, next) {
-    if(to.name == 'createGroup')
-      this.kv.data = {}
-    else if(to.params.gid)
-      this.setGroup(to.params.gid)
-    next()
+    window.group = this
   }
 }
 </script>

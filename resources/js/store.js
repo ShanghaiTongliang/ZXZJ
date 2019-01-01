@@ -7,13 +7,17 @@ import {fields} from './global'
 Vue.use(Vuex)
 
 export function fixGuZhang(g) {
-  fields.forEach(f => g[f] = this.dict[f][g[f]])
+  fields.forEach(f => g[f] = this.dict[f][g[f]].name)
   let u = this.users.find(u => u.id == g.user)
   if(u) {
     g.danWei = u.danWei
     g.cheJian = u.cheJian
     g.banZu = u.banZu
   }
+}
+
+export function fixGroup(g) {
+  g.url = `#/group/${g.id}`
 }
 
 export default new Vuex.Store({
@@ -23,11 +27,11 @@ export default new Vuex.Store({
   },
   mutations: {
     auth(state, {data, id, url}) {
-      let dict = {groups: {}}
+      let dict = {groups: [], danWei: [], cheJian: [], banZu: [], user: []}
       fields.forEach(f => dict[f] = [])
-      data.groups.forEach(g => dict.groups[g.id] = g.name)
+      data.groups.forEach(g => dict.groups[g.id] = g)
       state.groups = data.groups
-      state.groups.forEach(g => g.id != 255 && (g.url = `#/group/${g.id}`))
+      state.groups.filter(g => g.id != 255).forEach(fixGroup)
       data.users.filter(u => u.banZu == null).forEach(u => {
         u.danWei = u.cheJian = null
       })
@@ -41,21 +45,25 @@ export default new Vuex.Store({
       state.users = data.users
       data.danWei.forEach(d => {
         d.url = `#/danWei/${d.id}`
+        dict.danWei[d.id] = d
         d.cheJian.forEach(c => {
           c.url = `#/danWei/${d.id}/${c.id}`
+          dict.cheJian[c.id] = c
           c.banZu.forEach(b => {
             b.url = `#/danWei/${d.id}/${c.id}/${b.id}`
             b.user = b.user.map(id => state.users.find(u => u.id == id))
+            dict.banZu[b.id] = b
             b.user.forEach(u => {
               u.danWei = d.id
               u.cheJian = c.id
               u.banZu = b.id
+              dict.user[u.id] = u
             })
           })
         })
       })
       state.danWei = data.danWei
-      fields.forEach(f => data.std[f].forEach(d => dict[f][d.id] = d.name))
+      fields.forEach(f => data.std[f].forEach(d => dict[f][d.id] = d))
       state.std = data.std
       state.guZhang = data.guZhang
       state.dict = dict

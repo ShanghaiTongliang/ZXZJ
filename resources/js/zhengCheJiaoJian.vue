@@ -1,12 +1,24 @@
 <style>
+#list {
+  background-color: white;
+  user-select: none;
+  overflow: auto;
+  border: inset 1px;
+  flex-grow: 1;
+}
 </style>
 <template>
   <moditable v-if="$route.name == 'zhengCheJiaoJian'" :tbl="tbl" @save="save" @delete="del">
     <a href="#/guZhang/zhengCheJiaoJian/create" class="act">新建</a>
   </moditable>
-  <kvtable v-else :tbl="kv" :vertical="$store.state.vertical">
-    <a href="#/guZhang/zhengCheJiaoJian" class="act">返回</a>
-  </kvtable>
+  <div v-else style="display: flex; flex-direction: column">
+    <kvtable :tbl="kv" :vertical="$store.state.vertical" style="overflow: visible; flex-shrink: 0">
+      <a href="#/guZhang/zhengCheJiaoJian" class="act">返回</a>
+    </kvtable>
+    <ul id="list" class="menu">
+      <li v-for="(l, i) in list" :key="i" @click="listClick(i)" @dblclick="listDblClick(i)"><span :class="i == listIndex && 'select'">{{l}}</span></li>
+    </ul>
+  </div>
 </template>
 <script>
 import axios from 'axios'
@@ -96,7 +108,7 @@ export default {
         caption: '故障',
         columns,
         editing: true,
-        data: {date: (new Date).toDate()},
+        data: null,
         actions: [{
           caption: '保存',
           onclick(d) {
@@ -111,13 +123,36 @@ export default {
             })
           }
         }]
-      }
+      },
+      listIndex: -1
     }
   },
   computed: {
-    ...mapState(['user', 'std'])
+    ...mapState(['user', 'std']),
+    list() {
+      let dict = this.$store.state.dict, d = this.kv.data, r
+      r = this.std.guZhangList.filter(g => {
+        for(let i = 1; i < fields.length; i++) {
+          let f = fields[i]
+          if(d[f] && !dict[f][g[f]].name.includes(d[f]))
+            return false
+        }
+        return true
+      })
+      return r.map(g => `${dict.daBuWei[g.daBuWei].name} ${dict.xiaoBuWei[g.xiaoBuWei].name} ${dict.juTiBuWei[g.juTiBuWei].name} ${dict.guZhang[g.guZhang].name}`)
+    }
   },
   watch: {
+    $route: {
+      immediate: true,
+      handler(to) {
+        if(to.name == 'zhengCheJiaoJianCreate') {
+          let d = {date: (new Date).toDate()}
+          fields.forEach(f => d[f] = '')
+          this.kv.data = d
+        }
+      }
+    },
     std: {
       deep: true,
       immediate: true,
@@ -165,7 +200,7 @@ export default {
                 this.loading(true)
                 a.push(axios.post(`api/standard/${f}`, d[f]).then(res => {
                   std[f].push(res.data)
-                  this.$store.state.dict[res.data.id] = res.data.name
+                  this.$store.state.dict[res.data.id] = res.data
                   r[f] = res.data.id
                 }))
               } else
@@ -192,12 +227,17 @@ export default {
           next()
         })
       }
+    },
+    listClick(i) {
+      this.listIndex = i
+    },
+    listDblClick(i) {
+      let l = this.std.guZhangList[i], dict = this.$store.state.dict
+      this.kv.data.daBuWei = dict.daBuWei[l.daBuWei].name
+      this.kv.data.xiaoBuWei = dict.xiaoBuWei[l.xiaoBuWei].name
+      this.kv.data.juTiBuWei = dict.juTiBuWei[l.juTiBuWei].name
+      this.kv.data.guZhang = dict.guZhang[l.guZhang].name
     }
-  },
-  beforeRouteUpdate(to, from, next) {
-    if(to.name == 'zhengCheJiaoJianCreate')
-      this.kv.data = {}
-    next()
   }
 }
 </script>

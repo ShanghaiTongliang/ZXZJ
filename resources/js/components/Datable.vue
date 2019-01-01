@@ -86,8 +86,8 @@ export default {
               let p = {key: j}, l = c.master ? cols[c.master[0]] && cols[c.master[0]].items : c.items, t
               if(l instanceof Function)
                 l = l.call(this.$parent, row, j)
+              let keyName = c.keyName || this.options.keyName, valueName = c.valueName || this.options.valueName
               const f = (c, l, d) => {
-                let keyName = c.keyName || this.options.keyName
                 for(let k = 0; k < c.master.length; k++) {
                   let cc = cols[c.master[k]], itemName = cc.itemName || this.options.itemName
                   l = l.find(v => v[keyName] == d[c.master[k]])
@@ -105,7 +105,6 @@ export default {
                 if(c.master && l)
                   l = f(c, l, row)
                 if(l && c.type != 'combo' && c.type != 'pinyin') {
-                  let keyName = c.keyName || this.options.keyName, valueName = c.valueName || this.options.valueName, a
                   switch(c.type) {
                   case 'checkbox':
                     t = row[j].map(d => {
@@ -151,11 +150,22 @@ export default {
                   l = f(c, l, this.tbl.__tmp)
                 td.push(h('table-cell', {
                   props: {
-                    columns: cols, row: this.tbl.editingIndex == i ? this.tbl.__tmp : row,
-                    key: j, items: l, slaves: this.slaves, options: this.options
+                    column: cols[j], value: row[j], items: l, options: this.options
                   },
                   on: {
-                    input: d => c.onchange && c.onchange.call(this.$parent, d, i)
+                    input: d => {
+                      let r = this.tbl.__tmp
+                      r[j] = d
+                      if(c.type == 'select' && this.slaves && this.slaves[j])
+                        for(let s of this.slaves[j]) {
+                          let sl = l.find(v => v[keyName] == r[j])
+                          if(sl && (sl = sl[s]) && sl.length)
+                            r[s] = sl[0][keyName]
+                          else
+                            r[s] = null
+                        }
+                      c.onchange && c.onchange.call(this.$parent, d, i)
+                    }
                   }
                 }))
               }

@@ -34,6 +34,7 @@ class AuthController extends Yaf\Controller_Abstract {
         'juTiBuWei' => Table::open('juTiBuWei')::get(),
         'guZhang' => Table::open('guZhang')::get(),
         'dengJi' => Table::open('dengJi')::get(),
+        'guZhangList' => Table::open('guZhangList')::get(),
       ],
       'guZhang' => [
         'zhengCheJiaoJian' => Table::open('zhengCheJiaoJian')::get()
