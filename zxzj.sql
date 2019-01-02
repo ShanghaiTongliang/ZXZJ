@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2019-01-02 06:06:10
+-- 生成日期： 2019-01-02 11:10:58
 -- 服务器版本： 10.2.13-MariaDB-log
 -- PHP 版本： 7.2.2
 
@@ -235,7 +235,8 @@ CREATE TABLE `guZhangList` (
 
 INSERT INTO `guZhangList` (`id`, `daBuWei`, `xiaoBuWei`, `juTiBuWei`, `guZhang`) VALUES
 (1, 2, 1, 2, 1),
-(2, 1, 2, 1, 2);
+(2, 1, 2, 1, 2),
+(3, 2, 2, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -581,7 +582,7 @@ ALTER TABLE `guZhang`
 -- 使用表AUTO_INCREMENT `guZhangList`
 --
 ALTER TABLE `guZhangList`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- 使用表AUTO_INCREMENT `juTiBuWei`

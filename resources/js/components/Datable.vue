@@ -223,14 +223,6 @@ export default {
   },
   computed: {
     options() {
-      /*let r = {
-        itemName: 'items',
-        keyName: 'id',
-        valueName: 'name'
-      }
-      for(let k in this.tbl.options)
-        r[k] = this.tbl.options[k]
-      */
       return merge({
         itemName: 'items',
         keyName: 'id',

@@ -3,7 +3,7 @@
 class GuZhangController extends Yaf\Controller_Abstract {
   function getParams() {
     $p = $this->getRequest()->getParams();
-    if(in_array($p['type'], ['zhengCheJiaoJian', 'lingBuJianJiaoJian', 'lingBuJianChouYang', 'lingBuJianFuJian']))
+    if(in_array($p['type'], ['zhengCheJiaoJian', 'lingBuJianJiaoJian', 'lingBuJianChouYang', 'lingBuJianFuJian', 'guZhangList']))
       return $p;
     else
       response(_('guZhang type not found'), RES_NOT_FOUND);
