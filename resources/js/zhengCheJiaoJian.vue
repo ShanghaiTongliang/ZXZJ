@@ -113,13 +113,13 @@ export default {
           caption: '保存',
           onclick(d) {
             this.saveFields(d, r => {
-              /*axios.post('api/guZhang/zhengCheJiaoJian', r).then(res => {
+              axios.post('api/guZhang/zhengCheJiaoJian', r).then(res => {
                 r.id = res.data
                 fixGuZhang.call(this.$store.state, r)
                 this.$store.state.guZhang.zhengCheJiaoJian.push(r)
                 this.message('新建成功')
                 this.$router.push('/guZhang/zhengCheJiaoJian')
-              })*/
+              })
               if(!this.list.length) {
                 let l = {}
                 for(let i = 1; i < fields.length; i++)
