@@ -31,7 +31,7 @@ class UserController extends Yaf\Controller_Abstract {
       } else
         $err = _('no permission');
     } else
-      $err = _('user not exists');
+      $err = _('user does not exists');
     response($err);
   }
 }

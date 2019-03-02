@@ -95,7 +95,7 @@ export default {
     }
   },
   mounted() {
-    axios.get('api/list').then(res => {
+    axios.get('zxzj/api/list').then(res => {
       this.list = res.data
     })
   }

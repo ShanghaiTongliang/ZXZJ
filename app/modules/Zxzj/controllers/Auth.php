@@ -8,37 +8,64 @@ class AuthController extends Yaf\Controller_Abstract {
       $f = "/img/user/$u->id.png";
       $u->icon = file_exists(APP_PATH . $f) ? $f : '/img/user16.png';
     }
-    $dws = Table::open('danWei')::get();
-    foreach($dws as $dw) {
-      $dw->cheJian = Table::open('cheJian')::where(['danWei' => $dw->id])->get();
-      foreach($dw->cheJian as $c) {
-        $c->banZu = Table::open('banZu')::where(['cheJian' => $c->id])->get();
-        foreach($c->banZu as $b) {
-          $b->user = [];
-          foreach($us as $u)
-            if($u->banZu == $b->id)
-              $b->user[] = $u->id;
+    $ds = Table::open('danWei')::get();
+    $cs = Table::open('cheJian')::get();
+    $bs = Table::open('banZu')::get();
+    $us = UserModel::get();
+    $zcs = ZhengCheJiaoJianCountModel::get();
+    foreach($ds as $d)
+      $d->cheJian = [];
+    foreach($cs as $c) {
+      $c->banZu = [];
+      foreach($ds as $d) {
+        if($c->danWei == $d->id) {
+          $d->cheJian[] = $c;
+          break;
         }
       }
+      $c->zhengCheJiaoJian = [];
+      foreach($zcs as $z)
+        if($z->cheJian == $c->id)
+          $c->zhengCheJiaoJian[] = $z;
+    }
+    foreach($bs as $b) {
+      $b->user = [];
+      foreach($cs as $c)
+        if($b->cheJian == $c->id) {
+          $c->banZu[] = $b;
+          break;
+        }
+    }
+    foreach($us as $u)
+      foreach($bs as $b)
+        if($u->banZu == $b->id) {
+          $b->user[] = $u->id;
+          break;
+        }
+
+    $y = date('Y');
+    $m = date('m');
+    $d = date('t');
+    if($m < 12) {
+      $y0 = $y - 1;
+      $m0 = $m + 1;
+    } else {
+      $y0 = $y;
+      $m0 = 1;
     }
     echo json_encode([
       'users' => $us,
       'groups' => GroupModel::get(),
+      'config' => Table::open('config')::first(),
       //单位人员信息
-      'danWei' => $dws,
+      'danWei' => $ds,
       'std' => [
         'xiuCheng' => Table::open('xiuCheng')::get(),
         'cheZhong' => Table::open('cheZhong')::get(),
-        'daBuWei' => Table::open('daBuWei')::get(),
-        'xiaoBuWei' => Table::open('xiaoBuWei')::get(),
-        'juTiBuWei' => Table::open('juTiBuWei')::get(),
-        'guZhang' => Table::open('guZhang')::get(),
         'dengJi' => Table::open('dengJi')::get(),
-        'guZhangList' => Table::open('guZhangList')::get(),
       ],
-      'guZhang' => [
-        'zhengCheJiaoJian' => Table::open('zhengCheJiaoJian')::get()
-      ]
+      'zhengCheJiaoJian' => Table::open('zhengCheJiaoJian')::where("date >= '$y0-$m0-01' and date <= '$y-$m-$d'")->get(),
+      'ruKuJianCha' => Table::open('ruKuJianCha')::get()
     ], JSON_UNESCAPED_UNICODE);
   }
 

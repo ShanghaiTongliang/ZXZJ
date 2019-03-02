@@ -9,7 +9,7 @@
 class IndexController extends Yaf\Controller_Abstract {
 
   public function indexAction() {
-    $this->getView()->display('index.phtml');
+    $this->redirect('/zxzj');
   }
 
   function testAction() {

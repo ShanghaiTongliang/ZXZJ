@@ -22,6 +22,8 @@
   box-sizing: border-box;
   z-index: 50;
 }
+.resizer-enter-active, .resizer-leave-active  {transition: all .3s ease}
+.resizer-enter, .resizer-leave-to {margin-left: calc(-100% + .5em)}
 </style>
 <script>
 function mobile() {
@@ -52,10 +54,12 @@ export default {
     }
   },
   render(h) {
-    let s = h('div', {style: {
+    let s = h('transition', {
+      attrs: {name: 'resizer'}
+    }, [this.v ? h('div', {style: {
       display: this.v ? this.flex ? 'flex' : '' : 'none',
       width: this.w + 'px'
-    }}, [this.$slots.default]), m = h('div', {
+    }, key: 5}, [this.$slots.default]) : '']), m = h('div', {
         class: 'resizer',
         on: mobile() ? {
           touchstart: this.touchstart

@@ -62,7 +62,7 @@ export default {
               this.error(`${v.name} 已经存在`)
             else {
               this.loading(true)
-              axios.post('api/danwei', v).then(res => {
+              axios.post('zxzj/api/danwei', v).then(res => {
                 this.loading(false)
                 this.$store.state.danWei.push(res.data)
                 this.message('新建成功')
@@ -95,7 +95,7 @@ export default {
               this.error(`${v.name} 已经存在`)
             else {
               this.loading(true)
-              axios.post('api/danwei', v).then(res => {
+              axios.post('zxzj/api/danwei', v).then(res => {
                 this.loading(false)
                 this.danWei.push(res.data)
                 this.message('新建成功')
@@ -135,7 +135,7 @@ export default {
               this.error(`${v.name} 已经存在`)
             else {
               this.loading(true)
-              axios.post('api/danwei', v).then(res => {
+              axios.post('zxzj/api/danwei', v).then(res => {
                 this.loading(false)
                 this.danWei.push(res.data)
                 this.message('新建成功')

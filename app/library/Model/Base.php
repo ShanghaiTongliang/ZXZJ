@@ -6,6 +6,7 @@ use PDOStatement;
 use JsonSerializable;
 
 abstract class Base extends Decachable implements JsonSerializable {
+  /**@var array */
   protected static $tableNames = [];
   protected static $primary = 'id';
   protected static $returnRawCount = 0;

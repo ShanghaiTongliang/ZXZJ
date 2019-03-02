@@ -26,7 +26,7 @@ export default {
   render(h) {
     let valueName = this.valueName || 'name'
     return h('div', {class: 'pinyin'}, [h('input', {
-      attrs: {type: 'text', value: this.value},
+      attrs: {type: 'text'}, domProps: {value: this.value},
       on: {
         input: e => this.$emit('input', e.target.value),
         keydown: e => {

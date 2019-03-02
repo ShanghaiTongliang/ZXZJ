@@ -2,7 +2,7 @@
 namespace Model;
 
 class Statement {
-  /**@var Base */
+  /**@var BaseModel */
   protected $class;
   protected $condition;
   protected $orderBy;

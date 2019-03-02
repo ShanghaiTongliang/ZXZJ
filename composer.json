@@ -1,8 +1,18 @@
 {
-    "name": "oblind/yaf",
-    "type": "library",
-    "description": "oblind yaf framework",
-    "keywords": [
-        "oblind", "yaf"
-    ]
+  "name": "oblind/yaf",
+  "type": "library",
+  "description": "oblind yaf framework",
+  "keywords": [
+    "oblind", "yaf"
+  ],
+  "license" : "Apache-2.0",
+  "authors": [
+    {
+      "name": "oblind",
+      "email": "oblind@163.com"
+    }
+  ],
+  "require": {
+    "oblind/language": "dev-master"
+  }
 }

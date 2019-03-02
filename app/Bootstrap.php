@@ -1,4 +1,6 @@
 <?php
+require '../vendor/autoload.php';
+
 /**
  * @name Bootstrap
  * @author oblind-nb\oblind
@@ -8,22 +10,37 @@
  * 调用的次序, 和申明的次序相同
  */
 use Yaf\Dispatcher;
-use Yaf\Route;
+use Oblind\Language;
 
 class Bootstrap extends Yaf\Bootstrap_Abstract {
 
   public function _initConfig() {
-    define('PATH', '/');
+    define('PATH', '/zxzj');
 
     //本地化
-    $lang = str_replace('-', '_', explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0]) . '.UTF8';
-    putenv("LANG=$lang");
-    setlocale(LC_ALL, $lang);
-    $domain = 'zxzj';
-    bindtextdomain($domain, APP_PATH.'/locale');
-    bind_textdomain_codeset($domain, 'UTF-8');
-    textdomain($domain);
-    Validator::init();
+    Language::addTranslation([
+      ":attribute format invalid" => ":attribute 格式错误",
+      ":attribute inconsistent" => ":attribute 不相符",
+      ":attribute length between %d-%d" => ":attribute 长度范围 %d-%d",
+      ":attribute maximal length %d" => ":attribute 最多 %d 字符",
+      ":attribute minimal length %d" => ":attribute 至少 %d 字符",
+      ":attribute required" => "请输入 :attribute",
+      "confirmation" => "确认密码",
+      "email" => "电子邮箱",
+      "format incorrect" => "格式错误",
+      "group %d: %s already exists" => "用户组 %d: %s 已存在",
+      "group not found" => "用户组未找到",
+      "guZhang not found" => "故障未找到",
+      "name" => "用户名",
+      "no permission" => "权限不足",
+      "password" => "密码",
+      "password incorrect" => "密码错误",
+      "standard not found" => "标准未找到",
+      "standard type not found" => "标准类型未找到",
+      "user already exists" => "用户已存在",
+      "user does not exists" => "用户不存在",
+    ], 'zh-cn');
+    Language::set(explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0]);
 
     //辅助函数
     Yaf\Loader::import(APP_PATH.'/app/helper.php');
@@ -36,9 +53,10 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
 
   public function _initRoute(Dispatcher $dispatcher) {
     Router::init($dispatcher->getRouter(), $dispatcher->getRequest()->method);
-    Router::prefix('api', function($router) {
+    Router::prefix('zxzj/api', function($router) {
       $auth = new Middleware\Auth;
       $p = [
+        'module' => 'zxzj',
         'controller' => 'index',
         'action' => 'calc'
       ];
@@ -53,10 +71,8 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
       $p['action'] = 'store';
       $router->post('user', $p);
       $router->middleware($auth, function($router) use($p) {
-        //修改
         $p['action'] = 'update';
         $router->put('user/:id', $p);
-        //删除
         $p['action'] = 'destroy';
         $router->delete('user/:id', $p);
       });
@@ -74,50 +90,54 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
 
         //单位
         $p['controller'] = 'danWei';
-        //新建
         $p['action'] = 'store';
         $router->post('danWei', $p);
-      });
 
-      //用户组
-      $p['controller'] = 'group';
-      $router->middleware($auth, function($router) use($p) {
-        //组
+        //用户组
+        $p['controller'] = 'group';
         $p['action'] = 'store';
         $router->post('group', $p);
         $p['action'] = 'update';
         $router->put('group/:id', $p);
         $p['action'] = 'destroy';
         $router->delete('group/:id', $p);
-      });
 
-      //标准参数
-      $p['controller'] = 'standard';
-      $router->middleware($auth, function($router) use($p) {
-        //新建
+        //故障
+        $p['controller'] = 'guzhang';
+        $p['action'] = 'index';
+        $router->get('guzhang', $p);
+
+        //标准参数
+        $p['controller'] = 'standard';
         $p['action'] = 'store';
         $router->post('standard/:type', $p);
-        //修改
         $p['action'] = 'update';
         $router->put('standard/:type/:id', $p);
-        //删除
         $p['action'] = 'destroy';
         $router->delete('standard/:type/:id', $p);
+
+        //整车交检
+        $p['controller'] = 'zhengCheJiaoJian';
+        $p['action'] = 'store';
+        $router->post('zhengCheJiaoJian', $p);
+        $p['action'] = 'update';
+        $router->put('zhengCheJiaoJian/:id', $p);
+        $p['action'] = 'destroy';
+        $router->delete('zhengCheJiaoJian/:id', $p);
+        //设置数量
+        $p['action'] = 'count';
+        $router->put('zhengCheJiaoJian/:month/count', $p);
+
+        //入库检查
+        $p['controller'] = 'ruKuJianCha';
+        $p['action'] = 'store';
+        $router->post('ruKuJianCha', $p);
+        $p['action'] = 'update';
+        $router->put('ruKuJianCha/:id', $p);
+        $p['action'] = 'destroy';
+        $router->delete('ruKuJianCha/:id', $p);
       });
 
-      //故障
-      $p['controller'] = 'guZhang';
-      $router->middleware($auth, function($router) use($p) {
-        //新建
-        $p['action'] = 'store';
-        $router->post('guZhang/:type', $p);
-        //修改
-        $p['action'] = 'update';
-        $router->put('guZhang/:type/:id', $p);
-        //删除
-        $p['action'] = 'destroy';
-        $router->delete('guZhang/:type/:id', $p);
-      });
     });
   }
 

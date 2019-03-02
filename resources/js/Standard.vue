@@ -9,8 +9,6 @@ const names = {
   xiuCheng: '修程',
   cheZhong: '车种',
   daBuWei: '大部位',
-  xiaoBuWei: '小部位',
-  juTiBuWei: '具体部位',
   guZhang: '故障',
   dengJi: '等级'
 }
@@ -25,25 +23,33 @@ const columns = {
 export default {
   components: {Datable, Moditable},
   render(h) {
-    return h('moditable', {props: {tbl: this[this.$route.name]}, on: {
+    let n = this.$route.name
+    return h('moditable', {props: {tbl: this[n]}, on: {
       save: (d, i, next) => {
-        this.loading(true)
-        axios.put(`api/standard/${this.$route.name}/${d.id}`, d).then(res => {
-          this.loading(false)
-          this.message('保存成功')
-          next()
-        }).catch(res => {
-          this.loading(false)
-          this.error(res.response.data)
-        })
+        if(!d.name)
+          this.error(`请输入${names[n]}名称`)
+        else if(this.std[n].find(s => s.name == d.name))
+          this.error(`${d.name} 已经存在`)
+        else {
+          this.loading(true)
+          axios.put(`zxzj/api/standard/${n}/${d.id}`, d).then(res => {
+            this.loading(false)
+            this.message('保存成功')
+            next()
+          }).catch(res => {
+            this.loading(false)
+            this.error(res.response.data)
+          })
+        }
       },
       delete: (d, i, next) => {
         let n = this.$route.name
-        if(this.$store.state.guZhang.zhengCheJiaoJian.find(g => g[n] == d.name))
+        console.log(this.$store.state.zhengCheJiaoJian)
+        if(this.$store.state.zhengCheJiaoJian.find(g => g[n] == d.id))
           this.error(`${names[n]}: ${d.name} 已被使用, 不能删除`)
         else if(confirm(`确定要删除 ${names[n]}: ${d.name} ?`)) {
           this.loading(true)
-          axios.delete(`api/standard/${this.$route.name}/${d.id}`).then(res => {
+          axios.delete(`zxzj/api/standard/${this.$route.name}/${d.id}`).then(res => {
             this.loading(false)
             this.message('删除成功')
             next()
@@ -65,6 +71,11 @@ export default {
       }
     }
     return r
+  },
+  computed: {
+    std() {
+      return this.$store.state.std
+    }
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error'])

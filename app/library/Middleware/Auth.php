@@ -7,7 +7,7 @@ use Zxzj\Redis;
 use UserModel;
 
 class Auth extends BaseMiddleware {
-  function handle(Http $request): void {
+  function handle(Http $request, $next): void {
     /*if(isset($_COOKIE['id'], $_COOKIE['token']) && ($u = UserModel::find($_COOKIE['id'])) && $u->token == $_COOKIE['token'])
       UserModel::$user = $u;
     else
@@ -17,6 +17,7 @@ class Auth extends BaseMiddleware {
       $redis = Redis::instance();
       if($redis->get("token$o->id") == $o->token) {
         UserModel::$user = $o;
+        $next($request);
         return;
       }
     }

@@ -20,7 +20,6 @@
   display: inline-block;
   background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjgiIGZpbGw9ImdyZWVuIi8+CiAgPHBvbHlnb24gcG9pbnRzPSI4LDE0IDE0LDUgMiw1IiBzdHlsZT0iZmlsbDp3aGl0ZSIvPgo8L3N2Zz4=);
 }
-.dt-flip-move {transition: transform .3s}
 </style>
 <script>
 import merge from './merge'
@@ -45,13 +44,10 @@ export default {
     }
     actions: 按钮列表
     data: 数据
-      keyName: string = id,       排序
-      options: {
-      cascade: {
-        itemName: string = items  级联选项名
-        keyName: string = id      级联键名
-        valueName: string = name  级联值名
-      }
+    options: {
+      itemName: string = items  级联选项名
+      keyName: string = id      级联键名
+      valueName: string = name  级联值名
     }
   }*/
 
@@ -86,7 +82,7 @@ export default {
               let p = {key: j}, l = c.master ? cols[c.master[0]] && cols[c.master[0]].items : c.items, t
               if(l instanceof Function)
                 l = l.call(this.$parent, row, j)
-              let keyName = c.keyName || this.options.cascade.keyName, valueName = c.valueName || this.options.cascade.valueName
+              let keyName = c.keyName || this.options.keyName, valueName = c.valueName || this.options.valueName
               const f = (c, l, d) => {
                 for(let k = 0; k < c.master.length; k++) {
                   let cc = cols[c.master[k]], itemName = cc.itemName || this.options.itemName
@@ -205,18 +201,18 @@ export default {
         }
       } else {
         e = true
-        body.push(h('tr', {key: 0}, [h('td', {attrs: {colspan: th.length}}, '无数据')]))
+        body.push(h('tr', [h('td', {attrs: {colspan: th.length}}, '无数据')]))
       }
       head.push(h('thead', [h('tr', {ref: 'th'}, th)]))
       tbl.push(h('thead', [h('tr', {ref: 'bth'}, bth)]))
-      tbl.push(h('transition-group', {attrs: {name: 'dt-flip', tag: 'tbody'}}, e ? body : body.map((td, j) => {
-        let row = this.tbl.data[j]
+      tbl.push(h('tbody', e ? body : body.map((td, i) => {
+        let row = this.tbl.data[i]
         return h('tr', {
           class: row == this.selection ? ['selection'] : null,
           on: {
-            click: () => row != this.selection && this.$emit('rowSelect', row, j)
+            click: () => row != this.selection && this.$emit('rowSelect', row, i)
           },
-          key: row[this.options.keyName]
+          key: i
         }, td)
       })))
       this.$nextTick(this.onScroll) //对齐表头
@@ -247,12 +243,9 @@ export default {
   computed: {
     options() {
       return merge({
+        itemName: 'items',
         keyName: 'id',
-        cascade: {
-          itemName: 'items',
-          keyName: 'id',
-          valueName: 'name'
-        }
+        valueName: 'name'
       }, this.tbl.options)
     },
     keys() {

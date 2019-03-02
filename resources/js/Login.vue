@@ -59,7 +59,7 @@ export default {
     login() {
       this.loading(true)
       delete this.data.password_confirmation
-      axios.post('api/auth', this.data).then(r => {
+      axios.post('zxzj/api/auth', this.data).then(r => {
         cookie.set('remember', this.data.remember ? 1 : 0)
         this.loading(false)
         this.auth({data: r.data, id: parseInt(cookie.get('id'))})
@@ -71,7 +71,7 @@ export default {
     register() {
       this.loading(true)
       delete this.data.remember
-      axios.post('api/user', this.data).then(r => {
+      axios.post('zxzj/api/user', this.data).then(r => {
         this.loading(false)
         this.auth({data: r.data, id: parseInt(cookie.get('id'))})
       }).catch(r => {
@@ -80,7 +80,7 @@ export default {
       })
     },
     reset() {
-      axios.put('api/user/' + this.user.id + '/password', this.data).then(r => {
+      axios.put('zxzj/api/user/' + this.user.id + '/password', this.data).then(r => {
         console.log(r.data)
       }).catch(r => {
         this.err = r.response.data

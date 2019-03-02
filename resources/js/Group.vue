@@ -19,16 +19,8 @@ import Kvtable from './components/Kvtable'
 import Datable from './components/Datable'
 import Moditable from './components/Moditable'
 import {fixGroup} from './store'
+import {permissions} from './global'
 
-const cp = [{
-  id: 1,
-  name: '数据',
-  color: 'green'
-}, {
-  id: 2,
-  name: '管理',
-  color: 'red'
-}]
 const columns = {
   id: {
     caption: 'id',
@@ -48,9 +40,9 @@ const columns = {
       let d = this.$store.state.dict.cheJian
       return cs.map(c => {
         let i, r = d[c.id].name
-        for(i = 0; i < cp.length; i++)
-          if(c.permission & cp[i].id)
-            r += ':' + `<span class="${cp[i].color}">${cp[i].name}</span>`
+        for(i = 0; i < permissions.length; i++)
+          if(c.permission & permissions[i].id)
+            r += ':' + `<span class="${permissions[i].color}">${permissions[i].name}</span>`
         return r
       }).join(', ')
     },
@@ -65,7 +57,7 @@ const columns = {
   permission: {
     caption: '权限',
     type: 'checkbox',
-    items: cp
+    items: permissions
   }
 }
 
@@ -121,7 +113,7 @@ export default {
               this.error(`${g.id}: ${g.name} 已经存在`)
             else {
               this.loading(true)
-              axios.post('api/group', d).then(() => {
+              axios.post('zxzj/api/group', d).then(() => {
                 this.groups.push(d)
                 this.groups.sort((a, b) => a.id - b.id)
                 fixGroup(d)
@@ -154,7 +146,7 @@ export default {
           permission: {
             caption: '权限',
             type: 'checkbox',
-            items: cp
+            items: permissions
           }
         },
         actions: [{
@@ -169,7 +161,7 @@ export default {
             d.permission.forEach(v => p |= v)
             g.cheJian.push({id: d.id, permission: p})
             this.loading(true)
-            axios.put(`api/group/${this.group.id}`, g).then(() => {
+            axios.put(`zxzj/api/group/${this.group.id}`, g).then(() => {
               this.group.cheJian = g.cheJian
               this.loading(false)
               this.message('保存成功')
@@ -220,9 +212,9 @@ export default {
               this.tblGroup.caption = g.name + ' 用户组'
               this.tblGroup.data = g.cheJian.map(c => {
                 let t = this.cheJian.find(v => v.id == c.id), p = [], i
-                for(i = 0; i < cp.length; i++)
-                  if(c.permission & cp[i].id)
-                    p.push(cp[i].id)
+                for(i = 0; i < permissions.length; i++)
+                  if(c.permission & permissions[i].id)
+                    p.push(permissions[i].id)
                 return {id: t.id, name: t.name, permission: p}
               })
               this.tblGroup.columns.id.items = this.cheJian
@@ -244,7 +236,7 @@ export default {
         this.error(`用户组 ${d.name} 已经存在`)
       else {
         this.loading(true)
-        axios.put(`api/group/${d.id}`, {name: d.name}).then(() => {
+        axios.put(`zxzj/api/group/${d.id}`, {name: d.name}).then(() => {
           this.loading(false)
           this.message('保存成功')
           next()
@@ -259,7 +251,7 @@ export default {
         this.error(`请先删除 ${d.name} 下所有用户`)
       else if(confirm(`确定要删除 ${d.name} ?`)) {
         this.loading(true)
-        axios.delete(`api/group/${d.id}`).then(() => {
+        axios.delete(`zxzj/api/group/${d.id}`).then(() => {
           this.loading(false)
           this.message('删除成功')
           next()
@@ -283,7 +275,7 @@ export default {
       cs[i].id = d.id
       cs[i].permission = p
       this.loading(true)
-      axios.put(`api/group/${g.id}`, {cheJian: cs}).then(() => {
+      axios.put(`zxzj/api/group/${g.id}`, {cheJian: cs}).then(() => {
         g.cheJian[i].id = cs[i].id
         g.cheJian[i].permission = cs[i].permission
         this.loading(false)
@@ -299,7 +291,7 @@ export default {
         this.loading(true)
         let c = [...this.group.cheJian]
         c.splice(i, 1)
-        axios.put(`api/group/${this.group.id}`, {cheJian: c}).then(() => {
+        axios.put(`zxzj/api/group/${this.group.id}`, {cheJian: c}).then(() => {
           this.group.cheJian.splice(i, 1)
           this.loading(false)
           this.message('保存成功')

@@ -24,14 +24,14 @@ class Router {
     }
   }
 
-  static function middleware(BaseMiddleware $middleware, Closure $callback) {
+  static function middleware(BaseMiddleware $middleware, callable $callback) {
     $ir = new InnerRouter;
     $callback($ir);
     foreach($ir->routes as $r)
       static::act($r[0], $r[1], $r[2], $r[3], $r[4]);
   }
 
-  static function prefix(string $prefix, Closure $callback) {
+  static function prefix(string $prefix, callable $callback) {
     if(($l = strlen($prefix)) && $prefix[$l - 1] != '/')
       $prefix .= '/';
     $ir = new InnerRouter;

@@ -3,7 +3,7 @@
 class StandardController extends Yaf\Controller_Abstract {
   function getParams() {
     $p = $this->getRequest()->getParams();
-    if(in_array($p['type'], ['xiuCheng', 'cheZhong', 'daBuWei', 'xiaoBuWei', 'juTiBuWei', 'guZhang', 'dengJi', 'guZhangList']))
+    if(in_array($p['type'], ['xiuCheng', 'cheZhong', 'daBuWei', 'xiaoBuWei', 'juTiBuWei', 'guZhang', 'dengJi']))
       return $p;
     else
       response(_('standard type not found'), RES_NOT_FOUND);
@@ -12,7 +12,9 @@ class StandardController extends Yaf\Controller_Abstract {
   function storeAction() {
     if($p = $this->getParams()) {
       $s = Table::open($p['type']);
-      $s->name = file_get_contents('php://input');
+      $a = json_decode(file_get_contents('php://input'));
+      foreach($a as $k => $v)
+        $s->$k = $v;
       $s->save();
       echo $s;
     }

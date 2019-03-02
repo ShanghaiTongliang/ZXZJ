@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: zxzj\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-06 15:13+0800\n"
-"PO-Revision-Date: 2018-12-06 15:27+0800\n"
+"POT-Creation-Date: 2019-01-06 08:57+0800\n"
+"PO-Revision-Date: 2019-01-06 09:08+0800\n"
+"Last-Translator: \n"
+"Language-Team: oblind\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Last-Translator: \n"
-"Language-Team: oblind\n"
 "Language: zh_CN\n"
 "X-Generator: Poedit 2.2\n"
 "X-Poedit-SourceCharset: UTF-8\n"
@@ -54,22 +54,53 @@ msgstr "确认密码"
 msgid "email"
 msgstr "电子邮箱"
 
+#: ../app/controllers/Group.php:17
+msgid "format incorrect"
+msgstr "格式错误"
+
+#: ../app/controllers/Group.php:8
+#, php-format
+msgid "group %d: %s already exists"
+msgstr "用户组 %d: %s 已存在"
+
+#: ../app/controllers/Group.php:28
+msgid "group not found"
+msgstr "用户组未找到"
+
+#: ../app/controllers/RuKuJianCha.php:21 ../app/controllers/RuKuJianCha.php:30
+#: ../app/controllers/ZhengCheJiaoJian.php:21
+#: ../app/controllers/ZhengCheJiaoJian.php:30
+msgid "guZhang not found"
+msgstr "故障未找到"
+
 #: ../app/library/Validator.php:21
 msgid "name"
 msgstr "用户名"
+
+#: ../app/controllers/User.php:32 ../app/library/Middleware/Auth.php:24
+msgid "no permission"
+msgstr "权限不足"
 
 #: ../app/library/Validator.php:23
 msgid "password"
 msgstr "密码"
 
-#: ../app/models/User.php:33
+#: ../app/models/User.php:35
 msgid "password incorrect"
 msgstr "密码错误"
 
-#: ../app/models/User.php:13
+#: ../app/controllers/Standard.php:31 ../app/controllers/Standard.php:41
+msgid "standard not found"
+msgstr "标准未找到"
+
+#: ../app/controllers/Standard.php:9
+msgid "standard type not found"
+msgstr "标准类型未找到"
+
+#: ../app/models/User.php:15
 msgid "user already exists"
 msgstr "用户已存在"
 
-#: ../app/models/User.php:40
-msgid "user not exists"
+#: ../app/models/User.php:43
+msgid "user does not exists"
 msgstr "用户不存在"

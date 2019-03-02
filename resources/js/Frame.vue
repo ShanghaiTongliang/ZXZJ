@@ -6,7 +6,7 @@
 </style>
 <template>
   <div>
-    <resizer>
+    <resizer :width="110">
       <side-menu id="nav" :menu="menu" :selection="selection" @select="select"></side-menu>
     </resizer>
     <router-view class="container"></router-view>
@@ -21,37 +21,13 @@ export default {
   data() {
     return {
       menu: [{
-        name: '_guZhang',
-        caption: '故障录入',
-        href: '#/guZhang',
-        items: [{
-          name: 'zhengCheJiaoJian',
-          caption: '整车交检故障',
-          href: '#/guZhang/zhengCheJiaoJian'
-        }, {
-          name: 'lingBuJianJiaoJian',
-          caption: '零部件交检故障',
-          href: '#/guZhang/lingBuJianJiaoJian'
-        }, {
-          name: 'lingBuJianChouYang',
-          caption: '零部件抽样故障',
-          href: '#/guZhang/lingBuJianChouYang'
-        }, {
-          name: 'lingBuJianFuJian',
-          caption: '零部件复检故障',
-          href: '#/guZhang/lingBuJianFuJian'
-        }]
+        name: 'zhengCheJiaoJian',
+        caption: '整车交检故障',
+        href: '#/zhengCheJiaoJian'
       }, {
-        caption: '检查记录',
-        items: [{
-          name: 'chouYang',
-          caption: '抽样检查记录',
-          href: '#/jiLu/chouYang'
-        }, {
-          name: 'ruKu',
-          caption: '入库检查记录',
-          href: '#/jiLu/ruKu'
-        }]
+        name: 'ruKuJianCha',
+        caption: '入库检查记录',
+        href: '#/ruKuJianCha'
       }, {
         name: 'danWeis',
         caption: '单位',
@@ -79,14 +55,6 @@ export default {
           caption: '大部位',
           href: '#/standard/daBuWei'
         }, {
-          name: 'xiaoBuWei',
-          caption: '小部位',
-          href: '#/standard/xiaoBuWei'
-        }, {
-          name: 'juTiBuWei',
-          caption: '具体部位',
-          href: '#/standard/juTiBuWei'
-        }, {
           name: 'guZhang',
           caption: '故障',
           href: '#/standard/guZhang'
@@ -108,7 +76,7 @@ export default {
       immediate: true,
       handler(r, from) {
         if(!r.name)
-          this.$router.replace('/guZhang')
+          this.$router.replace('/zhengCheJiaoJian')
         else {
           function find(menu, r) {
             for(let m of menu) {

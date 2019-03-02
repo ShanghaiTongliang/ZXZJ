@@ -1,9 +1,6 @@
 import Frame from './Frame.vue'
-import GuZhang from './GuZhang.vue'
 import ZhengCheJiaoJian from './ZhengCheJiaoJian.vue'
-import LingBuJianJiaoJian from './LingBuJianJiaoJian.vue'
-import LingBuJianChouYang from './LingBuJianChouYang.vue'
-import LingBuJianFuJian from './LingBuJianFuJian.vue'
+import RuKuJianCha from './RuKuJianCha.vue'
 import DanWei from './DanWei.vue'
 import User from './User.vue'
 import Group from './Group.vue'
@@ -15,35 +12,17 @@ export default [{
   path: '/',
   component: Frame,
   children: [{
-    name: '_guZhang',
-    path: '/guZhang',
-    component: GuZhang,
-  }, {
     name: 'zhengCheJiaoJian',
-    path: '/guZhang/zhengCheJiaoJian',
+    path: '/zhengCheJiaoJian',
     component: ZhengCheJiaoJian,
     children: [{
       name: 'zhengCheJiaoJianCreate',
-      path: '/guZhang/zhengCheJiaoJian/create'
+      path: '/zhengCheJiaoJian/create'
     }]
   }, {
-    name: 'lingBuJianJiaoJian',
-    path: '/guZhang/lingBuJianJiaoJian',
-    component: LingBuJianJiaoJian
-  }, {
-    name: 'lingBuJianChouYang',
-    path: '/guZhang/lingBuJianChouYang',
-    component: LingBuJianChouYang
-  }, {
-    name: 'lingBuJianFuJian',
-    path: '/guZhang/lingBuJianFuJian',
-    component: LingBuJianFuJian
-  }, {
-    name: 'chouYangJianCha',
-    path: '/jianCha/chouYang'
-  }, {
     name: 'ruKuJianCha',
-    path: '/jianCha/ruKu'
+    path: '/ruKuJianCha',
+    component: RuKuJianCha
   }, {
     name: 'danWeis',
     path: '/danwei',

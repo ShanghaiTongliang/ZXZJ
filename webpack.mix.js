@@ -1,4 +1,6 @@
-let mix = require('laravel-mix');
+const mix = require('laravel-mix');
+const webpack = require('webpack')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 /*
  |--------------------------------------------------------------------------
@@ -18,10 +20,19 @@ mix
     alias: {
       vue$: 'vue/dist/vue.runtime.js'
     }
-  }
+  },
+  plugins: [
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    /*new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      reportFilename: 'BundleReport.htm',
+      logLevel: 'info'
+    })*/
+  ]
 })
 .js('resources/js/main.js', 'js')
-.extract(['axios', 'js-cookie', 'vue', 'vuex', 'vue-router', 'chart.js', 'chartjs-plugin-zoom'], 'js/vendor')
+//.extract(['axios', 'js-cookie', 'vue', 'vuex', 'vue-router', 'chart.js', 'chartjs-plugin-zoom'], 'js/vendor')
+.extract()
 .combine(['resources/css/app.css', 'resources/css/menu.css', 'resources/css/table.css', 'resources/css/login.css'], 'public/css/app.css');
 if(!mix.inProduction())
   mix.sourceMaps();
@@ -34,8 +45,6 @@ if(!mix.inProduction())
 // mix.ts(src, output); <-- TypeScript support. Requires tsconfig.json to exist in the same folder as webpack.mix.js
 // mix.extract(vendorLibs);
 // mix.sass(src, output);
-// mix.standaloneSass('src', output); <-- Faster, but isolated from Webpack.
-// mix.fastSass('src', output); <-- Alias for mix.standaloneSass().
 // mix.less(src, output);
 // mix.stylus(src, output);
 // mix.postCss(src, output, [require('postcss-some-plugin')()]);
@@ -60,6 +69,6 @@ if(!mix.inProduction())
 //   globalVueStyles: file, // Variables file to be imported in every component.
 //   processCssUrls: true, // Process/optimize relative stylesheet url()'s. Set to false, if you don't want them touched.
 //   purifyCss: false, // Remove unused CSS selectors.
-//   uglify: {}, // Uglify-specific options. https://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
+//   terser: {}, // Terser-specific options. https://github.com/webpack-contrib/terser-webpack-plugin#options
 //   postCss: [] // Post-CSS options: https://github.com/postcss/postcss/blob/master/docs/plugins.md
 // });

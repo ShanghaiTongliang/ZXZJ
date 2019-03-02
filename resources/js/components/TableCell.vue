@@ -18,7 +18,7 @@ export default {
   render(h) {
     let c = this.column, r
     if(c.type) {
-      let keyName = c.keyName || this.options.keyName, valueName = c.valueName || this.options.valueName
+      let keyName = c.keyName || this.options.cascade.keyName, valueName = c.valueName || this.options.cascade.valueName
       switch(c.type) {
       case 'radio':
         r = this.items.map((o, k) => h('label', {key: k}, [h('input', {

@@ -1,5 +1,5 @@
 <?php
 
-class Table extends Model\Table {
+class Table extends Model\BaseTable {
   use DatabaseTrait;
 }

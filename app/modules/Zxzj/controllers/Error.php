@@ -11,8 +11,6 @@ class ErrorController extends Yaf\Controller_Abstract {
     $r = $this->getRequest();
     if($r->isXmlHttpRequest())
       response($exception->getMessage(), $exception->getCode() ?: RES_BAD_REQUEST);
-    //elseif(Yaf\Dispatcher::getInstance()->getRouter()->getCurrentRoute() == '_default')
-    //  response('', RES_NOT_FOUND);
     else
       $this->redirect('/zxzj');
   }

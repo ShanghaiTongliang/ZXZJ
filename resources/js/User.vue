@@ -12,6 +12,7 @@ export default {
   components: {Datable, Moditable},
   data() {
     return {
+      show: true,
       tbl: {
         caption: '用户',
         columns: {
@@ -51,7 +52,7 @@ export default {
     ...mapMutations(['loading', 'message', 'error']),
     save(d, i, next) {
       this.loading(true)
-      axios.put(`api/user/${d.id}`, {name: d.name, groups: d.groups, banZu: d.banZu}).then(res => {
+      axios.put(`zxzj/api/user/${d.id}`, {name: d.name, groups: d.groups, banZu: d.banZu}).then(res => {
         this.loading(false)
         this.message('保存成功')
         next()
@@ -63,7 +64,7 @@ export default {
     del(d, i, next) {
       if(confirm(`确定要删除用户 ${d.name} ?`)) {
         this.loading(true)
-        axios.delete(`api/user/${d.id}`).then(res => {
+        axios.delete(`zxzj/api/user/${d.id}`).then(res => {
           this.loading(false)
           this.message('删除成功')
           next()

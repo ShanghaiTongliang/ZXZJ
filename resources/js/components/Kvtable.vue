@@ -15,6 +15,7 @@ import Vue from 'vue'
 import Edit from './Edit'
 import Pinyin from './Pinyin'
 import TableCell from './TableCell'
+import merge from './merge'
 
 export default {
   components: {Edit, Pinyin, TableCell},
@@ -125,9 +126,13 @@ export default {
   data() {
     return {
       s: null,
-      options: Object.assign({
+      options: merge({
         keyName: 'id',
-        valueName: 'name'
+        cascade: {
+          itemName: 'items',
+          keyName: 'id',
+          valueName: 'name'
+        }
       }, this.tbl.options)
     }
   },
