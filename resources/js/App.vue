@@ -25,7 +25,6 @@ export default {
       menu: [{
         caption: null,
         icon: null,
-        href: null,
         items: [{
           caption: '退出',
           onclick() {
@@ -47,7 +46,6 @@ export default {
       if(v) {
         this.menu[0].caption = this.user.name
         this.menu[0].icon = this.user.icon
-        this.menu[0].href = `#/user/${this.user.id}`
       }
     }
   },
@@ -61,14 +59,14 @@ export default {
       axios.get('zxzj/api/auth').then(res => {
         this.loading(false)
         this.auth({data: res.data, id})
-      })/*.catch(res => {
+      }).catch(res => {
         let a = location.hash.match(/\?.*url=(.*)/), url = a ? decodeURIComponent(a[1]) : location.hash
         if(url[0] == '#')
           url = url.substr(1)
         this.$router.push({name: 'login', query: url ? {url} : null})
         this.loading(false)
         this.error(res.response.data)
-      })*/
+      })
     } else if(!this.$route.name || this.$route.matched.length && this.$route.matched[0].name != 'auth') {
       let url = location.hash
       if(url[0] == '#')

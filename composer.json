@@ -14,5 +14,7 @@
   ],
   "require": {
     "oblind/language": "dev-master"
+  },
+  "require-dev": {
   }
 }

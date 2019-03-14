@@ -95,6 +95,16 @@ export default {
           }
         }})]
         break
+      case 'int': case'number':
+        r = [h('input', {attrs: {id: this.key, type: 'number', min: c.min, max: c.max}, domProps: {value: this.value}, on: {
+          input: c.type == 'int' ? e => {
+            this.$emit('input', parseInt(e.target.value))
+           } :
+            e => {
+              this.$emit('input', parseFloat(e.target.value))
+            }
+        }})]
+        break
       default:
         r = [h('input', {attrs: {id: this.key, type: c.type}, domProps: {value: this.value}, on: {
           input: e => this.$emit('input', e.target.value)

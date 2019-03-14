@@ -1,7 +1,6 @@
 <template>
-  <div>零部件抽样</div>
+  <div>交检合格率</div>
 </template>
-
 <script>
 export default {
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "305d321e6fc7a5bc3b394f1f16d9a6df",
+    "content-hash": "1544cc35570550bf1bd1c902f0ecd878",
     "packages": [
         {
             "name": "oblind/language",
@@ -12,21 +12,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/oblind/language.git",
-                "reference": "9f919ed8a5c482048dc6a02c2cbab1a6a10cc71c"
+                "reference": "c1d2b93850384de94f1f8fb40343d84f6a584f1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/oblind/language/zipball/9f919ed8a5c482048dc6a02c2cbab1a6a10cc71c",
-                "reference": "9f919ed8a5c482048dc6a02c2cbab1a6a10cc71c",
+                "url": "https://api.github.com/repos/oblind/language/zipball/c1d2b93850384de94f1f8fb40343d84f6a584f1e",
+                "reference": "c1d2b93850384de94f1f8fb40343d84f6a584f1e",
                 "shasum": ""
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Oblind\\": "src/"
-                },
                 "files": [
-                    "src/global.php"
+                    "src/global.php",
+                    "src/Language.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -44,7 +42,7 @@
                 "language",
                 "oblind"
             ],
-            "time": "2019-02-14T00:49:41+00:00"
+            "time": "2019-03-03T03:04:45+00:00"
         }
     ],
     "packages-dev": [],

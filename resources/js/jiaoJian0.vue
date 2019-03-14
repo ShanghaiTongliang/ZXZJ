@@ -8,7 +8,7 @@
   height: 1.5em;
   margin: 0 .2em .2em 0;
 }
-#pnl input {width: 3.5em}
+#pnl input {width: 4em}
 #list {
   background-color: white;
   user-select: none;
@@ -17,25 +17,37 @@
   flex-grow: 1;
 }
 </style>
+<!--template>
+  <div v-if="$route.name == 'jiaoJian'">
+    单位 <select v-model="danWei" @change="danWeiChange">
+      <option v-for="(o, i) in $store.state.danWei" :value="o.id" :key="i">{{o.name}}</option>
+    </select>
+    车间 <select v-model="cheJian" @change="cheJianChange">
+      <option v-for="(o, i) in (curDanWei && curDanWei.cheJian)" :value="o.id" :key="i">{{o.name}}</option>
+    </select>
+    <moditable :table="tbl" @editable="editable" @save="save" @delete="del">
+      <a href="#/jiaoJian/create" class="act">新建</a>
+    </moditable>
+  </div>
+  <div v-else style="display: flex; flex-direction: column">
+    <kvtable :table="kv" :vertical="$store.state.vertical" style="overflow: visible; flex-shrink: 0">
+      <a href="#/jiaoJian" class="act">返回</a>
+    </kvtable>
+  </div>
+</template-->
 <script>
 import axios from 'axios'
-import Vue from 'vue'
 import {mapState, mapMutations} from 'vuex'
 import Datable from './components/Datable'
 import Kvtable from './components/Kvtable'
 import Moditable from './components/Moditable'
-import {fixZhengCheJiaoJian} from './store'
+import {fixJiaoJian} from './store'
 import {PERMISSION_DATA, PERMISSION_MANAGE} from './global'
 
 const columns = {
   date: {
     caption: '日期',
-    type: 'select',
-    items: null
-  },
-  cheHao: {
-    caption: '车号',
-    type: 'text'
+    type: 'date'
   },
   xiuCheng: {
     caption: '修程',
@@ -62,22 +74,34 @@ const columns = {
     caption: '等级',
     items: null
   },
+  danWei: {
+    caption: '单位',
+    type: 'select',
+    itemName: 'cheJian',
+    items: null
+  },
+  cheJian: {
+    caption: '车间',
+    type: 'select',
+    itemName: 'banZu',
+    master: ['danWei'],
+  },
   banZu: {
     caption: '班组',
     type: 'select',
     itemName: 'user',
-    items: null
+    master: ['danWei', 'cheJian'],
   },
   user: {
     caption: '质检员',
     type: 'select',
-    master: ['banZu']
+    master: ['danWei', 'cheJian', 'banZu']
   }
 }, months = []
 
 function init() {
   let d = new Date, y = d.getFullYear(), m = d.getMonth() + 1
-  for(let i = 0; i < 12; i++) {
+  for(let i = 0; i < 6; i++) {
     months.push(`${y}-${m > 9 ? m : '0' + m}`)
     if(m > 1) m--
     else {
@@ -91,64 +115,51 @@ init()
 export default {
   components: {Datable, Kvtable, Moditable},
   render(h) {
-    let pg = this.$route.name == 'zhengCheJiaoJian'
-      ? h('moditable', {props: {tbl: this.tbl}, on: {
+    if(this.$route.name == 'jiaoJian') {
+      let t = this.curCheJian && this.curCheJian.jiaoJian.find(g => g.month == this.month)
+      return h('div', [h('div', {attrs: {id: 'pnl'}}, [h('span', '单位'), h('select', {on: {
+        change: e => this.danWei = parseInt(e.target.value)
+      }}, this.$store.state.danWei && this.$store.state.danWei.map(
+        (d, i) => h('option', {attrs: {value: d.id}, domProps: {selected: this.danWei == d.id}, key: i}, d.name)
+      )),
+      h('span', '车间'), h('select', {on: {
+        change: e => this.cheJian = parseInt(e.target.value)
+      }}, this.curDanWei && this.curDanWei.cheJian.map(
+        (c, i) => h('option', {attrs: {value: c.id}, domProps: {selected: this.cheJian == c.id}, key: i}, c.name)
+      )),
+      h('span', '月份'), h('select', {on: {
+        change: e => this.month = e.target.value
+      }}, months.map((m, i) => h('option', {attrs: {value: m}, domProps: {selected: this.month == m}, key: i}, m))),
+      h('span', '数量'), h('input', {attrs: {type: 'number'}, domProps: {value: t && t.count}}),
+      ' ', h('button', {on: {
+        click: e => axios.put('zxzj/api/jiaoJian/count', {}).then(r => {
+
+        }).catch(r => {
+
+        })
+      }}, '保存')]),
+      h('moditable', {props: {table: this.tbl}, on: {
         editable: this.editable,
         save: this.save,
         delete: this.del
-      }}, [h('a', {attrs: {href: '#/zhengCheJiaoJian/create', class: 'act'}}, '新建')])
-      : h('kvtable', {props: {tbl: this.kv, vertical: this.$store.state.vertical}},
-        [h('a', {attrs: {href: '#/zhengCheJiaoJian', class: 'act'}}, '返回')])
-    let c = this.curCheJian, t = c && c.zhengCheJiaoJian.find(g => g.month == this.month)
-    let pnl = h('div', {attrs: {id: 'pnl'}}, [h('span', '单位'), h('select', {on: {
-      change: e => this.danWei = parseInt(e.target.value)
-    }}, this.$store.state.danWei && this.$store.state.danWei.map(
-      (d, i) => h('option', {attrs: {value: d.id}, domProps: {selected: this.danWei == d.id}, key: i}, d.name)
-    )),
-    h('span', '车间'), h('select', {on: {
-      change: e => {
-        this.cheJian = parseInt(e.target.value)
-        this.update()
-      }
-    }}, this.curDanWei && this.curDanWei.cheJian.map(
-      (c, i) => h('option', {attrs: {value: c.id}, domProps: {selected: this.cheJian == c.id}, key: i}, c.name)
-    )),
-    h('span', '月份'), h('select', {on: {
-      change: e => {
-        this.month = e.target.value
-        this.update()
-      }
-    }}, months.map((m, i) => h('option', {attrs: {value: m}, domProps: {selected: this.month == m}, key: i}, m))),
-    h('span', '检修总数'), h('input', {attrs: {type: 'number'}, domProps: {value: t && t.count}, on: {
-      input: e => this.count = parseInt(e.target.value)
-    }}),
-    ' ', h('button', {on: {
-      click: e => {
-        if(!isNaN(this.count)) {
-          this.loading(true)
-          axios.put(`zxzj/api/zhengCheJiaoJian/${this.month}/count`, {cheJian: this.cheJian, count: this.count}).then(r => {
-            if(!t) {
-              t = {id: r.data.id, month: this.month}
-              c.zhengCheJiaoJian.push(t)
-            }
-            Vue.set(t, 'count', this.count)
-            this.loading(false)
-            this.message('保存成功')
-          }).catch(r => {
-            this.loading(false)
-            this.error(r.response.data)
-          })
-        } else
-          this.error('请输入数量')
-      }
-    }}, '保存')])
-    return h('div', [pnl, pg])
+      }}, [h('a', {attrs: {href: '#/jiaoJian/create', class: 'act'}}, '新建')])])
+
+    } else {
+  /*<div v-else style="display: flex; flex-direction: column">
+    <kvtable :table="kv" :vertical="$store.state.vertical" style="overflow: visible; flex-shrink: 0">
+      <a href="#/jiaoJian" class="act">返回</a>
+    </kvtable>
+  </div>*/
+      return h('div', [h('kvtable', {props: {table: this.kv, vertical: this.$store.state.vertical}},
+        [h('a', {attrs: {href: '#/jiaoJian', class: 'act'}}, '返回')])])
+    }
+    //if(this.$route.name == 'jiaoJian')
+    //  return h('div', ['aaa', h('div', 'fuck'), 'bbb'])
   },
   data() {
     return {
-      danWei: this.$store.state.danWei[0].id,
-      cheJian: this.$store.state.danWei[0].cheJian[0].id,
-      count: null,
+      danWei: 1,
+      cheJian: 1,
       month: months[0],
       tbl: {
         caption: '故障',
@@ -165,21 +176,21 @@ export default {
           caption: '保存',
           onclick(d) {
             this.saveFields(d, r => {
-              axios.post('zxzj/api/zhengCheJiaoJian', r).then(res => {
+              axios.post('zxzj/api/jiaoJian', r).then(res => {
                 r.id = res.data
-                fixZhengCheJiaoJian.call(this.$store.state, r)
-                this.$store.state.zhengCheJiaoJian.push(r)
+                fixJiaoJian.call(this.$store.state, r)
+                this.$store.state.jiaoJian.push(r)
                 this.message('新建成功')
-                this.$router.push('/zhengCheJiaoJian')
+                this.$router.push('/jiaoJian')
               })
-              /*if(!this.list.length) {
+              if(!this.list.length) {
                 let l = {}
                 l.guZhang = r.guZhang
                 axios.post('zxzj/api/standard/guZhangList', l).then(r => {
                   l.id = r.data
                   this.std.guZhangList.push(l)
                 }).catch(r => this.error(r.response.data))
-              }*/
+              }
             })
           }
         }]
@@ -193,7 +204,7 @@ export default {
     },
     curCheJian() {
       return this.curDanWei && this.curDanWei.cheJian.find(c => c.id == this.cheJian)
-    },
+    }
     /*list() {
       let dict = this.$store.state.dict, d = this.kv.data, r
       return fields.reduce((gs, f) => gs.filter(
@@ -206,7 +217,7 @@ export default {
     $route: {
       immediate: true,
       handler(to) {
-        if(to.name == 'zhengCheJiaoJianCreate') {
+        if(to.name == 'jiaoJianCreate') {
           let d = {date: (new Date).toDate()}
           d.guZhang = ''
           this.kv.data = d
@@ -224,34 +235,23 @@ export default {
         columns.user.items = v
       },
     },
-    '$store.state.zhengCheJiaoJian': {
+    '$store.state.danWei': {
       deep: true,
       immediate: true,
       handler(v) {
-        this.update()
+        columns.danWei.items = v
       }
     },
-    month: {
+    '$store.state.jiaoJian': {
+      deep: true,
       immediate: true,
       handler(v) {
-        let i, c = new Date(this.month.substr(0, 4), this.month.substr(5), 0).getDate() + 1, d = []
-        for(i = 1; i < c; i++) {
-          let s = `${this.month}-` + (i > 9 ? i : `0${i}`)
-          d.push({id: s, name: s})
-        }
-        this.tbl.columns.date.items = d
+        this.tbl.data = v
       }
-    }
+    },
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
-    update() {
-      columns.banZu.items = this.$store.state.danWei.find(d => d.id == this.danWei)
-        .cheJian.find(c => c.id == this.cheJian).banZu
-      this.tbl.data = this.$store.state.zhengCheJiaoJian.filter(g => {
-        return g.cheJian == this.cheJian && g.date.substr(0, 7) == this.month
-      })
-    },
     editable() {
       let dict = this.$store.state.dict.groups
       let r = this.user.groups.find(g => {
@@ -263,20 +263,37 @@ export default {
       return r
     },
     saveFields(d, next) {
-      let std = this.std, r = {date: d.date, cheHao: d.cheHao, xiuCheng: d.xiuCheng, cheZhong: d.cheZhong, guZhang: d.guZhang, user: d.user}
+      let std = this.std, r = {date: d.date, xiuCheng: d.xiuCheng, cheZhong: d.cheZhong, user: d.user}, a = []
       if(!d.date)
         this.error('请选择 日期')
-      else if(!d.cheHao)
-        this.error('请输入 车号')
       else if(!d.user)
         this.error(`请选择 质检员`)
-      else
-        next(r)
+      else {
+        if(!d.guZhang) {
+          this.error(`请输入${columns[f].caption}`)
+          return
+        } else {
+          let v = std.guZhang.find(v => v.name == d.guZhang)
+          if(v)
+            r.guZhang = v.id
+          else
+            if(confirm(`是否添加新的 故障: ${d.guZhang} ?`)) {
+              this.loading(true)
+              a.push(axios.post(`zxzj/api/standard/guZhang`, d.guZhang).then(res => {
+                std.guZhang.push(res.data)
+                this.$store.state.dict.guZhang[res.data.id] = res.data
+                r.guZhang = res.data.id
+              }))
+            } else
+              return
+        }
+        Promise.all(a).then(() => next(r))
+      }
     },
     save(d, i, next) {
       this.saveFields(d, r => {
         this.loading(true)
-        axios.put(`zxzj/api/zhengCheJiaoJian/${d.id}`, r).then(() => {
+        axios.put(`zxzj/api/jiaoJian/${d.id}`, r).then(() => {
           this.loading(false)
           this.message('保存成功')
           next()
@@ -288,7 +305,7 @@ export default {
     },
     del(d, i, next) {
       if(confirm('确定要删除数据 ?')) {
-        axios.delete(`zxzj/api/zhengCheJiaoJian/${d.id}`).then(() => {
+        axios.delete(`zxzj/api/jiaoJian/${d.id}`).then(() => {
           this.loading(false)
           this.message('删除成功')
           next()

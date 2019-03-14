@@ -19,9 +19,9 @@ import merge from './merge'
 
 export default {
   components: {Edit, Pinyin, TableCell},
-  props: ['tbl', 'vertical'],
+  props: ['table', 'vertical'],
   render(h) {
-    let tbl = this.tbl, r = [], th = [], td = [], cols = tbl.columns, row = tbl.data, ne
+    let tbl = this.table, r = [], th = [], td = [], cols = tbl.columns, row = tbl.data, ne
       , c = tbl.caption instanceof Function ? tbl.caption.call(this.$parent) : tbl.caption
     if(c || this.$slots.default)
       r.push(h('caption', [c ? h('span', {domProps: {innerHTML: c}}) : null, this.$slots.default]))
@@ -36,7 +36,7 @@ export default {
       for(let i in cols) {
         c = cols[i]
         if(c instanceof Object) {
-          if((c.condition === undefined || (c.condition instanceof Function ? c.condition.call(this.$parent, i) : c.condition)) && (!tbl.editing || c.type)) {
+          if((c.condition === undefined || (c.condition instanceof Function ? c.condition.call(this.$parent, i) : c.condition)) && (!tbl.editing || c.type || c.show)) {
             th.push({domProps: {innerHTML: c.caption}})
             if(ne) {
               let self = this
@@ -56,7 +56,7 @@ export default {
                 //  l = f(c, l, row)
                 let d = c.render.call(this.$parent, h, row, i, l)
                 td.push(h('td', {key: i}, d instanceof Object ? [d] : d))
-              } else if(this.tbl.editing && c.type && (c.editable === undefined || (c.editable instanceof Function ? c.editable.call(this.$parent) : c.editable))) {
+              } else if(this.table.editing && c.type && (c.editable === undefined || (c.editable instanceof Function ? c.editable.call(this.$parent) : c.editable))) {
                 //if(c.master && l)
                 //  l = f(c, l, row)
                 td.push(h('table-cell', {props: {column: cols[i], value: row[i], items: l, options: this.options}, on: {
@@ -77,7 +77,7 @@ export default {
               } else {
                 let t
                 if(l)
-                  t = c.filter ? c.filter.call(this.$parent, l, i) : row[i] instanceof Array ?
+                  t = c.filter ? c.filter.call(this.$parent, l, i, row) : row[i] instanceof Array ?
                     row[i].map(i => l[i]).join(', ') : l[row[i]]
                 else
                   t = c.filter ? c.filter.call(this.$parent, row[i], i, row) : row[i]
@@ -133,15 +133,15 @@ export default {
           keyName: 'id',
           valueName: 'name'
         }
-      }, this.tbl.options)
+      }, this.table.options)
     }
   },
   computed: {
     slaves() {
       if(!this.s) {
         this.s = {}
-        for(let k in this.tbl.columns) {
-          let c = this.tbl.columns[k]
+        for(let k in this.table.columns) {
+          let c = this.table.columns[k]
           if(c.master) {
             c = c.master[c.master.length - 1]
             if(!this.s[c])

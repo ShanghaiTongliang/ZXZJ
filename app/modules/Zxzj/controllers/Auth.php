@@ -12,7 +12,7 @@ class AuthController extends Yaf\Controller_Abstract {
     $cs = Table::open('cheJian')::get();
     $bs = Table::open('banZu')::get();
     $us = UserModel::get();
-    $zcs = ZhengCheJiaoJianCountModel::get();
+    $zcs = JiaoJianCountModel::orderBy('month')->get();
     foreach($ds as $d)
       $d->cheJian = [];
     foreach($cs as $c) {
@@ -23,10 +23,10 @@ class AuthController extends Yaf\Controller_Abstract {
           break;
         }
       }
-      $c->zhengCheJiaoJian = [];
+      $c->jiaoJian = [];
       foreach($zcs as $z)
         if($z->cheJian == $c->id)
-          $c->zhengCheJiaoJian[] = $z;
+          $c->jiaoJian[] = $z;
     }
     foreach($bs as $b) {
       $b->user = [];
@@ -53,6 +53,7 @@ class AuthController extends Yaf\Controller_Abstract {
       $y0 = $y;
       $m0 = 1;
     }
+    $t = date("Y-m-d");
     echo json_encode([
       'users' => $us,
       'groups' => GroupModel::get(),
@@ -63,9 +64,11 @@ class AuthController extends Yaf\Controller_Abstract {
         'xiuCheng' => Table::open('xiuCheng')::get(),
         'cheZhong' => Table::open('cheZhong')::get(),
         'dengJi' => Table::open('dengJi')::get(),
+        'peiJian' => Table::open('peiJian')::get()
       ],
-      'zhengCheJiaoJian' => Table::open('zhengCheJiaoJian')::where("date >= '$y0-$m0-01' and date <= '$y-$m-$d'")->get(),
-      'ruKuJianCha' => Table::open('ruKuJianCha')::get()
+      'jiaoJian' => Table::open('jiaoJian')::where("date >= '$y0-$m0-01' and date <= '$y-$m-$d'")->get(),
+      'ruKuFuJian' => Table::open('ruKuFuJian')::where("date = '$t'")->get(),
+      'jiaoJianChuLi' => Table::open('jiaoJianChuLi')::orderBy('xiaFaShiJian', 'desc')->get()
     ], JSON_UNESCAPED_UNICODE);
   }
 

@@ -222,7 +222,6 @@ abstract class Base extends Decachable implements JsonSerializable {
             $k[] = "`$c`=?";
           $sql = 'update `' . static::getTableName() . '` set ' . implode(', ', $k) . ' where ' . static::$primary . '=' . $this->{static::$primary};
           $s = $db->prepare($sql);
-          //$s = $db->prepare('update ' . static::getTableName() . ' set ' . implode(', ', $k) . ' where ' . static::$primary . '=' . $this->{static::$primary});
           $r = $s->execute($v);
         }
       } catch(\Throwable $e) {

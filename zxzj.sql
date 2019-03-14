@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2019-03-02 14:37:12
--- 服务器版本： 10.2.13-MariaDB-log
--- PHP 版本： 7.2.2
+-- 生成日期： 2019-03-14 20:58:50
+-- 服务器版本： 10.3.13-MariaDB
+-- PHP 版本： 7.2.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -40,7 +40,9 @@ CREATE TABLE `banZu` (
 
 INSERT INTO `banZu` (`id`, `name`, `cheJian`) VALUES
 (1, '杭州质检一班', 3),
-(2, '杭州质检二班', 3);
+(2, '杭州质检二班', 3),
+(3, '南翔质检', 1),
+(4, '连云港质检', 4);
 
 -- --------------------------------------------------------
 
@@ -61,7 +63,11 @@ CREATE TABLE `cheJian` (
 INSERT INTO `cheJian` (`id`, `name`, `danWei`) VALUES
 (1, '上海车轮车间', 1),
 (2, '芜湖检修车间', 1),
-(3, '乔司检修车间', 1);
+(3, '乔司检修车间', 1),
+(4, '连云港', 2),
+(5, '徐州', 2),
+(6, '蚌埠', 2),
+(7, '南京东', 2);
 
 -- --------------------------------------------------------
 
@@ -162,7 +168,8 @@ CREATE TABLE `danWei` (
 --
 
 INSERT INTO `danWei` (`id`, `name`) VALUES
-(1, '杭州北车辆段');
+(1, '杭州北车辆段'),
+(2, '南京东车辆段');
 
 -- --------------------------------------------------------
 
@@ -203,7 +210,8 @@ CREATE TABLE `group` (
 INSERT INTO `group` (`id`, `name`, `cheJian`) VALUES
 (1, '上海东车辆段管理员', '[{\"id\":1,\"permission\":255},{\"id\":3,\"permission\":3},{\"id\":2,\"permission\":3}]'),
 (2, '上海东车辆段质检员', '[{\"id\":1,\"permission\":1},{\"id\":2,\"permission\":1},{\"id\":3,\"permission\":1}]'),
-(3, '上海东车辆段', '[{\"id\":1,\"permission\":0},{\"id\":2,\"permission\":0},{\"id\":3,\"permission\":0}]'),
+(3, '上海东车辆段检修员', '[{\"id\":1,\"permission\":2},{\"id\":2,\"permission\":2},{\"id\":3,\"permission\":2}]'),
+(4, '上海东车辆段', '[{\"id\":1,\"permission\":0},{\"id\":2,\"permission\":0},{\"id\":3,\"permission\":0}]'),
 (255, '管理员', '[]');
 
 -- --------------------------------------------------------
@@ -560,13 +568,146 @@ INSERT INTO `guZhang` (`id`, `name`, `dengJi`, `daBuWei`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `ruKuJianCha`
+-- 表的结构 `jiaoJian`
 --
 
-CREATE TABLE `ruKuJianCha` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `lingBuJian` smallint(5) UNSIGNED DEFAULT NULL
+CREATE TABLE `jiaoJian` (
+  `id` int(11) NOT NULL,
+  `date` date DEFAULT NULL,
+  `cheHao` varchar(16) DEFAULT NULL,
+  `xiuCheng` tinyint(4) DEFAULT NULL,
+  `cheZhong` smallint(5) UNSIGNED DEFAULT NULL,
+  `guZhang` smallint(5) UNSIGNED DEFAULT NULL,
+  `danWei` tinyint(3) UNSIGNED DEFAULT NULL,
+  `cheJian` tinyint(3) UNSIGNED DEFAULT NULL,
+  `banZu` smallint(5) UNSIGNED DEFAULT NULL,
+  `user` smallint(5) UNSIGNED DEFAULT NULL,
+  `state` tinyint(3) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `jiaoJian`
+--
+
+INSERT INTO `jiaoJian` (`id`, `date`, `cheHao`, `xiuCheng`, `cheZhong`, `guZhang`, `danWei`, `cheJian`, `banZu`, `user`, `state`) VALUES
+(1, '2018-12-11', '1234c', 1, 5, 7, 1, 1, 3, 3, NULL),
+(2, '2018-12-11', '4321', 2, 1, 6, 1, 3, 1, 4, 1),
+(4, '2018-12-30', '1111', 1, 1, 1, 1, 3, 2, 3, NULL),
+(5, '2018-12-31', '2222', 1, 5, 6, 1, 3, 2, 3, NULL),
+(6, '2019-01-02', '3333', 1, 2, 2, 1, 3, 1, 4, 4),
+(7, '2019-01-05', '4444', 1, 5, 318, 1, 3, 2, 5, 2),
+(8, '2019-03-01', '4332', 1, 1, 1, 1, 3, 1, 4, NULL),
+(9, '2019-03-01', 'ssxx', 1, 1, 171, 1, 1, 3, 7, NULL),
+(10, '2019-03-01', 'njd', 2, 3, 169, 2, 4, 4, 4, NULL),
+(11, '2019-03-01', 'ssxx', 1, 1, 1, 1, 1, 3, 7, NULL),
+(12, '2019-03-01', 'ssxx', 1, 1, 4, 1, 1, 3, 7, NULL),
+(13, '2019-03-01', 'ssxx', 1, 1, 8, 1, 1, 3, 7, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `jiaoJianChuLi`
+--
+
+CREATE TABLE `jiaoJianChuLi` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `state` tinyint(3) UNSIGNED DEFAULT NULL,
+  `cheHao` varchar(16) DEFAULT NULL,
+  `xiuCheng` tinyint(3) UNSIGNED DEFAULT NULL,
+  `danWei` tinyint(4) UNSIGNED DEFAULT NULL,
+  `cheJian` tinyint(4) UNSIGNED DEFAULT NULL,
+  `guZhang` smallint(6) UNSIGNED DEFAULT NULL,
+  `xiaFaShiJian` timestamp NULL DEFAULT NULL,
+  `xiaFaRen` smallint(5) UNSIGNED DEFAULT NULL,
+  `chuLiShiJian` timestamp NULL DEFAULT NULL,
+  `chuLiRen` smallint(5) UNSIGNED DEFAULT NULL,
+  `chuLi` tinyint(3) UNSIGNED DEFAULT NULL,
+  `yanZhiYuanYin` varchar(64) DEFAULT NULL,
+  `fuJianShiJian` timestamp NULL DEFAULT NULL,
+  `fuJianRen` smallint(5) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `jiaoJianChuLi`
+--
+
+INSERT INTO `jiaoJianChuLi` (`id`, `state`, `cheHao`, `xiuCheng`, `danWei`, `cheJian`, `guZhang`, `xiaFaShiJian`, `xiaFaRen`, `chuLiShiJian`, `chuLiRen`, `chuLi`, `yanZhiYuanYin`, `fuJianShiJian`, `fuJianRen`) VALUES
+(2, 1, '4321', 2, 1, 3, 6, '2019-03-13 08:42:18', 4, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 4, '3333', 1, 1, 3, 2, '2019-03-07 11:30:24', 4, '2019-03-07 13:15:00', 7, 0, NULL, '2019-03-07 13:15:00', 3),
+(7, 2, '4444', 1, 1, 3, 318, '2019-03-12 13:13:41', 5, '2019-03-13 08:43:00', 7, 0, NULL, '2019-03-13 08:42:00', 3);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `jiaoJianCount`
+--
+
+CREATE TABLE `jiaoJianCount` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `month` varchar(8) DEFAULT NULL,
+  `cheJian` tinyint(3) UNSIGNED DEFAULT NULL,
+  `count` smallint(5) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `jiaoJianCount`
+--
+
+INSERT INTO `jiaoJianCount` (`id`, `month`, `cheJian`, `count`) VALUES
+(1, '2018-12', 3, 90),
+(2, '2019-03', 3, 101),
+(3, '2019-01', 3, 26),
+(4, '2018-07', 1, 33),
+(5, '2019-03', 4, 11),
+(6, '2019-03', 7, 21),
+(7, '2019-03', 1, 22),
+(8, '2018-12', 1, 45);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `peiJian`
+--
+
+CREATE TABLE `peiJian` (
+  `id` smallint(5) UNSIGNED NOT NULL,
+  `name` varchar(64) DEFAULT NULL,
+  `xingHao` varchar(64) DEFAULT NULL,
+  `leiBie` tinyint(3) UNSIGNED DEFAULT NULL,
+  `danWei` varchar(16) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `peiJian`
+--
+
+INSERT INTO `peiJian` (`id`, `name`, `xingHao`, `leiBie`, `danWei`) VALUES
+(1, '轴承', 'RD2', 2, '对'),
+(2, 'ff', 'ss', 1, 'ee');
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `ruKuFuJian`
+--
+
+CREATE TABLE `ruKuFuJian` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `date` date DEFAULT NULL,
+  `peiJian` smallint(5) UNSIGNED DEFAULT NULL,
+  `ruKuShuLiang` int(10) UNSIGNED DEFAULT NULL,
+  `fuJianShuLiang` tinyint(3) UNSIGNED DEFAULT NULL,
+  `bianHao` varchar(255) DEFAULT NULL,
+  `jieGuo` tinyint(3) UNSIGNED DEFAULT NULL,
+  `user` smallint(5) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `ruKuFuJian`
+--
+
+INSERT INTO `ruKuFuJian` (`id`, `date`, `peiJian`, `ruKuShuLiang`, `fuJianShuLiang`, `bianHao`, `jieGuo`, `user`) VALUES
+(1, '2019-03-08', 1, 5, 1, '111', 1, 3);
 
 -- --------------------------------------------------------
 
@@ -588,11 +729,12 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `name`, `password`, `token`, `groups`, `banZu`) VALUES
-(1, 'oblind', 'ddHSDUw8lB75s', 26440, '[255]', NULL),
+(1, 'oblind', 'ddHSDUw8lB75s', 26440, '[255]', 3),
 (2, 'realarzt', '938/kIkECvYAc', 63246, '[255]', NULL),
-(3, 'test', 'ddHSDUw8lB75s', NULL, '[3]', 2),
-(4, '关强', 'ddHSDUw8lB75s', 123, '[1]', 1),
-(5, '夏云飞', 'ddHSDUw8lB75s', 123, '[1]', 2);
+(3, 'test', 'ddHSDUw8lB75s', NULL, '[2]', 1),
+(4, '关强', 'ddHSDUw8lB75s', 123, '[1]', 4),
+(5, '夏云飞', 'ddHSDUw8lB75s', 123, '[1]', 2),
+(7, '111', '69s06.iMJqanI', NULL, '[3]', 3);
 
 -- --------------------------------------------------------
 
@@ -616,57 +758,6 @@ INSERT INTO `xiuCheng` (`id`, `name`) VALUES
 (4, '临修'),
 (5, '大修'),
 (6, '新造');
-
--- --------------------------------------------------------
-
---
--- 表的结构 `zhengCheJiaoJian`
---
-
-CREATE TABLE `zhengCheJiaoJian` (
-  `id` int(11) NOT NULL,
-  `date` date DEFAULT NULL,
-  `cheHao` varchar(16) DEFAULT NULL,
-  `xiuCheng` tinyint(4) DEFAULT NULL,
-  `cheZhong` smallint(5) UNSIGNED DEFAULT NULL,
-  `guZhang` smallint(5) UNSIGNED DEFAULT NULL,
-  `user` smallint(5) UNSIGNED DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- 转存表中的数据 `zhengCheJiaoJian`
---
-
-INSERT INTO `zhengCheJiaoJian` (`id`, `date`, `cheHao`, `xiuCheng`, `cheZhong`, `guZhang`, `user`) VALUES
-(1, '2018-12-11', '1234', 1, 5, 7, 3),
-(2, '2018-12-11', '4321', 2, 1, 6, 4),
-(4, '2018-12-30', '1111', 1, 1, 1, 3),
-(5, '2018-12-31', '2222', 1, 5, 6, 3),
-(6, '2019-01-02', '3333', 1, 2, 2, 4),
-(7, '2019-01-05', '4444', 1, 5, 332, 5),
-(8, '2019-03-01', '4332', 1, 1, 1, 4);
-
--- --------------------------------------------------------
-
---
--- 表的结构 `zhengCheJiaoJianCount`
---
-
-CREATE TABLE `zhengCheJiaoJianCount` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `month` varchar(8) DEFAULT NULL,
-  `cheJian` tinyint(3) UNSIGNED DEFAULT NULL,
-  `count` smallint(5) UNSIGNED DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- 转存表中的数据 `zhengCheJiaoJianCount`
---
-
-INSERT INTO `zhengCheJiaoJianCount` (`id`, `month`, `cheJian`, `count`) VALUES
-(1, '2018-12', 3, 90),
-(2, '2019-01', 3, 101),
-(3, '2019-03', 3, 26);
 
 --
 -- 转储表的索引
@@ -727,9 +818,34 @@ ALTER TABLE `guZhang`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `ruKuJianCha`
+-- 表的索引 `jiaoJian`
 --
-ALTER TABLE `ruKuJianCha`
+ALTER TABLE `jiaoJian`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- 表的索引 `jiaoJianChuLi`
+--
+ALTER TABLE `jiaoJianChuLi`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- 表的索引 `jiaoJianCount`
+--
+ALTER TABLE `jiaoJianCount`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `month` (`month`);
+
+--
+-- 表的索引 `peiJian`
+--
+ALTER TABLE `peiJian`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- 表的索引 `ruKuFuJian`
+--
+ALTER TABLE `ruKuFuJian`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -745,18 +861,6 @@ ALTER TABLE `xiuCheng`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `zhengCheJiaoJian`
---
-ALTER TABLE `zhengCheJiaoJian`
-  ADD PRIMARY KEY (`id`);
-
---
--- 表的索引 `zhengCheJiaoJianCount`
---
-ALTER TABLE `zhengCheJiaoJianCount`
-  ADD PRIMARY KEY (`id`);
-
---
 -- 在导出的表使用AUTO_INCREMENT
 --
 
@@ -764,13 +868,13 @@ ALTER TABLE `zhengCheJiaoJianCount`
 -- 使用表AUTO_INCREMENT `banZu`
 --
 ALTER TABLE `banZu`
-  MODIFY `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- 使用表AUTO_INCREMENT `cheJian`
 --
 ALTER TABLE `cheJian`
-  MODIFY `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- 使用表AUTO_INCREMENT `cheXing`
@@ -794,7 +898,7 @@ ALTER TABLE `daBuWei`
 -- 使用表AUTO_INCREMENT `danWei`
 --
 ALTER TABLE `danWei`
-  MODIFY `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` tinyint(3) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- 使用表AUTO_INCREMENT `dengJi`
@@ -809,34 +913,40 @@ ALTER TABLE `guZhang`
   MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=333;
 
 --
--- 使用表AUTO_INCREMENT `ruKuJianCha`
+-- 使用表AUTO_INCREMENT `jiaoJian`
 --
-ALTER TABLE `ruKuJianCha`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `jiaoJian`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- 使用表AUTO_INCREMENT `jiaoJianCount`
+--
+ALTER TABLE `jiaoJianCount`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- 使用表AUTO_INCREMENT `peiJian`
+--
+ALTER TABLE `peiJian`
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- 使用表AUTO_INCREMENT `ruKuFuJian`
+--
+ALTER TABLE `ruKuFuJian`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- 使用表AUTO_INCREMENT `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- 使用表AUTO_INCREMENT `xiuCheng`
 --
 ALTER TABLE `xiuCheng`
   MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- 使用表AUTO_INCREMENT `zhengCheJiaoJian`
---
-ALTER TABLE `zhengCheJiaoJian`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- 使用表AUTO_INCREMENT `zhengCheJiaoJianCount`
---
-ALTER TABLE `zhengCheJiaoJianCount`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

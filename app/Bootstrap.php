@@ -19,28 +19,28 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
 
     //本地化
     Language::addTranslation([
-      ":attribute format invalid" => ":attribute 格式错误",
-      ":attribute inconsistent" => ":attribute 不相符",
-      ":attribute length between %d-%d" => ":attribute 长度范围 %d-%d",
-      ":attribute maximal length %d" => ":attribute 最多 %d 字符",
-      ":attribute minimal length %d" => ":attribute 至少 %d 字符",
-      ":attribute required" => "请输入 :attribute",
-      "confirmation" => "确认密码",
-      "email" => "电子邮箱",
-      "format incorrect" => "格式错误",
-      "group %d: %s already exists" => "用户组 %d: %s 已存在",
-      "group not found" => "用户组未找到",
-      "guZhang not found" => "故障未找到",
-      "name" => "用户名",
-      "no permission" => "权限不足",
-      "password" => "密码",
-      "password incorrect" => "密码错误",
-      "standard not found" => "标准未找到",
-      "standard type not found" => "标准类型未找到",
-      "user already exists" => "用户已存在",
-      "user does not exists" => "用户不存在",
+      'danWei' => '单位',
+      'cheJian' => '车间',
+      'banZu' => '班组',
+      'format incorrect' => '格式错误',
+      'group %d: %s already exists' => '用户组 %d: %s 已存在',
+      'group not found' => '用户组未找到',
+      'guZhang not found' => '故障未找到',
+      'no permission' => '权限不足',
+      'password incorrect' => '密码错误',
+      'standard not found' => '标准未找到',
+      'standard type not found' => '标准类型未找到',
+      'danWei not found' => '单位未找到',
+      'danWei %s already already exists' => '单位 %s 已经存在',
+      'cheJian not found' => '车间未找到',
+      'cheJian %s already already exists' => '车间 %s 已经存在',
+      'banZu not found' => '班组未找到',
+      'banZu %s already already exists' => '班组 %s 已经存在',
+      'please delete all subitems first' => '请先删除所有子项目',
+      'user already exists' => '用户已存在',
+      'user does not exists' => '用户不存在',
     ], 'zh-cn');
-    Language::set(explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0]);
+    Language::set($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
     //辅助函数
     Yaf\Loader::import(APP_PATH.'/app/helper.php');
@@ -92,6 +92,24 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $p['controller'] = 'danWei';
         $p['action'] = 'store';
         $router->post('danWei', $p);
+        $p['action'] = 'update';
+        $router->put('danWei/:did', $p);
+        $p['action'] = 'destroy';
+        $router->delete('danWei/:did', $p);
+        //车间
+        $p['action'] = 'storeCheJian';
+        $router->post('danWei/:did/cheJian', $p);
+        $p['action'] = 'updateCheJian';
+        $router->put('danWei/:did/cheJian/:cid', $p);
+        $p['action'] = 'destroyCheJian';
+        $router->delete('danWei/:did/cheJian/:cid', $p);
+        //班组
+        $p['action'] = 'storeBanZu';
+        $router->post('danWei/:did/cheJian/:cid/banZu', $p);
+        $p['action'] = 'updateBanZu';
+        $router->put('danWei/:did/cheJian/:cid/banZu/:bid', $p);
+        $p['action'] = 'destroyBanZu';
+        $router->delete('danWei/:did/cheJian/:cid/banZu/:bid', $p);
 
         //用户组
         $p['controller'] = 'group';
@@ -117,25 +135,38 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $router->delete('standard/:type/:id', $p);
 
         //整车交检
-        $p['controller'] = 'zhengCheJiaoJian';
+        //增删改
+        $p['controller'] = 'jiaoJian';
         $p['action'] = 'store';
-        $router->post('zhengCheJiaoJian', $p);
+        $router->post('jiaoJian', $p);
         $p['action'] = 'update';
-        $router->put('zhengCheJiaoJian/:id', $p);
+        $router->put('jiaoJian/:id', $p);
         $p['action'] = 'destroy';
-        $router->delete('zhengCheJiaoJian/:id', $p);
+        $router->delete('jiaoJian/:id', $p);
         //设置数量
-        $p['action'] = 'count';
-        $router->put('zhengCheJiaoJian/:month/count', $p);
+        $p['action'] = 'updateCount';
+        $router->put('jiaoJian/count', $p);
+        //查询
+        $p['action'] = 'query';
+        $router->post('jiaoJian/query', $p);
+        //下发，新建处理
+        $p['action'] = 'storeChuLi';
+        $router->post('jiaoJian/:id/chuLi', $p);
+        //签收/复检，更新处理
+        $p['action'] = 'updateChuLi';
+        $router->put('jiaoJian/:id/chuLi', $p);
 
-        //入库检查
-        $p['controller'] = 'ruKuJianCha';
+        //入库复检
+        $p['controller'] = 'ruKuFuJian';
         $p['action'] = 'store';
-        $router->post('ruKuJianCha', $p);
+        $router->post('ruKuFuJian', $p);
         $p['action'] = 'update';
-        $router->put('ruKuJianCha/:id', $p);
+        $router->put('ruKuFuJian/:id', $p);
         $p['action'] = 'destroy';
-        $router->delete('ruKuJianCha/:id', $p);
+        $router->delete('ruKuFuJian/:id', $p);
+        //查询
+        $p['action'] = 'query';
+        $router->post('ruKuFuJian/query', $p);
       });
 
     });

@@ -4,7 +4,32 @@ class UserModel extends BaseModel {
   protected static $hidden = ['password', 'token'];
   protected static $jsonFields = ['groups'];
   protected static $cacheFields = ['icon'];
+  /**@var UserModel */
   static $user;
+
+  function admin($u) {
+    if(in_array(255, $this->groups))
+      return true;
+    $gs = []; $cs = [];
+    foreach(GroupModel::get() as $g)
+      $gs[$g->id] = $g;
+    foreach($this->groups as $id)
+      if($g = $gs[$id] ?? null)
+        foreach($g->cheJian as $c)
+          $cs[] = $c;
+    if($u->groups) {
+      foreach($cs as $c)
+        if($c->permission & GroupModel::PERMISSION_MANAGE)
+          foreach($u->groups as $id)
+            if($g = $gs[$id] ?? null)
+              foreach($g->cheJian as $uc)
+                if($uc->id == $c->id)
+                  return true;
+    } else
+      foreach($cs as $c)
+        if($c->permission & GroupModel::PERMISSION_MANAGE)
+          return true;
+  }
 
   static function register(array $data, &$err): ?UserModel {
     if(Validator::valid($data, [
@@ -18,6 +43,7 @@ class UserModel extends BaseModel {
         $u->name = $data['name'];
         $u->password = crypt($data['password'], md5(rand(0x7fff, 0xffff)));
         //$u->token = rand(1, 0xffff);
+        $u->groups = [];
         $u->save();
         return $u;
       }

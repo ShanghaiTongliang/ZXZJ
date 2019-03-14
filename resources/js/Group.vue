@@ -1,15 +1,7 @@
 <style>
-.group {
-  border: inset 1px;
-  margin: .1em;
-}
-.group span {
-  text-align: left;
-  min-width: 3em;
-}
-.group, .group span {display: inline-block}
-.green, .red {font-weight: bold}
+.green, .red, .blue {font-weight: bold}
 .green {color: green}
+.blue {color: blue}
 .red {color: red}
 </style>
 <script>
@@ -18,7 +10,6 @@ import {mapState, mapMutations} from 'vuex'
 import Kvtable from './components/Kvtable'
 import Datable from './components/Datable'
 import Moditable from './components/Moditable'
-import {fixGroup} from './store'
 import {permissions} from './global'
 
 const columns = {
@@ -42,7 +33,7 @@ const columns = {
         let i, r = d[c.id].name
         for(i = 0; i < permissions.length; i++)
           if(c.permission & permissions[i].id)
-            r += ':' + `<span class="${permissions[i].color}">${permissions[i].name}</span>`
+            r += ' ' + `<span class="${permissions[i].color}">${permissions[i].name}</span>`
         return r
       }).join(', ')
     },
@@ -66,14 +57,14 @@ export default {
   render(h) {
     switch(this.$route.name) {
     case 'groups':
-      return h('moditable', {props: {tbl: this.tbl}, on: {
+      return h('moditable', {props: {table: this.tbl}, on: {
         editable: this.editable,
         save: this.save,
         delete: this.del
       }}, [h('a', {attrs: {href: '#/group/create', class: 'act'}}, '新建用户组')])
       break
     case 'group':
-      return h('moditable', {props: {tbl: this.tblGroup}, on: {
+      return h('moditable', {props: {table: this.tblGroup}, on: {
         save: this.groupSave,
         delete: this.groupDel
       }}, [h('div', {attrs: {class: 'act'}}, [
@@ -83,11 +74,11 @@ export default {
       break
     case 'createGroupCheJian':
       this.kvPermission.columns.id.items = this.cheJian.filter(c => !this.group.cheJian.find(v => v.id == c.id))
-      return h('kvtable', {props: {tbl: this.kvPermission, vertical: this.vertical}},
+      return h('kvtable', {props: {table: this.kvPermission, vertical: this.vertical}},
         [h('a', {attrs: {href: `#/group/${this.$route.params.gid}`, class: 'act'}}, '返回')])
       break
     default:
-      return h('kvtable', {props: {tbl: this.kv, vertical: this.vertical}},
+      return h('kvtable', {props: {table: this.kv, vertical: this.vertical}},
         [h('a', {attrs: {href: `#/group/${this.$route.params.gid}`, class: 'act'}}, '返回')])
     }
   },
@@ -116,7 +107,7 @@ export default {
               axios.post('zxzj/api/group', d).then(() => {
                 this.groups.push(d)
                 this.groups.sort((a, b) => a.id - b.id)
-                fixGroup(d)
+                this.$store.state.fixGroup(g)
                 this.$router.push('/group')
                 this.loading(false)
                 this.message('保存成功')
@@ -178,7 +169,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['vertical', 'groups', 'dict']),
+    ...mapState(['vertical', 'groups']),
     group() {
       let id = this.$route.params.gid
       return id && this.groups.find(g => g.id == id)

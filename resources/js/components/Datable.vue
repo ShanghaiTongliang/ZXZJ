@@ -20,7 +20,6 @@
   display: inline-block;
   background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjgiIGZpbGw9ImdyZWVuIi8+CiAgPHBvbHlnb24gcG9pbnRzPSI4LDE0IDE0LDUgMiw1IiBzdHlsZT0iZmlsbDp3aGl0ZSIvPgo8L3N2Zz4=);
 }
-.dt-flip-move {transition: transform .3s}
 </style>
 <script>
 import merge from './merge'
@@ -31,9 +30,9 @@ import Pinyin from './Pinyin'
 import TableCell from './TableCell'
 
 export default {
-  props: ['tbl', 'selection'],
+  props: ['table', 'selection'],
   /*
-  tbl: {
+  table: {
     caption: 标题
     columns: {  表头列表
       caption:  列名
@@ -44,21 +43,21 @@ export default {
       }
     }
     actions: 按钮列表
-    data: 数据
-      keyName: string = id,       排序
-      options: {
+    keyName: string = id,       排序
+    options: {
       cascade: {
         itemName: string = items  级联选项名
         keyName: string = id      级联键名
         valueName: string = name  级联值名
       }
     }
-  }*/
+  },
+  data: 数据*/
 
   //TableCell为functional, 父组件需引入其需要的子组件
   components: {Edit, ComboBox, Pinyin, TableCell},
   render(h) {
-    let tbl = [], head = [], body = [], th = [], bth = [], atd= [], hide = {}, c = this.tbl.caption instanceof Function ? this.tbl.caption.call(this.$parent) : this.tbl.caption, cols = this.tbl.columns
+    let tbl = [], head = [], body = [], th = [], bth = [], atd= [], hide = {}, c = this.table.caption instanceof Function ? this.table.caption.call(this.$parent) : this.table.caption, cols = this.table.columns
     if(c || this.$slots.default)
       head.push(h('caption', [c ? h('span', {domProps: {innerHTML: c}}) : null, this.$slots.default]))
     if(cols) {
@@ -70,18 +69,18 @@ export default {
           c.condition === undefined || !(hide[i] = !(c.condition instanceof Function ? c.condition.call(this.$parent, i) : c.condition)) ?
             [h('div', {domProps: {innerHTML: c.caption}, style: c.style}), h('div', {domProps: {innerHTML: c.caption}, style: c.style})] :
             [null, null]
-        if(v) {
-          th.push(h('th', {on: {click: () => this.colClick(i)}, key: i}, [u, h('div', {style: {display: this.tbl.orderby != i ? 'none' : ''}, class: [this.tbl.desc ? 'desc' : 'asc']})]))
-          bth.push(h('th', {key: i}, [v, h('div', {style: {display: this.tbl.orderby != i ? 'none' : ''}, class: [this.tbl.desc ? 'desc' : 'asc']})]))
+        if(v) { //th: 浮动表头，可点击, bth: 隐藏的真表头
+          th.push(h('th', {on: {click: () => this.colClick(i)}, key: i}, [u, h('div', {style: {display: this.table.orderby != i ? 'none' : ''}, class: [this.table.desc ? 'desc' : 'asc']})]))
+          bth.push(h('th', {key: i}, [v, h('div', {style: {display: this.table.orderby != i ? 'none' : ''}, class: [this.table.desc ? 'desc' : 'asc']})]))
         }
       }
-      if(this.tbl.data && this.tbl.data.length) {
-        for(let i = 0; i < this.tbl.data.length; i++) {
-          let row = this.tbl.data[i], td = []
+      if(this.table.data && this.table.data.length) {
+        for(let i = 0; i < this.table.data.length; i++) {
+          let row = this.table.data[i], td = []
           for(let j in cols) {
             let c = cols[j]
             if(!(c instanceof Object))
-              td.push(h('td', {domProps: {innerHTML: row[j] instanceof Array ? row[j].join(', ') : row[j]}, key: j}))
+              td.push(h('td', {domProps: {innerHTML: row[j] instanceof Array ? row[j].join(', ') : row[j] === undefined ? null : row[j]}, key: j}))
             else if(!hide[j]) {
               let p = {key: j}, l = c.master ? cols[c.master[0]] && cols[c.master[0]].items : c.items, t
               if(l instanceof Function)
@@ -96,14 +95,19 @@ export default {
                 }
                 return l
               }
+              //render函数
               if(c.render instanceof Function) {
-                if(c.master && l)
-                  l = f(c, l, row)
-                let d = c.render.call(this.$parent, h, this.tbl.editingIndex == i ? this.tbl.__tmp : row, j, i, l)
+                let d
+                if(this.table.editingIndex == i) {
+                  if(c.master && l)
+                    l = f(c, l, row)
+                  d = c.render.call(this.$parent, h, this.table.__tmp, j, i, l)
+                } else
+                  d = c.render.call(this.$parent, h, row, j, i, l)
                 td.push(h('td', p, d instanceof Object ? [d] : d))
-              } else if(!c.type || this.tbl.editingIndex != i || c.editable !== undefined && !(c.editable instanceof Function ? c.editable.call(this.$parent) : c.editable)) {
-                if(c.master && l)
-                  l = f(c, l, row)
+              } else if(!c.type || this.table.editingIndex != i || c.editable !== undefined && !(c.editable instanceof Function ? c.editable.call(this.$parent) : c.editable)) {
+                //文字状态单元格
+                l = c.items || c.master && l && f(c, l, row)
                 if(l && c.type != 'combo' && c.type != 'pinyin') {
                   switch(c.type) {
                   case 'checkbox':
@@ -145,16 +149,16 @@ export default {
                   else
                     td.push(h('td', p))
                 }
-              } else {
+              } else {  //编辑状态单元格
                 if(c.master && l)
-                  l = f(c, l, this.tbl.__tmp)
+                  l = f(c, l, this.table.__tmp)
                 td.push(h('table-cell', {
                   props: {
-                    column: cols[j], value: this.tbl.__tmp[j], items: l, options: this.options
+                    column: cols[j], value: this.table.__tmp[j], items: l, options: this.options
                   },
                   on: {
                     input: d => {
-                      let r = this.tbl.__tmp, self = this
+                      let r = this.table.__tmp, self = this
                       r[j] = d
                       if(c.type == 'select' && this.slaves && this.slaves[j])
                         for(let s of this.slaves[j]) {
@@ -171,8 +175,8 @@ export default {
               }
             }
           }
-          if(this.tbl.actions) {
-            let a = this.tbl.actions.filter(a => a.condition === undefined || (a.condition instanceof Function
+          if(this.table.actions) {
+            let a = this.table.actions.filter(a => a.condition === undefined || (a.condition instanceof Function
               ? a.condition.call(this.$parent, row, i) : a.condition))
             if(a.length)
               atd[i] = h('td', a.map((a, j) => a.href && row[a.href]
@@ -209,8 +213,8 @@ export default {
       }
       head.push(h('thead', [h('tr', {ref: 'th'}, th)]))
       tbl.push(h('thead', [h('tr', {ref: 'bth'}, bth)]))
-      tbl.push(h('transition-group', {attrs: {name: 'dt-flip', tag: 'tbody'}}, e ? body : body.map((td, j) => {
-        let row = this.tbl.data[j]
+      tbl.push(h('tbody', e ? body : body.map((td, j) => {
+        let row = this.table.data[j]
         return h('tr', {
           class: row == this.selection ? ['selection'] : null,
           on: {
@@ -221,7 +225,7 @@ export default {
       })))
       this.$nextTick(this.onScroll) //对齐表头
     } else
-      tbl.push(h('tbody', this.tbl.data && this.tbl.data.map(
+      tbl.push(h('tbody', this.table.data && this.table.data.map(
         (r, i) => h('tr', {key: i}, r && r.map((c, j) => h('td', {domProps: c, key: j})))
       )))
     return h('div', {staticClass: 'dt-out',
@@ -253,17 +257,17 @@ export default {
           keyName: 'id',
           valueName: 'name'
         }
-      }, this.tbl.options)
+      }, this.table.options)
     },
     keys() {
-      let c = this.tbl.columns
+      let c = this.table.columns
       return Object.keys(c).filter(k => c[k] instanceof Object && c[k].type)
     },
     slaves() {
       if(!this.s) {
         this.s = {}
-        for(let k in this.tbl.columns) {
-          let c = this.tbl.columns[k]
+        for(let k in this.table.columns) {
+          let c = this.table.columns[k]
           if(c.master) {
             c = c.master[c.master.length - 1]
             if(!this.s[c])
@@ -277,20 +281,28 @@ export default {
   },
   methods: {
     colClick(k) {
-      if(this.tbl.orderby == k)
-        Vue.set(this.tbl, 'desc', !this.tbl.desc)
+      if(this.table.orderby == k)
+        Vue.set(this.table, 'desc', !this.table.desc)
       else {
-        Vue.set(this.tbl, 'orderby', k)
-        Vue.set(this.tbl, 'desc', false)
+        Vue.set(this.table, 'orderby', k)
+        Vue.set(this.table, 'desc', false)
       }
       this.sort()
     },
     sort: function() {
-      let k = this.tbl.orderby, desc = this.tbl.desc
-      if(this.tbl.data)
-        this.tbl.data.sort((a, b) => {
-          a = a[k] || 0
-          b = b[k] || 0
+      let k = this.table.orderby, desc = this.table.desc
+      if(this.table.data)
+        this.table.data.sort((a, b) => {
+          a = a[k]
+          b = b[k]
+          if(a === null || a === undefined)
+            a = ''
+          if(b === null || b === undefined)
+            b = ''
+          if(isNaN(parseFloat(a)) != isNaN(parseFloat(b))) {
+            a = a.toString()
+            b = b.toString()
+          }
           let r = a > b ? 1 : (a < b ? -1 : 0)
           return desc ? -r : r
         })
@@ -301,7 +313,7 @@ export default {
         for(let i = 0; i < this.$refs.th.children.length; i++) {
           let h = this.$refs.bth.children[i]
           if(h.clientWidth)
-            this.$refs.th.children[i].children[0].style.width = (!h.children[1] || h.children[1].style == 'none' ? h.clientWidth : h.clientWidth - h.children[1].clientWidth) - 2 + 'px'
+            this.$refs.th.children[i].children[0].style.width = (!h.children[1] || h.children[1].style.display == 'none' ? h.clientWidth : h.clientWidth - h.children[1].clientWidth) - 2.8 + 'px'
         }
       }
     }

@@ -1,34 +1,3 @@
-<template>
-  <div>
-    <moditable v-if="$route.name == 'danWeis'" :tbl="tblDanWei" @save="saveDanWei" @delete="delDanWei">
-      <a href="#/danWei/create" class="act">新建单位</a>
-    </moditable>
-    <kvtable v-else-if="$route.name == 'createDanWei'" :tbl="kvDanWei" :vertical="$store.state.vertical">
-      <a href="#/danWei" class="act">返回</a>
-    </kvtable>
-    <moditable v-else-if="$route.name == 'danWei'" :tbl="tblCheJian" @save="saveCheJian" @delete="delCheJian">
-      <div class="act">
-        <a href="#/danWei">返回</a>
-        <a :href="`#/danWei/${$route.params.did}/create`">新建车间</a>
-      </div>
-    </moditable>
-    <kvtable v-else-if="$route.name == 'createCheJian'" :tbl="kvCheJian" :vertical="$store.state.vertical">
-      <a :href="`#/danWei/${$route.params.did}`" class="act">返回</a>
-    </kvtable>
-    <moditable v-else-if="$route.name == 'cheJian'" :tbl="tblBanZu" @save="saveBanZu" @delete="delBanZu">
-      <div class="act">
-        <a :href="`#/danWei/${$route.params.did}`">返回</a>
-        <a :href="`#/danWei/${$route.params.did}/${$route.params.cid}/create`">新建班组</a>
-      </div>
-    </moditable>
-    <kvtable v-else-if="$route.name == 'createBanZu'" :tbl="kvBanZu" :vertical="$store.state.vertical">
-      <a :href="`#/danWei/${$route.params.did}/${$route.params.cid}`" class="act">返回</a>
-    </kvtable>
-    <datable v-else-if="$route.name == 'banZu'" :tbl="tblUser">
-      <a :href="`#/danWei/${$route.params.did}/${$route.params.cid}`" class="act">返回</a>
-    </datable>
-  </div>
-</template>
 <script>
 import axios from 'axios'
 import { mapMutations, mapState } from 'vuex';
@@ -36,10 +5,23 @@ import Datable from './components/Datable'
 import Moditable from './components/Moditable'
 import Kvtable from './components/Kvtable'
 
-const columns = {
+const tier = ['danWei', 'cheJian', 'banZu', 'user'],
+ids = ['did', 'cid', 'bid'],
+fix = {
+  danWei: 'fixDanWei',
+  cheJian: 'fixCheJian',
+  banZu: 'fixBanZu'
+},
+names = {
+  danWei: '单位',
+  cheJian: '车间',
+  banZu: '班组',
+  user: '用户'
+},
+columns = {
   id: 'id',
   name: {
-    caption: '名称',
+    caption: null,
     type: 'text',
     href: 'url'
   }
@@ -47,151 +29,160 @@ const columns = {
 
 export default {
   components: {Datable, Kvtable, Moditable},
+  render(h) {
+    let n = this.$route.name, p = this.$route.params
+    if(n.substr(0, 6) == 'create') {
+      n = this.$route.matched[this.$route.matched.length - 2].name
+      let [t, pre, cur] = this.cal(n, p)
+      this.kv.caption = `新建${names[n]}`
+      this.kv.data = {}
+      return h('kvtable', {props: {table: this.kv}}, [h('a', {attrs: {href: `#${pre}${cur}`, class: 'act'}}, '返回')])
+    } else {
+      let a = [], [t, pre, cur] = this.cal(n, p)
+      if(t < 0)
+        this.tbl.caption = '单位'
+      else {
+        this.tbl.caption = this.dict[tier[t]][p[ids[t]]].name
+        a.push(h('a', {attrs: {href: `#${pre}`}}, '返回'))
+      }
+      if(t < 2) {
+        if(a.length)
+          a.push(' ')
+        a.push(h('a', {attrs: {href: `#${pre}${cur}/create`}}, `新建${names[n]}`))
+        this.tbl.readonly = false
+      } else
+        this.tbl.readonly = true
+      columns.name.caption = names[n]
+      this.tbl.data = this[n]
+      return h('moditable', {props: {table: this.tbl}, on: {
+        save: this.save,
+        delete: this.del
+      }}, [h('div', {attrs: {class: 'act'}}, a)])
+    }
+  },
   data() {
     return {
-      kvDanWei: {
-        caption: '新建单位',
+      tbl: {
+        caption: null,
+        columns,
+        editingIndex: -1,
+        data: null
+      },
+      kv: {
+        caption: null,
         columns,
         actions: [{
           caption: '新建',
-          onclick() {
-            let v = this.kvDanWei.data
+          onclick(v) {
+            let r = this.$route, m = r.matched[r.matched.length - 2], n = m.name, [t, pre, cur] = this.cal(n, this.$route.params)
             if(!v.name)
-              this.error('请输入单位名称')
-            else if(this.$store.state.danWei.find(d => d.name == v.name))
+              this.error(`请输入${names[n]}名称`)
+            else if(this[n].find(d => d.name == v.name))
               this.error(`${v.name} 已经存在`)
             else {
               this.loading(true)
-              axios.post('zxzj/api/danwei', v).then(res => {
+              axios.post(`zxzj/api${pre}${cur}`, v).then(res => {
                 this.loading(false)
-                this.$store.state.danWei.push(res.data)
+                v.id = res.data.id
+                if(t >= 0)
+                  v[tier[t]] = r.params[ids[t]]
+                v[tier[t + 2]] = []
+                if(n == 'cheJian')
+                  v.jiaoJian = []
+                this.$store.state[fix[n]](v)
+                this[n].push(v)
+                this.$router.push({name: n})
                 this.message('新建成功')
-              }).catch(res => {
+              }).catch(r => {
                 this.loading(false)
-                this.error(res.response.data)
+                this.error(r.response.data)
               })
             }
           }
         }],
         data: {},
         editing: true
-      },
-      tblDanWei: {
-        caption: '单位',
-        columns,
-        editingIndex: -1,
-        data: this.$store.state.danWei
-      },
-      kvCheJian: {
-        caption: '新建车间',
-        columns,
-        actions: [{
-          caption: '新建',
-          onclick() {
-            let v = this.kvDanWei.data
-            if(!v.name)
-              this.error('请输入单位名称')
-            else if(this.danWei.find(d => d.name == v.name))
-              this.error(`${v.name} 已经存在`)
-            else {
-              this.loading(true)
-              axios.post('zxzj/api/danwei', v).then(res => {
-                this.loading(false)
-                this.danWei.push(res.data)
-                this.message('新建成功')
-              }).catch(res => {
-                this.loading(false)
-                this.error(res.response.data)
-              })
-            }
-          }
-        }],
-        data: {},
-        editing: true
-      },
-      tblCheJian: {
-        caption: null,
-        columns: {
-          id: 'id',
-          name: {
-            caption: '车间',
-            type: 'text',
-            href: 'url'
-          }
-        },
-        editingIndex: -1,
-        data: null
-      },
-      kvBanZu: {
-        caption: '新建班组',
-        columns,
-        actions: [{
-          caption: '新建',
-          onclick() {
-            let v = this.kvDanWei.data
-            if(!v.name)
-              this.error('请输入单位名称')
-            else if(this.danWei.find(d => d.name == v.name))
-              this.error(`${v.name} 已经存在`)
-            else {
-              this.loading(true)
-              axios.post('zxzj/api/danwei', v).then(res => {
-                this.loading(false)
-                this.danWei.push(res.data)
-                this.message('新建成功')
-              }).catch(res => {
-                this.loading(false)
-                this.error(res.response.data)
-              })
-            }
-          }
-        }],
-        data: {},
-        editing: true
-      },
-      tblBanZu: {
-        caption: null,
-        columns: {
-          id: 'id',
-          name: {
-            caption: '班组',
-            type: 'text',
-            href: 'url'
-          }
-        },
-        editingIndex: -1,
-        data: null
-      },
-      tblUser: {
-        caption: null,
-        columns,
-        data: null
-      },
+      }
+    }
+  },
+  computed: {
+    ...mapState(['dict', 'danWei']),
+    cheJian() {
+      return this.dict.danWei[this.$route.params.did].cheJian
+    },
+    banZu() {
+      return this.dict.cheJian[this.$route.params.cid].banZu
+    },
+    user() {
+      return this.dict.banZu[this.$route.params.bid].user
     }
   },
   watch: {
-    '$store.state.danWei': function(v) {
-      this.tblDanWei.data = v
+    $route(v) {
+      this.tbl.editingIndex = -1
     }
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
-    saveDanWei(d, i) {
-      console.log(this)
+    cal(n, p) {
+      let i, t = tier.indexOf(n) - 1, pre = '', cur = ''
+      for(i = -1; i < t; i++) {
+        if(i >= 0)
+          pre += `/${p[ids[i]]}`
+        pre += `/${tier[i + 1]}`
+      }
+      if(t >= 0)
+        cur = `/${p[ids[t]]}`
+      cur += `/${tier[t + 1]}`
+      return [t, pre, cur]
     },
-    delDanWei(d, i) {
-      if(d.cheJian.length)
-        this.error(`请先删除 ${d.name} 内的所有车间`)
-      else if(confirm(`确定要删除 ${d.name} ?`)) {
-
+    save(d, i, next) {
+      let n = this.$route.name, [t, pre, cur] = this.cal(n, this.$route.params)
+      if(this[n].find(v => v.name == d.name)) {
+        this.error(`${names[n]} ${d.name} 已经存在`)
         return
       }
-      return false
+      this.loading(true)
+      axios.put(`zxzj/api${pre}${cur}/${d.id}`, {name: d.name}).then(r => {
+        this.loading(false)
+        this.message('保存成功')
+        next()
+
+      }).catch(r => {
+        this.loading(false)
+        this.error(r.response.data)
+      })
     },
-    saveCheJian(d, i) {
+    del(d, i, next) {
+      let n = this.$route.name, [t, pre, cur] = this.cal(n, this.$route.params)
+      t += 2
+      if(d[tier[t]].length)
+        this.error(`请先删除 ${d.name} 内的所有${names[tier[t]]}`)
+      else if(confirm(`确定要删除 ${d.name} ?`)) {
+        this.loading(true)
+        axios.delete(`zxzj/api${pre}${cur}/${d.id}`).then(r => {
+          this.loading(false)
+          this.message('删除成功')
+          next()
+        }).catch(r => {
+          this.loading(false)
+          this.error(r.response.data)
+        })
+      }
+    },
+    saveCheJian(d, i, next) {
+      this.loading(true)
+      axios.put(`zxzj/api/danWei/${d.id}`, {name: d.name}).then(r => {
+        this.loading(false)
+        this.message('保存成功')
+        next()
+      }).catch(r => {
+        this.loading(false)
+        this.error(r.response.data)
+      })
 
     },
-    delCheJian(d, i) {
+    delCheJian(d, i, next) {
       if(d.banZu.length)
         this.error(`请先删除 ${d.name} 内的所有班组`)
       else if(confirm(`确定要删除 ${d.name} ?`)) {
@@ -211,32 +202,7 @@ export default {
         return
       }
       return false
-    },
-    setRoute(p) {
-      if(p.did) {
-        let d = this.$store.state.danWei.find(d => d.id == p.did)
-        this.tblCheJian.caption = d.name
-        this.tblCheJian.data = d.cheJian
-        if(p.cid) {
-          let c = this.tblCheJian.data.find(c => c.id == p.cid)
-          this.tblBanZu.caption = c.name
-          this.tblBanZu.data = c.banZu
-          if(p.bid) {
-            let b = this.tblBanZu.data.find(b => b.id == p.bid)
-            this.tblUser.caption = b.name
-            this.tblUser.data = b.user
-          }
-        }
-      }
-      this.tblDanWei.editingIndex = this.tblCheJian.editingIndex = this.tblBanZu.editingIndex = -1
     }
-  },
-  beforeRouteUpdate(to, from, next) {
-    this.setRoute(to.params)
-    next()
-  },
-  mounted() {
-    this.setRoute(this.$route.params)
   }
 }
 </script>

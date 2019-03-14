@@ -85,7 +85,7 @@ export default {
       let s
       if(this.tabIdx == i) {
         s = ''
-        this.$nextTick(() => this.$emit('pageShow', this, i))
+        this.$nextTick(() => this.$emit('pageShow', i, this))
       } else
         s = 'none'
       return h('div', {class: t instanceof Object ? {'tabs-flex': t.flex, 'tabs-column': !t.row} : null, staticClass: 'page', style: {display: s}, key: i}, [this.$slots[i]])

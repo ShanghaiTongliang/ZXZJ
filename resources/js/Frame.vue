@@ -9,7 +9,10 @@
     <resizer :width="110">
       <side-menu id="nav" :menu="menu" :selection="selection" @select="select"></side-menu>
     </resizer>
-    <router-view class="container"></router-view>
+    <keep-alive>
+      <router-view v-if="$route.meta.keepAlive" class="container"></router-view>
+    </keep-alive>
+    <router-view v-if="!$route.meta.keepAlive" class="container"></router-view>
   </div>
 </template>
 <script>
@@ -21,15 +24,26 @@ export default {
   data() {
     return {
       menu: [{
-        name: 'zhengCheJiaoJian',
-        caption: '整车交检故障',
-        href: '#/zhengCheJiaoJian'
+        caption: '整车交检',
+        items: [{
+          name: 'jiaoJian',
+          caption: '故障输入',
+          href: '#/jiaoJian',
+        }, {
+          name: 'jiaoJianGuZhang',
+          caption: '故障分析',
+          href: '#/jiaoJianGuZhang'
+        }, {
+          name: 'jiaoJianChuLi',
+          caption: '故障处理',
+          href: '#/jiaoJianChuLi'
+        }]
       }, {
-        name: 'ruKuJianCha',
-        caption: '入库检查记录',
-        href: '#/ruKuJianCha'
+        name: 'ruKuFuJian',
+        caption: '入库复检记录',
+        href: '#/ruKuFuJian'
       }, {
-        name: 'danWeis',
+        name: 'danWei',
         caption: '单位',
         href: '#/danWei'
       }, {
@@ -62,11 +76,11 @@ export default {
           name: 'dengJi',
           caption: '等级',
           href: '#/standard/dengJi'
+        }, {
+          name: 'peiJian',
+          caption: '配件',
+          href: '#/standard/peiJian'
         }]
-      }, {
-        name: 'test',
-        caption: '测试',
-        href: '#/test'
       }],
       selection: null
     }
@@ -76,7 +90,7 @@ export default {
       immediate: true,
       handler(r, from) {
         if(!r.name)
-          this.$router.replace('/zhengCheJiaoJian')
+          this.$router.replace('/jiaoJian')
         else {
           function find(menu, r) {
             for(let m of menu) {

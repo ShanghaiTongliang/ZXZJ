@@ -12,8 +12,8 @@ class MiddlewarePlugin extends Yaf\Plugin_Abstract {
 
   public function routerShutdown(Request_Abstract $request, Response_Abstract $response) {
     $resole = function($request) {
-      if($request->isPost() && strpos(strtolower(getallheaders()['Content-Type']), 'application/json') !== false)
-      $_POST = json_decode(file_get_contents('php://input'), true);
+      if($request->isPost() && strpos(getallheaders()['Content-Type'] ?? null, 'application/json') !== false)
+        $_POST = json_decode(file_get_contents('php://input'), true);
     };
     $r = Dispatcher::getInstance()->getRouter();
     if($ms = $r->getRoute($r->getCurrentRoute())->middleware ?? null) {

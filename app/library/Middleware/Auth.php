@@ -16,7 +16,7 @@ class Auth extends BaseMiddleware {
     if(isset($_COOKIE['token']) && ($o = JWT::decode($_COOKIE['token'], 'tongliang'))) {
       $redis = Redis::instance();
       if($redis->get("token$o->id") == $o->token) {
-        UserModel::$user = $o;
+        UserModel::$user = UserModel::find($o->id);
         $next($request);
         return;
       }

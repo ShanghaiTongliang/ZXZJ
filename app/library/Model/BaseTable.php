@@ -11,7 +11,7 @@ abstract class BaseTable extends Base {
   }
 
   /**
-   * return a new $name
+   * return a new BaseTable with table named $name
    */
   static function open(string $name) {
     return new static($name);

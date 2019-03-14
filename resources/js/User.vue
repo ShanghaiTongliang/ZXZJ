@@ -1,5 +1,5 @@
 <template>
-  <moditable :tbl="tbl" @save="save" @delete="del"></moditable>
+  <moditable :table="tbl" @save="save" @delete="del"></moditable>
 </template>
 <script>
 import axios from 'axios'
@@ -48,14 +48,30 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapState(['dict'])
+  },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
-    save(d, i, next) {
+    save(d, i, next, o) {
       this.loading(true)
       axios.put(`zxzj/api/user/${d.id}`, {name: d.name, groups: d.groups, banZu: d.banZu}).then(res => {
         this.loading(false)
-        this.message('保存成功')
+        if(d.banZu != o.banZu) {
+          let f, t = this.dict.banZu[d.banZu].user
+          if(o.banZu !== null) {
+            f = this.dict.banZu[o.banZu].user
+            for(let i = 0; i < f.length; i++)
+              if(f[i].id == o.id) {
+                f.splice(i, 1)
+                break
+              }
+          }
+          t.push(d)
+          t.sort((a, b) => a.id - b.id)
+        }
         next()
+        this.message('保存成功')
       }).catch(res => {
         this.loading(false)
         this.error(res.response.data)

@@ -1,5 +1,7 @@
 <?php
 
+use Oblind\Language;
+
 class Validator {
   protected static $validators = [];
   protected static $fields = [];
@@ -55,7 +57,7 @@ class Validator {
     return $r;
   }
 
-  protected static function val(array $values, string $field, string $rule, &$err): bool {
+  protected static function val(array $values, string $field, string $rule, &$err, $fields = []): bool {
     if($l = strpos($rule, ':')) {
       $a = [];
       $q = $l + 1;
@@ -70,17 +72,17 @@ class Validator {
     if($rule == 'required') {
       $r = isset($values[$field]);
       if(!$r)
-        $err = str_replace(':attribute', static::$fields[$field] ?? $field, _(':attribute required'));
+        $err = str_replace(':attribute', _($fields[$field] ?? static::$fields[$field] ?? $field), _(':attribute required'));
       return $r;
     }
     elseif(isset($values[$field]) && !static::$rule($values[$field], $a, $err, $values, $field)) {
-      $err = str_replace(':attribute', static::$fields[$field] ?? $field, $err);
+      $err = str_replace(':attribute', _($fields[$field] ?? static::$fields[$field] ?? $field), $err);
       return false;
     }
     return true;
   }
 
-  static function valid(array $values, array $rules, &$err): bool {
+  static function valid(array $values, array $rules, &$err, array $fields = []): bool {
     foreach($rules as $field => $r) {
       $n = 0;
       while(($m = strpos($r, '|', $n)) != false) {
@@ -88,7 +90,7 @@ class Validator {
           return false;
         $n = $m + 1;
       }
-      if(!static::val($values, $field, substr($r, $n), $err))
+      if(!static::val($values, $field, substr($r, $n), $err, $fields))
         return false;
     }
     return true;
@@ -101,3 +103,16 @@ Validator::setFields([
   'password' => _('password'),
   'password_confirmation' => _('confirmation')
 ]);
+
+Language::addTranslation([
+  'name' => '用户名',
+  'email' => '电子邮箱',
+  'password' => '密码',
+  'confirmation' => '确认密码',
+  ':attribute minimal length %d' => ':attribute 至少 %d 字符',
+  ':attribute maximal length %d' => ':attribute 最多 %d 字符',
+  ':attribute length between %d-%d' => ':attribute 长度范围 %d-%d',
+  ':attribute format invalid' => ':attribute 格式错误',
+  ':attribute inconsistent' => ':attribute 不相符',
+  ':attribute required' => '请输入 :attribute'
+], 'zh-cn');

@@ -12,22 +12,6 @@
       "type": "npm",
       "script": "prod",
       "problemMatcher": []
-    },
-    {
-      "type": "npm",
-      "script": "build",
-      "path": "node_modules/ajv/",
-      "problemMatcher": [
-        "$jshint-stylish"
-      ]
-    },
-    {
-      "type": "npm",
-      "script": "build",
-      "path": "node_modules/@vue/component-compiler-utils/node_modules/source-map/",
-      "problemMatcher": [
-        "$gcc"
-      ]
     }
   ]
 }
