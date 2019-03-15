@@ -72,13 +72,11 @@ export default {
           r.push(h('img', {attrs: {src: t.icon}}))
         else if(this.icons && this.icons[t.iconIndex])
           r.push(h('img', {attrs: {src: this.icons[t.iconIndex]}}))
-        r.push(t.caption)
-      } else {
-        if(this.icons && this.icons[i])
-          r.push(h('img', {attrs: {src: this.icons[i]}}))
-        r.push(t)
-      }
-      return h('li', {class: c, on: {
+        t = t.caption
+      } else if(this.icons && this.icons[i])
+        r.push(h('img', {attrs: {src: this.icons[i]}}))
+      r.push(t)
+      return h('li', {class: c, attrs: {title: t}, on: {
         click: () => this.click(i)
       }, key: i}, r)
     })), ...this.tabs.map((t, i) => {

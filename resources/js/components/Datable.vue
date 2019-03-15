@@ -44,6 +44,8 @@ export default {
     }
     actions: 按钮列表
     keyName: string = id,       排序
+    sortable: 是否可排序
+    orderby: 排序字段
     options: {
       cascade: {
         itemName: string = items  级联选项名
@@ -70,7 +72,9 @@ export default {
             [h('div', {domProps: {innerHTML: c.caption}, style: c.style}), h('div', {domProps: {innerHTML: c.caption}, style: c.style})] :
             [null, null]
         if(v) { //th: 浮动表头，可点击, bth: 隐藏的真表头
-          th.push(h('th', {on: {click: () => this.colClick(i)}, key: i}, [u, h('div', {style: {display: this.table.orderby != i ? 'none' : ''}, class: [this.table.desc ? 'desc' : 'asc']})]))
+          th.push(h('th', {on: (this.table.sortable === undefined || this.table.sortable) && {
+            click: () => this.colClick(i)
+          }, key: i}, [u, h('div', {style: {display: this.table.orderby != i ? 'none' : ''}, class: [this.table.desc ? 'desc' : 'asc']})]))
           bth.push(h('th', {key: i}, [v, h('div', {style: {display: this.table.orderby != i ? 'none' : ''}, class: [this.table.desc ? 'desc' : 'asc']})]))
         }
       }

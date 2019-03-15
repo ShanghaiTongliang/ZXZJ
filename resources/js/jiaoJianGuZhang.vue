@@ -7,8 +7,9 @@ import {mapState, mapMutations} from 'vuex'
 import Datable from './components/Datable'
 import Tabs from './components/Tabs'
 
-const lv = {1: 6, 2: 3, 3: 1},
+const lv = {1: 6, 2: 3, 3: 1}, num = ['一', '二', '三', '四'],
 colCheJian = ['时间', '交检总数', '一次合格数', 'A类故障', 'B类故障', 'C类故障', '一次合格率', '故障率']
+let dbw = []
 
 export default {
   components: {Datable, Tabs},
@@ -19,7 +20,21 @@ export default {
       this.tabTime.length && h('tabs', {props: {tabs: this.tabTime, tabIndex: this.tiTime}, on: {
           tabIndex: i => this.timeTabIndex(i)
         }, slot: 1},
-        this.tblTime.map((t, i) => h('datable', {props: {table: t}, ref: `tblTime${i}`, slot: i, key: i}))
+        this.tblTime.map((t, i) => {
+          let th = [[h('th', {attrs: {rowspan: 2}}, '单位'), h('th', {attrs: {rowspan: 2}}, '车间')], []]
+          dbw.forEach(d => {
+            th[0].push(h('th', {attrs: {colspan: 3, width: '12.5%'}}, d.name))
+            th[1].push(h('th', 'A'), h('th', 'B'), h('th', 'C'))
+          })
+          return h('div', {class: 'dt-out', slot: i, key: i}, [
+            h('table', {class: 'datable dt-head'}, [
+              h('caption', t.caption),
+              h('thead', th.map(r => h('tr', r))),
+              h('tbody', t.data.length ? t.data.map(r => h('tr', r.map(d => h('td', d)))) :
+                [h('tr', [h('td', {attrs: {colspan: dbw.length * 3 + 2}}, '无数据')])])
+            ])
+          ])
+        })
       ),
       this.tabCheJian.length && h('tabs', {props: {tabs: this.tabCheJian, tabIndex: this.tiCheJian}, on: {
           tabIndex: i => this.cheJianTabIndex(i)
@@ -30,8 +45,12 @@ export default {
     return h('div' , {style: {display: 'flex', flexDirection: 'column'}}, [
       h('div', {style: {flexShrink: 0}}, [
         h('div', {class: 'group'}, ['从 ',
-          h('input', {ref: 'from', attrs: {type: 'month'}, domProps: {value: this.from}}), ' 到 ',
-          h('input', {ref: 'to', attrs: {type: 'month'}, domProps: {value: this.to}}),
+          h('input', {attrs: {type: 'month'}, domProps: {value: this.from}, on: {
+            change: e => this.from = e.target.value
+          }}), ' 到 ',
+          h('input', {attrs: {type: 'month'}, domProps: {value: this.to}, on: {
+            change: e => this.from = e.target.value
+          }}),
         ]),
         h('div', {class: 'group'}, ['单位 ',
           h('select', {domProps: {value: this.danWei}, on: {
@@ -44,11 +63,7 @@ export default {
           }}, this.curDanWei.cheJian.map((d, i) => h('option', {attrs: {value: d.id}, key: i}, d.name)))
         ]),
         h('button', {on: {
-          click: () => {
-            this.from = this.$refs.from.value
-            this.to = this.$refs.to.value
-            this.query()
-          }
+          click: this.query
         }}, '查询')
       ]),
       h('tabs', {props: {tabs: this.tabs, tabIndex: this.tabIndex, grow: true}, class: 'gz', on:  {
@@ -194,20 +209,15 @@ export default {
         }
         this.tabTime = []
         this.tblTime = []
-        let ms = [], m = new Date(this.from), y = 1900 + m.getYear(), i = m.getMonth(), t, col = ['单位', '车间']
-        this.std.daBuWei.forEach(d => {
-          col.push(`${d.name} A`, 'B', 'C')
-        })
+        let ms = [], m = new Date(this.from), y = 1900 + m.getYear(), i = m.getMonth(), t
         while((t = (new Date(y, i++)).toDate().substr(0, 7)) <= this.to) {
           ms.push(t)
           this.tabTime.push(t)
           this.tblTime.push({
             caption: `${t} 各车间交检分析`,
-            columns: col,
             data: []
           })
         }
-
         this.tabCheJian = []
         this.tblCheJian = []
         ds.forEach(d => {
@@ -224,14 +234,19 @@ export default {
               caption: c.name,
               flex: true
             })
-            let tb = [], dj = {1: 0, 2: 0, 3: 0}
+            let tb = [], dj = {1: 0, 2: 0, 3: 0}, j, p = 0
             ms.forEach((t, i) => {
-              //if(i % 3 == 0)
-              let r = [t]
+              //dt: 时间 行数据
+              let dt = [d.name, c.name, ...Array((dbw.length - 1) * 3)], r = []
+              this.tblTime[i].data.push(dt)
               if(m = c.jiaoJian.count.find(m => m.month == t)) {
                 //gs: 故障, ts: 故障车, pc: 合格数
                 let gs = c.jiaoJian.items.filter(g => g.date.substr(0, 7) == m.month), ts = [], pc = 0
+                dbw.forEach(d => d.dj = {1: 0, 2: 0, 3: 0})
                 gs.forEach(g => {
+                  //时间
+                  dbw[g.daBuWei].dj[g.dengJi]++
+                  //归并相同车号
                   let t = ts.find(v => v.date == g.date && v.cheHao.toUpperCase() == g.cheHao.toUpperCase())
                   if(!t) {
                     t = {date: g.date, cheHao: g.cheHao, g: 0}
@@ -240,21 +255,52 @@ export default {
                   t.g += lv[g.dengJi]
                   dj[g.dengJi]++
                 })
+                dbw.forEach((d, i) => {
+                  dt[i * 3 - 1] = d.dj[1] || null
+                  dt[i * 3] = d.dj[2] || null
+                  dt[i * 3 + 1] = d.dj[3] || null
+                })
+
                 ts.forEach(t => t.g < 6 && pc++)
-                r.push(m.count, m.count - ts.length + pc)
+                r.push(t, m.count, m.count - ts.length + pc)
                 for(let k in dj)
                   r.push(dj[k])
                 r.push(Math.round((m.count - ts.length + pc) * 100 / m.count) + '%', Math.round((ts.length - pc) * 100 / m.count) + '%')
+              } else
+                r.push(t)
+              if(i % 3 == 0) {
+                tb.push(r)
+                r = [`第${num[(i / 3) % 4]}季度`]
+                while(p < tb.length) {
+                  if(tb[p][1] !== undefined) {
+                    if(r[1] === undefined)
+                      r.push(0, 0, 0, 0, 0, 0, 0)
+                    for(j = 1; j < 6; j++)
+                      r[j] += tb[p][j]
+                    r[6] = Math.round(r[2] * 100 / r[1]) + '%'
+                    r[7] = Math.round((r[1] - r[2]) * 100 / r[1]) + '%'
+                  }
+                  p++
+                }
+                p++
               }
               tb.push(r)
             })
             this.tblCheJian.push({
               caption: `${d.name}${c.name}交检分析`,
               columns: colCheJian,
+              sortable: false,
               data: tb
             })
           })
         })
+        /*ms.forEach((t, i) => {
+          ds.forEach(d => d.cheJian.forEach(c => {
+            this.tblCheJian[i].data.push([d.name, c.name])
+
+          }))
+        })*/
+
 
         /*let r = [
           h('datable', {props: {table: this.tbl}, slot: 0},
@@ -324,7 +370,7 @@ export default {
     },
     timeTabIndex(i) {
       this.tiTime = i
-      setTimeout(() => this.$refs[`tblTime${i}`].onScroll(), 0)
+      //setTimeout(() => this.$refs[`tblTime${i}`].onScroll(), 0)
     },
     cheJianTabIndex(i) {
       this.tiCheJian = i
@@ -335,6 +381,8 @@ export default {
     let d
     if(d = this.$store.state.danWei.length && this.$store.state.danWei[0])
       this.danWei = d.id
+    this.std.daBuWei.forEach(d => dbw[d.id] = {name: d.name})
+    dbw.pop()
   }
 }
 </script>

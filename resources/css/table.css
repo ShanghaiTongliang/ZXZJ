@@ -30,8 +30,8 @@ table.datable {
   border-style: solid;
   border-color: white #aaa #aaa white;
 }
-.datable th:first-child {border-top-left-radius: .5em}
-.datable th:last-child {border-top-right-radius: .5em}
+.datable thead tr:first-child th:first-child {border-top-left-radius: .5em}
+.datable thead tr:first-child th:last-child {border-top-right-radius: .5em}
 .datable th>div {display: inline-block}
 .datable td {
   border-right: 1px solid #ccc;
