@@ -209,7 +209,7 @@ export default {
         }
         this.tabTime = []
         this.tblTime = []
-        let ms = [], m = new Date(this.from), y = 1900 + m.getYear(), i = m.getMonth(), t
+        let ms = [], m = new Date(this.from), y = 1900 + m.getYear(), mb = m.getMonth(), i = mb, t
         while((t = (new Date(y, i++)).toDate().substr(0, 7)) <= this.to) {
           ms.push(t)
           this.tabTime.push(t)
@@ -268,9 +268,11 @@ export default {
                 r.push(Math.round((m.count - ts.length + pc) * 100 / m.count) + '%', Math.round((ts.length - pc) * 100 / m.count) + '%')
               } else
                 r.push(t)
-              if(i % 3 == 0) {
+              i += mb
+              if((i + 1) % 3 == 0) {
                 tb.push(r)
-                r = [`第${num[(i / 3) % 4]}季度`]
+                i = Math.floor(i / 3)
+                r = [`第${num[i % 4]}季度`]
                 while(p < tb.length) {
                   if(tb[p][1] !== undefined) {
                     if(r[1] === undefined)

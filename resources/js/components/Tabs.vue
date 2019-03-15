@@ -14,6 +14,7 @@ div.bottom {flex-direction: column-reverse}
   padding: 0;
   flex-shrink: 0;
   display: flex;
+  overflow: auto;
 }
 .tabs li {
   color: #eee;
@@ -21,6 +22,7 @@ div.bottom {flex-direction: column-reverse}
   padding: .2em;
   border-width: 1px;
   flex-grow: 1;
+  flex-shrink: 0;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
