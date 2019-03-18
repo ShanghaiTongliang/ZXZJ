@@ -78,7 +78,7 @@ export default {
     ...mapMutations(['loading', 'message', 'error']),
     getStage(g) {
       let p = this.user.permission[g.cheJian]
-      this.stage = p && PERMISSION_REPAIR ? checking : p & PERMISSION_DATA && reviewing
+      this.stage = p & PERMISSION_REPAIR ? checking : p & PERMISSION_DATA && reviewing
       return this.stage
     },
     editable(g) {
