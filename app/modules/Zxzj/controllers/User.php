@@ -27,8 +27,8 @@ class UserController extends Yaf\Controller_Abstract {
   function destroyAction() {
     if($u = UserModel::find($id = $this->getRequest()->getParams()['id'])) {
       if(UserModel::$user->admin($u)) {
-        //$u->delete();
-        //$u::resetAutoIncrement();
+        $u->delete();
+        $u::resetAutoIncrement();
         return;
       } else
         $err = _('no permission');
