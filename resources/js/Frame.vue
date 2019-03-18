@@ -43,6 +43,10 @@ export default {
         caption: '入库复检记录',
         href: '#/ruKuFuJian'
       }, {
+        name: 'pingJias',
+        caption: '质检员工作评价',
+        href: '#/pingJia'
+      }, {
         name: 'danWei',
         caption: '单位',
         href: '#/danWei'

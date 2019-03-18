@@ -2,28 +2,10 @@
 .report {margin-bottom: 1em}
 .report table {margin-bottom: .5em}
 </style>
-<template>
-  <div>
-    <div v-for="(g, i) in $store.state.jiaoJianChuLi" :key="i" class="report">
-      <table class="datable">
-        <caption>货车检修质量不合格通知书</caption>
-        <tbody>
-          <tr><td>状态</td><td>{{sState[g.state]}}</td><td>下发人</td><td>{{getUser(g.xiaFaRen)}}</td><td colspan="2">{{$store.state.dict.cheJian[g.cheJian].name}}</td></tr>
-          <tr><td>车号</td><td>{{g.cheHao}}</td><td>修程</td><td>{{std.xiuCheng[g.xiuCheng].name}}</td><td>下发时间</td><td>{{g.xiaFaShiJian.substr(0, 16)}}</td></tr>
-          <tr><td>故障</td><td colspan="5">{{`${std.daBuWei[g.daBuWei].name} ${std.guZhang[g.guZhang].name}`}}</td></tr>
-          <tr><td>处理方式</td><td v-if="report == g && stage == checking && g.state != resolved"><label v-for="(v, k) in sChuLi" :key="k"><input type="radio" :value="k" v-model="chuLi">{{v}}</label></td>
-          <td v-else>{{sChuLi[g.chuLi]}}</td><td>处理人</td><td>{{getUser(g.chuLiRen)}}</td><td>处理时间</td><td>{{g.chuLiShiJian}}</td></tr>
-          <tr><td>复检结果</td><td v-if="report == g && stage == reviewing && (g.state == checkedin || g.state == rejected)"><label v-for="k in [rejected, resolved]" :key="k"><input type="radio" :value="k" v-model="fuJian">{{sState[k]}}</label></td><td v-else>{{g.state >= rejected ? sState[g.state] : null}}</td><td>复检人</td><td>{{getUser(g.fuJianRen)}}</td><td>复检时间</td><td>{{g.fuJianShiJian}}</td></tr>
-        </tbody>
-      </table>
-      <button v-if="editable(g)" @click="edit(g)">{{report == g ? '保存' : '处理'}}</button>
-      <button v-if="report == g" @click="report = null">取消</button>
-    </div>
-  </div>
-</template>
 <script>
 import axios from 'axios'
 import {mapState, mapMutations} from 'vuex';
+import Tabs from './components/Tabs'
 import {PERMISSION_DATA, PERMISSION_MANAGE, PERMISSION_REPAIR, dispatched, checkedin, rejected, resolved, chuLiStates} from './global'
 
 const sChuLi = ['返工', '报废'], sState = []
@@ -34,39 +16,76 @@ for(let s of chuLiStates)
   sState[s.id] = s.name
 
 export default {
+  components: {Tabs},
+  render(h) {
+    return h('tabs', {props: {tabs: this.tabs}}, this.missions.map(
+      (c, i) => h('div', {slot: i}, c.mission.map(
+        g => {
+          let f = g == this.report, bs = []
+          if(this.editable(g))
+            bs.push(h('button', {on: {
+              click: e => this.edit(g)
+            }}, f ? '保存' : '处理'))
+          if(f)
+            bs.push(h('button', {on: {
+              click: e => this.report = null
+            }}, '取消'))
+          return h('div', {class: 'report'}, [h('table', {class: 'datable'}, [
+            h('caption', ['货车检修质量不合格通知书', bs.length ? h('div', {class: 'act'}, bs): null]),
+            h('tbody', [
+              h('tr', [h('td', '状态'), h('td', sState[g.state]), h('td', '下发人'), h('td', this.getUser(g.xiaFaRen)), h('td', {attrs: {colspan: 2}}, this.dict.cheJian[g.cheJian].name)]),
+              h('tr', [h('td', '车号'), h('td', g.cheHao), h('td', '修程'), h('td', this.std.xiuCheng[g.xiuCheng].name), h('td', '下发时间'), h('td', g.xiaFaShiJian.substr(0, 16))]),
+              h('tr', [h('td', '故障'), h('td', {attrs: {colspan: 5}}, `${this.std.daBuWei[g.daBuWei].name} ${this.std.guZhang[g.guZhang].name}`)]),
+              h('tr', [h('td', '处理方式'), h('td', f && this.stage == checking && g.state != resolved
+                ? sChuLi.map((v, k) => h('label', {key: k}, [h('input', {attrs: {type: 'radio', value: k}, domProps: {checked: k == this.chuLi}, on: {
+                  change: e => this.chuLi = e.target.value
+                }}), v]))
+                : sChuLi[g.chuLi]), h('td', '处理人'), h('td', this.getUser(g.chuLiRen)), h('td', '处理时间'), h('td', g.chuLiShiJian && g.chuLiShiJian.substr(0, 16))]),
+              h('tr', [h('td', '复检结果'), h('td', f && this.stage == reviewing && (g.state == checkedin || g.state == rejected)
+                ? [rejected, resolved].map((v, k) => h('label', {key: k}, [h('input', {attrs: {type: 'radio', value: v}, domProps: {checked: v == this.fuJian}, on: {
+                  change: e => this.fuJian = e.target.value
+                }}), sState[v]]))
+                : g.state >= rejected ? sState[g.state] : null), h('td', '复检人'), h('td', this.getUser(g.fuJianRen)), h('td', '复检时间'), h('td', g.fuJianShiJian && g.fuJianShiJian.substr(0, 16))])
+            ]),
+          ])])
+        }
+      ))
+    ))
+  },
   data() {
     return {
-      sChuLi, sState, dispatched, checkedin, rejected, resolved,
-      checking, reviewing,
       stage: 0,
+      tabs: [],
       report: null,
       chuLi: null,
       fuJian: null
     }
   },
   computed: {
-    std() {
-      return this.$store.state.std
-    },
-    user() {
-      return this.$store.state.user
+    ...mapState(['std', 'user', 'dict']),
+    missions() {
+      let r = [], cl = this.$store.state.jiaoJianChuLi, gs
+      for(let id in this.user.permission) {
+        if((gs = cl.filter(g => g.cheJian == id)).length) {
+          r.push({id, mission: gs})
+          this.tabs.push(this.dict.cheJian[id].name)
+        }
+      }
+      return r
     }
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
     getStage(g) {
-      let c, d = this.$store.state.dict.groups
-      for(let id of this.user.groups)
-        if(c = d[id].cheJian.find(c => c.id == g.cheJian)) {
-          this.stage = c.permission & PERMISSION_REPAIR ? checking : c.permission & PERMISSION_DATA && reviewing
-          return this.stage
-        }
+      let p = this.user.permission[g.cheJian]
+      this.stage = p && PERMISSION_REPAIR ? checking : p & PERMISSION_DATA && reviewing
+      return this.stage
     },
-    editable(gz) {
-      if(gz.state == resolved)
+    editable(g) {
+      if(g.state == resolved || this.report && this.report != g)
         return false
-      let d = this.$store.state.dict.groups, s = this.getStage(gz)
-      return s == checking && gz.state != resolved || s == reviewing && (gz.state == checkedin || gz.state == rejected)
+      let d = this.dict.groups, s = this.getStage(g)
+      return s == checking && g.state != resolved || s == reviewing && (g.state == checkedin || g.state == rejected)
     },
     edit(g) {
       if(this.report == g) {

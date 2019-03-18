@@ -71,9 +71,11 @@ div.act, a.act {
   border-radius: .3em;
   background-color: white;
 }
+.act button {margin: .2em}
 .dt-info {
   position: absolute;
   right: 0;
   bottom: 0;
   font-weight: normal;
 }
+.dt-nowrap {white-space: nowrap}

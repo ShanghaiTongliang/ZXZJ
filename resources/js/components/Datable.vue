@@ -36,6 +36,12 @@ export default {
     caption: 标题
     columns: {  表头列表
       caption:  列名
+      head: {
+        class: 表头类
+        style: 表头样式
+      },
+      class: 表格类
+      style: 表格样式
       items: { 选项列表
         key1: value1
         key2: value2
@@ -69,7 +75,7 @@ export default {
         [u, v] = !(c instanceof Object) ?
           [h('div', {domProps: {innerHTML: c}}), h('div', {domProps: {innerHTML: c}})] :
           c.condition === undefined || !(hide[i] = !(c.condition instanceof Function ? c.condition.call(this.$parent, i) : c.condition)) ?
-            [h('div', {domProps: {innerHTML: c.caption}, style: c.style}), h('div', {domProps: {innerHTML: c.caption}, style: c.style})] :
+            [h('div', {domProps: {innerHTML: c.caption}, class: c.head && c.head.class, style: c.head && c.head.style}), h('div', {domProps: {innerHTML: c.caption}, class: c.head && c.head.class, style: c.head && c.head.style})] :
             [null, null]
         if(v) { //th: 浮动表头，可点击, bth: 隐藏的真表头
           th.push(h('th', {on: (this.table.sortable === undefined || this.table.sortable) && {
@@ -84,9 +90,9 @@ export default {
           for(let j in cols) {
             let c = cols[j]
             if(!(c instanceof Object))
-              td.push(h('td', {domProps: {innerHTML: row[j] instanceof Array ? row[j].join(', ') : row[j] === undefined ? null : row[j]}, key: j}))
+              td.push(h('td', {domProps: {innerHTML: row[j] instanceof Array ? row[j].join(', ') : row[j] === undefined ? null : row[j]}, /*class: c.class, style: c.style,*/ key: j}))
             else if(!hide[j]) {
-              let p = {key: j}, l = c.master ? cols[c.master[0]] && cols[c.master[0]].items : c.items, t
+              let p = {/*class: c.class, style: c.style,*/ key: j}, l = c.master ? cols[c.master[0]] && cols[c.master[0]].items : c.items, t
               if(l instanceof Function)
                 l = l.call(this.$parent, row, j)
               let keyName = c.keyName || this.options.cascade.keyName, valueName = c.valueName || this.options.cascade.valueName
@@ -159,7 +165,7 @@ export default {
                 td.push(h('table-cell', {
                   props: {
                     column: cols[j], value: this.table.__tmp[j], items: l, options: this.options
-                  },
+                  }, /*class: c.class, style: c.style,*/
                   on: {
                     input: d => {
                       let r = this.table.__tmp, self = this

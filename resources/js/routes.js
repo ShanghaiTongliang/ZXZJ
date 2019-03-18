@@ -2,7 +2,8 @@ import Frame from './Frame.vue'
 import jiaoJian from './jiaoJian.vue'
 import jiaoJianGuZhang from './jiaoJianGuZhang.vue'
 import jiaoJianChuLi from './jiaoJianChuLi.vue'
-import RuKuFuJian from './RuKuFuJian.vue'
+import ruKuFuJian from './ruKuFuJian.vue'
+import pingJia from './pingJia.vue'
 import DanWei from './DanWei.vue'
 import User from './User.vue'
 import Group from './Group.vue'
@@ -33,15 +34,30 @@ export default [{
     component: jiaoJianChuLi
   }, {
     name: 'ruKuFuJian',
-    path: '/ruKuFuJian',
-    component: RuKuFuJian,
+    path: 'ruKuFuJian',
+    component: ruKuFuJian,
     children: [{
       name: 'createRuKuFuJian',
       path: 'create'
     }]
   }, {
+    name: 'pingJias',
+    path: 'pingJia',
+    component: pingJia,
+    children: [{
+      name: 'createPingJia',
+      path: 'create'
+    }, {
+      name: 'pingJia',
+      path: ':id',
+      children: [{
+        name: 'editPingJia',
+        path: 'edit'
+      }]
+    }]
+  }, {
     name: 'danWei',
-    path: '/danwei',
+    path: 'danwei',
     component: DanWei,
     children: [{
       name: 'createDanWei',
@@ -66,11 +82,11 @@ export default [{
     }]
   }, {
     name: 'users',
-    path: '/user',
+    path: 'user',
     component: User
   }, {
     name: 'groups',
-    path: '/group',
+    path: 'group',
     component: Group,
     children: [{
       name: 'createGroup',

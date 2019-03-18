@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2019-03-14 20:58:50
+-- 生成日期： 2019-03-18 12:17:48
 -- 服务器版本： 10.3.13-MariaDB
 -- PHP 版本： 7.2.16
 
@@ -208,7 +208,7 @@ CREATE TABLE `group` (
 --
 
 INSERT INTO `group` (`id`, `name`, `cheJian`) VALUES
-(1, '上海东车辆段管理员', '[{\"id\":1,\"permission\":255},{\"id\":3,\"permission\":3},{\"id\":2,\"permission\":3}]'),
+(1, '上海东车辆段管理员', '[{\"id\":1,\"permission\":7},{\"id\":3,\"permission\":7},{\"id\":2,\"permission\":7}]'),
 (2, '上海东车辆段质检员', '[{\"id\":1,\"permission\":1},{\"id\":2,\"permission\":1},{\"id\":3,\"permission\":1}]'),
 (3, '上海东车辆段检修员', '[{\"id\":1,\"permission\":2},{\"id\":2,\"permission\":2},{\"id\":3,\"permission\":2}]'),
 (4, '上海东车辆段', '[{\"id\":1,\"permission\":0},{\"id\":2,\"permission\":0},{\"id\":3,\"permission\":0}]'),
@@ -594,8 +594,8 @@ INSERT INTO `jiaoJian` (`id`, `date`, `cheHao`, `xiuCheng`, `cheZhong`, `guZhang
 (2, '2018-12-11', '4321', 2, 1, 6, 1, 3, 1, 4, 1),
 (4, '2018-12-30', '1111', 1, 1, 1, 1, 3, 2, 3, NULL),
 (5, '2018-12-31', '2222', 1, 5, 6, 1, 3, 2, 3, NULL),
-(6, '2019-01-02', '3333', 1, 2, 2, 1, 3, 1, 4, 4),
-(7, '2019-01-05', '4444', 1, 5, 318, 1, 3, 2, 5, 2),
+(6, '2019-01-02', '3333', 1, 2, 2, 1, 2, 1, 4, 4),
+(7, '2019-01-05', '4444', 1, 5, 318, 1, 3, 2, 5, 3),
 (8, '2019-03-01', '4332', 1, 1, 1, 1, 3, 1, 4, NULL),
 (9, '2019-03-01', 'ssxx', 1, 1, 171, 1, 1, 3, 7, NULL),
 (10, '2019-03-01', 'njd', 2, 3, 169, 2, 4, 4, 4, NULL),
@@ -633,8 +633,8 @@ CREATE TABLE `jiaoJianChuLi` (
 
 INSERT INTO `jiaoJianChuLi` (`id`, `state`, `cheHao`, `xiuCheng`, `danWei`, `cheJian`, `guZhang`, `xiaFaShiJian`, `xiaFaRen`, `chuLiShiJian`, `chuLiRen`, `chuLi`, `yanZhiYuanYin`, `fuJianShiJian`, `fuJianRen`) VALUES
 (2, 1, '4321', 2, 1, 3, 6, '2019-03-13 08:42:18', 4, NULL, NULL, NULL, NULL, NULL, NULL),
-(6, 4, '3333', 1, 1, 3, 2, '2019-03-07 11:30:24', 4, '2019-03-07 13:15:00', 7, 0, NULL, '2019-03-07 13:15:00', 3),
-(7, 2, '4444', 1, 1, 3, 318, '2019-03-12 13:13:41', 5, '2019-03-13 08:43:00', 7, 0, NULL, '2019-03-13 08:42:00', 3);
+(6, 4, '3333', 1, 1, 2, 2, '2019-03-07 11:30:24', 4, '2019-03-07 13:15:00', 7, 0, NULL, '2019-03-07 13:15:00', 3),
+(7, 3, '4444', 1, 1, 3, 318, '2019-03-12 13:13:41', 5, '2019-03-17 18:44:00', 7, 0, NULL, '2019-03-17 18:51:00', 3);
 
 -- --------------------------------------------------------
 
@@ -684,6 +684,21 @@ CREATE TABLE `peiJian` (
 INSERT INTO `peiJian` (`id`, `name`, `xingHao`, `leiBie`, `danWei`) VALUES
 (1, '轴承', 'RD2', 2, '对'),
 (2, 'ff', 'ss', 1, 'ee');
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `pingJia`
+--
+
+CREATE TABLE `pingJia` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `poster` smallint(5) UNSIGNED DEFAULT 0,
+  `cheJian` varchar(1024) DEFAULT NULL,
+  `title` varchar(64) DEFAULT NULL,
+  `detail` varchar(16384) DEFAULT NULL,
+  `attachment` varchar(1024) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -843,6 +858,12 @@ ALTER TABLE `peiJian`
   ADD PRIMARY KEY (`id`);
 
 --
+-- 表的索引 `pingJia`
+--
+ALTER TABLE `pingJia`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- 表的索引 `ruKuFuJian`
 --
 ALTER TABLE `ruKuFuJian`
@@ -929,6 +950,12 @@ ALTER TABLE `jiaoJianCount`
 --
 ALTER TABLE `peiJian`
   MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- 使用表AUTO_INCREMENT `pingJia`
+--
+ALTER TABLE `pingJia`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- 使用表AUTO_INCREMENT `ruKuFuJian`

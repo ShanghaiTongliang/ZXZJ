@@ -51,4 +51,4 @@ input[type=month] {width: 9em}
   height: 1.5em;
 }
 .group input[type=number] {width: 4em}
-.page .dt-head, .page .dt-head caption {background-color: #eee}
+.page .datable, .page .datable caption {background-color: #eee}

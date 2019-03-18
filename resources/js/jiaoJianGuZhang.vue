@@ -1,6 +1,3 @@
-<style>
-.gz .datable td:first-child {white-space: nowrap}
-</style>
 <script>
 import axios from 'axios';
 import {mapState, mapMutations} from 'vuex'
@@ -8,7 +5,10 @@ import Datable from './components/Datable'
 import Tabs from './components/Tabs'
 
 const lv = {1: 6, 2: 3, 3: 1}, num = ['一', '二', '三', '四'],
-colCheJian = ['时间', '交检总数', '一次合格数', 'A类故障', 'B类故障', 'C类故障', '一次合格率', '故障率']
+colCheJian = [{
+  caption: '时间',
+  //class: 'dt-nowrap'
+}, '交检总数', '一次合格数', 'A类故障', 'B类故障', 'C类故障', '一次合格率', '故障率']
 let dbw = []
 
 export default {
@@ -66,7 +66,7 @@ export default {
           click: this.query
         }}, '查询')
       ]),
-      h('tabs', {props: {tabs: this.tabs, tabIndex: this.tabIndex, grow: true}, class: 'gz', on:  {
+      h('tabs', {props: {tabs: this.tabs, tabIndex: this.tabIndex, grow: true}, on:  {
         tabIndex: this.onTabIndex,
         pageShow: this.pageShow
       }}, r)
@@ -99,6 +99,7 @@ export default {
         columns: {
           date: {
             caption: '日期',
+            //class: 'dt-nowrap',
             filter(t) {
               return t.substr(2)
             }

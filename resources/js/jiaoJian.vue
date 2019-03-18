@@ -19,6 +19,7 @@ import {PERMISSION_DATA, PERMISSION_REPAIR, PERMISSION_MANAGE, chuLiStates} from
 const columns = {
   date: {
     caption: '日期',
+    //class: 'dt-nowrap',
     type: 'select',
     items: null
   },

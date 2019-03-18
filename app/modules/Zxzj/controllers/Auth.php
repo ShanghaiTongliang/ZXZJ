@@ -68,7 +68,8 @@ class AuthController extends Yaf\Controller_Abstract {
       ],
       'jiaoJian' => Table::open('jiaoJian')::where("date >= '$y0-$m0-01' and date <= '$y-$m-$d'")->get(),
       'ruKuFuJian' => Table::open('ruKuFuJian')::where("date = '$t'")->get(),
-      'jiaoJianChuLi' => Table::open('jiaoJianChuLi')::orderBy('xiaFaShiJian', 'desc')->get()
+      'jiaoJianChuLi' => Table::open('jiaoJianChuLi')::orderBy('xiaFaShiJian', 'desc')->get(),
+      'pingJia' => Table::open('pingJia')::get()
     ], JSON_UNESCAPED_UNICODE);
   }
 
