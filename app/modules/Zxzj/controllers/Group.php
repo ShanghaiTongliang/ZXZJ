@@ -1,6 +1,7 @@
 <?php
 
 class GroupController extends Yaf\Controller_Abstract {
+
   function storeAction() {
     $a = json_decode(file_get_contents('php://input'));
     if(isset($a->id, $a->name, $a->cheJian)) {
@@ -25,6 +26,14 @@ class GroupController extends Yaf\Controller_Abstract {
         $g->$k = $v;
       $g->save();
     } else
+      response(_('group not found'), RES_NOT_FOUND);
+  }
+
+  function destroyAction() {
+    $p = $this->getRequest()->getParams();
+    if($g = GroupModel::find($p['id']))
+      $g->delete();
+    else
       response(_('group not found'), RES_NOT_FOUND);
   }
 }

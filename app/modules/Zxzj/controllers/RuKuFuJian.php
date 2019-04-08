@@ -31,6 +31,7 @@ class RuKuFuJianController extends Yaf\Controller_Abstract {
   }
 
   function queryAction() {
-    echo Table::open('ruKuFuJian')::where("date >= '{$_POST['from']}' and date <= '{$_POST['to']}'")->get();
+    $t = date('t', strtotime($_POST['to']));
+    echo Table::open('ruKuFuJian')::where("date >= '{$_POST['from']}-01' and date <= '{$_POST['to']}-$t'")->get();
   }
 }

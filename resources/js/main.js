@@ -3,7 +3,7 @@ import Vue from 'vue'
 import router from './router'
 import store from './store'
 import App from './App'
-import './date'
+import './components/date'
 import orientation from './orientation'
 
 axios.defaults.headers.common = {

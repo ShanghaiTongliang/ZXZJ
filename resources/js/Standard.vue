@@ -12,7 +12,6 @@ const names = {
   cheZhong: '车种',
   daBuWei: '大部位',
   guZhang: '故障',
-  dengJi: '等级',
   peiJian: '配件'
 },
 contain = {},
@@ -120,7 +119,7 @@ export default {
           caption: '保存',
           onclick(d) {
             let n = this.type.name
-            if(this.check(d, n, this.kv[n].columns, true)) {
+            if(this.check(d, n, this.kv[n].columns)) {
               this.loading(true)
               axios.post(`zxzj/api/standard/${n}/${d.id}`, d).then(r => {
                 this.loading(false)
@@ -160,13 +159,13 @@ export default {
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
-    check(d, n, c, noRep) {
+    check(d, n, c) {
       for(let k in c)
         if(c[k] instanceof Object && !d[k] && isNaN(parseInt(d[k]))) {
           this.error(`请输入${names[n]}${c[k].caption}`)
           return
         }
-      if(noRep && this.std[n].find(s => s.name == d.name))
+      if(this.std[n].find(s => s.id != d.id && s.name == d.name))
         this.error(`${d.name} 已经存在`)
       else
         return true

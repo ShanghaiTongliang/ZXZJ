@@ -20,17 +20,14 @@
   top: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, .5);
-  text-align: center;
   z-index: 100;
+  display: flex;
 }
 .loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
   width: 64px;
   height: 64px;
-  margin-left: -32px;
-  margin-top: -32px;
+  margin: auto;
+  position: relative;
 }
 .loading>div {
   background-color: yellow;

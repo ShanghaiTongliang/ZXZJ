@@ -1,7 +1,6 @@
 import Frame from './Frame.vue'
 import jiaoJian from './jiaoJian.vue'
 import jiaoJianGuZhang from './jiaoJianGuZhang.vue'
-import jiaoJianChuLi from './jiaoJianChuLi.vue'
 import ruKuFuJian from './ruKuFuJian.vue'
 import pingJia from './pingJia.vue'
 import DanWei from './DanWei.vue'
@@ -22,16 +21,19 @@ export default [{
       name: 'createJiaoJian',
       path: 'create',
       meta: {keepAlive: true},
+    }, {
+      name: 'jiaoJianXiaFa',
+      path: 'xiaFa',
+      meta: {keepAlive: true},
+    }, {
+      name: 'jiaoJianChuLi',
+      path: 'chuLi',
+      meta: {keepAlive: true},
+    }, {
+      name: 'jiaoJianXiaoHao',
+      path: 'xiaoHao',
+      meta: {keepAlive: true},
     }]
-  }, {
-    name: 'jiaoJianGuZhang',
-    path: 'jiaoJianGuZhang',
-    component: jiaoJianGuZhang,
-    meta: {keepAlive: true}
-  }, {
-    name: 'jiaoJianChuLi',
-    path: 'jiaoJianChuLi',
-    component: jiaoJianChuLi
   }, {
     name: 'ruKuFuJian',
     path: 'ruKuFuJian',
@@ -39,11 +41,20 @@ export default [{
     children: [{
       name: 'createRuKuFuJian',
       path: 'create'
+    }, {
+      name: 'ruKuChuZhi',
+      path: 'chuZhi'
     }]
+  }, {
+    name: 'jiaoJianGuZhang',
+    path: 'jiaoJianGuZhang',
+    component: jiaoJianGuZhang,
+    meta: {keepAlive: true}
   }, {
     name: 'pingJias',
     path: 'pingJia',
     component: pingJia,
+    meta: {keepAlive: true},
     children: [{
       name: 'createPingJia',
       path: 'create'
@@ -57,7 +68,7 @@ export default [{
     }]
   }, {
     name: 'danWei',
-    path: 'danwei',
+    path: 'danWei',
     component: DanWei,
     children: [{
       name: 'createDanWei',
@@ -83,7 +94,11 @@ export default [{
   }, {
     name: 'users',
     path: 'user',
-    component: User
+    component: User,
+    children: [{
+      name: 'curUser',
+      path: ':id'
+    }]
   }, {
     name: 'groups',
     path: 'group',
@@ -100,7 +115,6 @@ export default [{
       }]
     }]
   }, {
-    name: 'standard',
     path: 'standard',
     component: Standard,
     children: [{
@@ -129,13 +143,6 @@ export default [{
       path: 'guZhang',
       children: [{
         name: 'createGuZhang',
-        path: 'create'
-      }]
-    }, {
-      name: 'dengJi',
-      path: 'dengJi',
-      children: [{
-        name: 'createDengJi',
         path: 'create'
       }]
     }, {

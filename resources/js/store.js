@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import router from './router'
 import routes from './routes'
-import {daBuWei} from './global'
+import {daBuWei, dengJi} from './global'
 
 Vue.use(Vuex)
 
@@ -26,7 +26,8 @@ export default new Vuex.Store({
       p.url = `#/pingJia/${p.id}`
     },
     fixGroup(g) {
-      g.url = `#/group/${g.id}`
+      if(g.id != 255)
+        g.url = `#/group/${g.id}`
       this.dict.groups[g.id] = g
     },
     fixDanWei(d) {
@@ -93,12 +94,13 @@ export default new Vuex.Store({
       dict.cheZhong = {}
       data.std.cheZhong.forEach(d => dict.cheZhong[d.id] = d)
       dict.dengJi = {}
-      data.std.dengJi.forEach(d => dict.dengJi[d.id] = d)
+      dengJi.forEach(d => dict.dengJi[d.id] = d)
       dict.peiJian = {}
       data.std.peiJian.forEach(p => dict.peiJian[p.id] = p)
       let t = []
       data.std.daBuWei = daBuWei
       data.std.daBuWei.forEach(d => d.guZhang.forEach(g => t.push(g)))
+      data.std.dengJi = dengJi
       data.std.guZhang = t
       dict.guZhang = {}
       data.std.daBuWei.forEach(d => d.guZhang.forEach(g => {
@@ -116,6 +118,7 @@ export default new Vuex.Store({
       state.pingJia = data.pingJia
 
       state.user = data.users.find(u => u.id == id)
+      state.user.url = `#/user/${state.user.id}`
       if(!state.routes) {
         state.routes = true
         router.addRoutes(routes)

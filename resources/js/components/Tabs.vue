@@ -78,7 +78,7 @@ export default {
       } else if(this.icons && this.icons[i])
         r.push(h('img', {attrs: {src: this.icons[i]}}))
       r.push(t)
-      return h('li', {class: c, attrs: {title: t}, on: {
+      return h('li', {class: c, on: {
         click: () => this.click(i)
       }, key: i}, r)
     })), ...this.tabs.map((t, i) => {

@@ -63,13 +63,12 @@ class AuthController extends Yaf\Controller_Abstract {
       'std' => [
         'xiuCheng' => Table::open('xiuCheng')::get(),
         'cheZhong' => Table::open('cheZhong')::get(),
-        'dengJi' => Table::open('dengJi')::get(),
         'peiJian' => Table::open('peiJian')::get()
       ],
       'jiaoJian' => Table::open('jiaoJian')::where("date >= '$y0-$m0-01' and date <= '$y-$m-$d'")->get(),
       'ruKuFuJian' => Table::open('ruKuFuJian')::where("date = '$t'")->get(),
       'jiaoJianChuLi' => Table::open('jiaoJianChuLi')::orderBy('xiaFaShiJian', 'desc')->get(),
-      'pingJia' => Table::open('pingJia')::get()
+      'pingJia' => PingJiaModel::get()
     ], JSON_UNESCAPED_UNICODE);
   }
 
@@ -79,7 +78,7 @@ class AuthController extends Yaf\Controller_Abstract {
       $t = time();
       $token = rand(1, 0xffff);
       $redis = Redis::instance();
-      $redis->set("token$u->id", $token);
+      $redis->set("token$u->id", $token, 86400 * 7);
       setcookie('id', $u->id, $t + ($_POST['remember'] ?? false ? 86400 * 7 : 1800), PATH);
       //setcookie('token', $u->token, $t + 86400 * 365, PATH, '', false, true);
       setcookie('token', JWT::encode(['id' => $u->id, 'token' => $token], 'tongliang'), $t + 86400 * 365, PATH, '', false, true);

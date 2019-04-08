@@ -22,12 +22,14 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
       'danWei' => '单位',
       'cheJian' => '车间',
       'banZu' => '班组',
+      'previous' => '原密码',
       'format incorrect' => '格式错误',
       'group %d: %s already exists' => '用户组 %d: %s 已存在',
       'group not found' => '用户组未找到',
       'guZhang not found' => '故障未找到',
       'no permission' => '权限不足',
       'password incorrect' => '密码错误',
+      'previous password incorrect' => '原密码错误',
       'standard not found' => '标准未找到',
       'standard type not found' => '标准类型未找到',
       'danWei not found' => '单位未找到',
@@ -39,6 +41,7 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
       'please delete all subitems first' => '请先删除所有子项目',
       'user already exists' => '用户已存在',
       'user does not exists' => '用户不存在',
+      'pingJia not found' => '评价未找到',
     ], 'zh-cn');
     Language::set($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
@@ -70,11 +73,17 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
       $p['controller'] = 'user';
       $p['action'] = 'store';
       $router->post('user', $p);
+      //重置密码
+      $p['action'] = 'resetPassword';
+      $router->post('user/password', $p);
       $router->middleware($auth, function($router) use($p) {
         $p['action'] = 'update';
         $router->put('user/:id', $p);
         $p['action'] = 'destroy';
         $router->delete('user/:id', $p);
+        //修改密码
+        $p['action'] = 'updatePassword';
+        $router->put('user/:id/password', $p);
       });
 
       $p['controller'] = 'auth';
@@ -167,6 +176,15 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         //查询
         $p['action'] = 'query';
         $router->post('ruKuFuJian/query', $p);
+
+        //评价
+        $p['controller'] = 'pingJia';
+        $p['action'] = 'store';
+        $router->post('pingJia', $p);
+        $p['action'] = 'update';
+        $router->put('pingJia/:id', $p);
+        $p['action'] = 'destroy';
+        $router->delete('pingJia/:id', $p);
       });
 
     });

@@ -6,7 +6,7 @@ $r = []; $v = [];
 foreach($a as $k => $s)
   if($s) {
     $t = explode("\t", $s);
-    if(!$v[$t[2]]) {
+    if(!isset($v[$t[2]])) {
       $v[$t[2]] = 1;
       if(!$p = $ps[$t[1]] ?? null) {
         $p = count($ps) + 1;

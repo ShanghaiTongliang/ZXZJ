@@ -2,7 +2,7 @@
 .tc-chk {text-align: left}
 .tc-chk label {
   min-width: 6em;
-  white-space: nowrap;
+  display: inline-block;
 }
 </style>
 
@@ -106,7 +106,7 @@ export default {
         }})]
         break
       default:
-        r = [h('input', {attrs: {id: this.key, type: c.type}, domProps: {value: this.value}, on: {
+        r = [h('input', {attrs: {id: this.key, type: c.type, min: c.min, max: c.max}, domProps: {value: this.value}, on: {
           input: e => this.$emit('input', e.target.value)
         }})]
       }

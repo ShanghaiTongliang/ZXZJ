@@ -1,11 +1,17 @@
 <style>
-.side-menu {overflow: auto}
+.side-menu {
+  flex-grow: 1;
+  overflow: auto;
+}
 .side-menu .menu {margin: 0 0 0 1.5em}
 .click {cursor: pointer}
 </style>
 <script>
+import Resizer from './Resizer'
+
 export default {
-  props: ['menu', 'selection'],
+  components: {Resizer},
+  props: ['menu', 'selection', 'width', 'right'],
   render(h) {
     let p = this.$parent, r = (menu, f) => {
       return h('ul', {class: ['menu', f && 'side-menu']}, menu.filter(mi => mi.condition === undefined || mi.condition instanceof Function && mi.condition.call(p) || mi.condition)
@@ -35,7 +41,7 @@ export default {
         return h('li', {key: i}, [h(ct, ca, c), mi.items && r(mi.items)])
       }))
     }
-    return r(this.menu, true)
+    return h('resizer', {props: {width: this.width, right: this.right}}, [this.$slots.header, r(this.menu, true), this.$slots.footer])
   },
   data() {
     return {

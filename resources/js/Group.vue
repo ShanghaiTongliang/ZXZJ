@@ -1,9 +1,3 @@
-<style>
-.green, .red, .blue {font-weight: bold}
-.green {color: green}
-.blue {color: blue}
-.red {color: red}
-</style>
 <script>
 import axios from 'axios'
 import {mapState, mapMutations} from 'vuex'
@@ -107,7 +101,7 @@ export default {
               axios.post('zxzj/api/group', d).then(() => {
                 this.groups.push(d)
                 this.groups.sort((a, b) => a.id - b.id)
-                this.$store.state.fixGroup(g)
+                this.$store.state.fixGroup(d)
                 this.$router.push('/group')
                 this.loading(false)
                 this.message('保存成功')
@@ -127,7 +121,7 @@ export default {
         data: null
       },
       kvPermission: {
-        caption: '权限',
+        caption: null,
         columns: {
           id: {
             caption: '车间',
@@ -164,7 +158,7 @@ export default {
           }
         }],
         editing: true,
-        data: {}
+        data: null
       }
     }
   },
@@ -196,6 +190,8 @@ export default {
               break
           this.kv.data = {id: i, name: null, cheJian: []}
           break
+        case 'createGroupCheJian':
+          this.kvPermission.data = {permission: []}
         default:
           let g = this.group
           if(g) {
@@ -293,9 +289,6 @@ export default {
         })
       }
     },
-  },
-  mounted() {
-    window.group = this
   }
 }
 </script>

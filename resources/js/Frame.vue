@@ -1,14 +1,9 @@
 <style>
-#nav {
-  background-color: white;
-  flex-grow: 1;
-}
+#nav {background-color: white}
 </style>
 <template>
   <div>
-    <resizer :width="110">
-      <side-menu id="nav" :menu="menu" :selection="selection" @select="select"></side-menu>
-    </resizer>
+    <side-menu id="nav" :menu="menu" :selection="selection" :width="140" @select="select"></side-menu>
     <keep-alive>
       <router-view v-if="$route.meta.keepAlive" class="container"></router-view>
     </keep-alive>
@@ -17,31 +12,45 @@
 </template>
 <script>
 import SideMenu from './components/SideMenu'
-import Resizer from './components/Resizer'
 
 export default {
-  components: {SideMenu, Resizer},
+  components: {SideMenu},
   data() {
     return {
       menu: [{
-        caption: '整车交检',
+        caption: '整车交检故障',
         items: [{
           name: 'jiaoJian',
-          caption: '故障输入',
+          caption: '故障录入',
           href: '#/jiaoJian',
         }, {
-          name: 'jiaoJianGuZhang',
-          caption: '故障分析',
-          href: '#/jiaoJianGuZhang'
+          name: 'jiaoJianXiaFa',
+          caption: '故障下发不合格通知书',
+          href: '#/jiaoJian/xiaFa'
         }, {
           name: 'jiaoJianChuLi',
           caption: '故障处理',
-          href: '#/jiaoJianChuLi'
+          href: '#/jiaoJian/chuLi'
+        }, {
+          name: 'jiaoJianXiaoHao',
+          caption: '故障销号',
+          href: '#/jiaoJian/xiaoHao'
         }]
       }, {
-        name: 'ruKuFuJian',
         caption: '入库复检记录',
-        href: '#/ruKuFuJian'
+        items: [{
+          name: 'ruKuFuJian',
+          caption: '复检记录',
+          href: '#/ruKuFuJian'
+        }, {
+          name: 'ruKuChuZhi',
+          caption: '不合格处置',
+          href: '#/ruKuFuJian/chuZhi'
+        }]
+      }, {
+        name: 'jiaoJianGuZhang',
+        caption: '故障分析',
+        href: '#/jiaoJianGuZhang'
       }, {
         name: 'pingJias',
         caption: '质检员工作评价',
@@ -77,10 +86,6 @@ export default {
           caption: '故障',
           href: '#/standard/guZhang'
         }, {
-          name: 'dengJi',
-          caption: '等级',
-          href: '#/standard/dengJi'
-        }, {
           name: 'peiJian',
           caption: '配件',
           href: '#/standard/peiJian'
@@ -97,8 +102,9 @@ export default {
           this.$router.replace('/jiaoJian')
         else {
           function find(menu, r) {
-            for(let m of menu) {
-              for(let i = r.matched.length - 1; i > 0; i--)
+            //广度优先
+            for(let i = r.matched.length - 1; i > 0; i--)
+              for(let m of menu) {
                 if(m.name == r.matched[i].name)
                   return m
               if(m.items) {

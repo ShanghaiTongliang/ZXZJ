@@ -36,4 +36,47 @@ class UserController extends Yaf\Controller_Abstract {
       $err = _('user does not exists');
     response($err);
   }
+
+  //修改密码
+  function updatePasswordAction() {
+    $a = json_decode(file_get_contents('php://input'), true);
+    if(Validator::valid($a, [
+      'previous' => 'required|between:6,16',
+      'password' => 'required|between:6,16|confirmed'
+    ], $err)) {
+      if($u = UserModel::find($a['id'])) {
+        if($u->password != crypt($a['previous'], $u->password))
+          $err = _('previous password incorrect');
+        else {
+          $u->password = crypt($a['password'], md5(rand(0x7fff, 0xffff)));
+          $u->save();
+          return;
+        }
+      } else
+        $err = _('user does not exists');
+    }
+    response($err);
+  }
+
+  //重置密码
+  function resetPasswordAction() {
+    //todo 权限
+    if($_POST['action'] == 'apply') {
+      if($u = UserModel::where(['name' => $_POST['name']])->first()) {
+        $u->state = 1;
+        $u->save();
+        return;
+      }
+    } else {
+      if($u = UserModel::find($_POST['id'])) {
+        //重置密码
+        if($_POST['action'] == 'approve')
+          $u->password = crypt('123456', md5(rand(0x7fff, 0xffff)));
+        $u->state = null;
+        $u->save();
+        return;
+      }
+    }
+    response(_('user does not exists'));
+  }
 }

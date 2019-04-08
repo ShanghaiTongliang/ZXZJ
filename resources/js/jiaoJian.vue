@@ -1,10 +1,7 @@
 <style>
 #list {
-  background-color: white;
-  user-select: none;
-  overflow: auto;
-  border: inset 1px;
-  flex-grow: 1;
+  min-height: 5.5em;
+  margin-bottom: .5em;
 }
 </style>
 <script>
@@ -14,14 +11,16 @@ import {mapState, mapMutations} from 'vuex'
 import Datable from './components/Datable'
 import Kvtable from './components/Kvtable'
 import Moditable from './components/Moditable'
-import {PERMISSION_DATA, PERMISSION_REPAIR, PERMISSION_MANAGE, chuLiStates} from './global'
+import Mission from './Mission'
+import {PERMISSION_DATA, stateColor, chuLiStates} from './global'
 
-const columns = {
+const colJiaoJian = {
   date: {
     caption: '日期',
     //class: 'dt-nowrap',
-    type: 'select',
-    items: null
+    type: 'date',
+    min: null,
+    max: null
   },
   cheHao: {
     caption: '车号',
@@ -46,7 +45,10 @@ const columns = {
   guZhang: {
     caption: '故障',
     type: 'select',
-    master: ['daBuWei']
+    master: ['daBuWei'],
+    onchange(v, i, d) {
+      d.dengJi = this.std.guZhang.find(g => g.id == v).dengJi
+    }
   },
   dengJi: {
     caption: '等级',
@@ -59,7 +61,10 @@ const columns = {
   },
   state: {
     caption: '状态',
-    items: chuLiStates
+    items: chuLiStates,
+    filter(t) {
+      return t && `<span class="${stateColor[t]}">${chuLiStates.find(s => s.id == t).name}</span>`
+    }
   },
   banZu: {
     caption: '班组',
@@ -89,22 +94,24 @@ function init() {
 init()
 
 export default {
-  components: {Datable, Kvtable, Moditable},
+  components: {Datable, Kvtable, Moditable, Mission},
   render(h) {
-    let n = this.$route.name, pg, c, d, t = this.curMonth
-    if(n == 'jiaoJian') {
+    let gs, c, d, on, t = this.curMonth
+    if(this.rn) {
       d = this.tbl.editingIndex >= 0
-      pg = h('moditable', {props: {table: this.table}, on: {
+      on = {
         editable: this.isEditable,
         save: this.save,
         delete: this.del
-      }}, [t ? h('a', {attrs: {href: '#/jiaoJian/create', class: 'act'}}, '新建') : h('div', {class: 'act'}, '请输入检修总数'), h('div', {class: 'dt-info'}, `${this.tbl.data.length}条记录`)])
-    } else if(n == 'createJiaoJian') {
+      }
+      if(this.rn > 2)
+        on.rowSelect = this.rowSelect
+      gs = h('moditable', {attrs: {id: 'list'}, props: {table: this.table, selection: this.selection}, on}, [this.rn == 1 ? t ? h('a', {attrs: {href: '#/jiaoJian/create', class: 'act'}}, '新建') : h('div', {class: 'act'}, '请输入检修总数') : null, h('div', {class: 'dt-info'}, `${this.tbl.data.length}条记录`)])
+    } else {
       d = true
-      pg = h('kvtable', {props: {table: this.kv, vertical: this.$store.state.vertical}},
+      gs = h('kvtable', {props: {table: this.kv, vertical: this.$store.state.vertical}},
         [h('a', {attrs: {href: '#/jiaoJian', class: 'act'}}, '返回')])
-    } else
-      return
+    }
     c = this.curCheJian
     let pnl = h('div', [
     h('div', {class: 'group'}, [
@@ -129,7 +136,7 @@ export default {
         change: e => this.month = e.target.value
       }}, months.map((m, i) => h('option', {attrs: {value: m}, domProps: {selected: this.month == m}, key: i}, m)))
     ]),
-    h('div', {class: 'group'}, ['检修总数 ', h('input', {
+    this.rn == 1 ? h('div', {class: 'group'}, ['检修总数 ', h('input', {
       attrs: {type: 'number', min: 0, placeholder: '请输入', disabled: d},
       domProps: {value: t && t.count},
       on: {
@@ -156,23 +163,35 @@ export default {
         } else
           this.error('请输入数量')
       }
-    }}, '保存')])])
-    return h('div', [pnl, pg])
+    }}, '保存')]) : null])
+    return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [pnl, gs, h('mission', {
+      props: {mission: this.mission, role: this.role, editing: this.editingXiaFa}, on: {
+        onEditing: v => {
+          console.log(this, this.editingXiaFa)
+          this.editingXiaFa = v
+        }
+      }, key: 'm'
+    })])
   },
   data() {
     return {
+      rn: null,
       danWei: this.$store.state.danWei[0].id,
       cheJian: this.$store.state.danWei[0].cheJian[0].id,
       month: months[0],
       count: undefined,
       editable: false,
+      selection: null,
+      mission: null,
+      editingXiaFa: false,
+      role: 0,
       tbl: {
         caption: '整车交检故障',
-        columns,
+        columns: colJiaoJian,
         actions: [{
           caption: '下发',
           condition(d) {
-            return this.editable && this.tbl.editingIndex < 0 && !d.state
+            return this.$route.name == 'jiaoJianXiaFa' && this.editable && this.tbl.editingIndex < 0 && !d.state
           },
           onclick(d) {
             if(confirm('是否下发不合格通知单 ?')) {
@@ -195,11 +214,12 @@ export default {
             }
           }
         }],
+        data: [],
         editingIndex: -1,
       },
       kv: {
         caption: '故障',
-        columns,
+        columns: colJiaoJian,
         editing: true,
         data: null,
         actions: [{
@@ -239,19 +259,39 @@ export default {
       return r
     },
     table() {
-      columns.banZu.items = this.curCheJian && this.curCheJian.banZu
-      this.tbl.data = this.$store.state.jiaoJian.filter(g =>
+      let d = this.$store.state.jiaoJian.filter(g =>
         g.cheJian == this.cheJian && g.date.substr(0, 7) == this.month)
+      if(this.rn > 2) {
+        d = d.filter(g => g.state)
+        this.selection = d.length ? d[0] : null
+      }
+      this.tbl.data = d
+      colJiaoJian.banZu.items = this.curCheJian && this.curCheJian.banZu
       return this.tbl
+    },
+    missions() {
+      return this.$store.state.jiaoJianChuLi.filter(g => g.cheJian == this.cheJian && g.date.substr(0, 7) == this.month)
     }
   },
   watch: {
     '$route.name': {
       immediate: true,
-      handler(v) {
-        if(v == 'jiaoJian')
-          this.tbl.editingIndex = -1
-        else if(v == 'createJiaoJian')
+      handler(n) {
+        const rs = {createJiaoJian: 0, jiaoJian: 1, jiaoJianXiaFa: 2, jiaoJianChuLi: 3, jiaoJianXiaoHao: 4}
+        this.rn = rs[n]
+        if(this.rn) {
+          if(this.rn < 3) {
+            this.selection = null
+            if(this.rn == 1)
+              this.tbl.editingIndex = -1
+          } else {
+            this.role = this.rn - 2
+            let d = this.tbl.data
+            if(d.length)
+              this.selection = d[0]
+            this.editingXiaFa = false
+          }
+        } else
           this.kv.data = {danWei: this.danWei, cheJian: this.cheJian}
       }
     },
@@ -259,28 +299,33 @@ export default {
       deep: true,
       immediate: true,
       handler(v) {
-        columns.xiuCheng.items = v.xiuCheng
-        columns.cheZhong.items = v.cheZhong
-        columns.daBuWei.items = v.daBuWei
-        columns.dengJi.items = v.dengJi
+        colJiaoJian.xiuCheng.items = v.xiuCheng
+        colJiaoJian.cheZhong.items = v.cheZhong
+        colJiaoJian.daBuWei.items = v.daBuWei
+        colJiaoJian.dengJi.items = v.dengJi
       },
     },
     month: {
       immediate: true,
       handler(v) {
-        let i, c = new Date(this.month.substr(0, 4), this.month.substr(5), 0).getDate() + 1, d = []
-        for(i = 1; i < c; i++) {
-          let s = `${this.month}-` + (i > 9 ? i : `0${i}`)
-          d.push({id: s, name: s})
-        }
-        this.tbl.columns.date.items = d
+        let i, c = new Date(v.substr(0, 4), v.substr(5), 0).getDate()
+        colJiaoJian.date.min = `${v}-01`
+        colJiaoJian.date.max = `${v}-${c}`
       }
+    },
+    selection(g) {
+      this.mission = g && this.$store.state.jiaoJianChuLi.find(c => c.id == g.id)
+      this.editingXiaFa = false
     }
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
+    rowSelect(r) {
+      this.selection = r
+      this.editingXiaFa = false
+    },
     isEditable() {
-      return this.editable
+      return this.editable && this.$route.name == 'jiaoJian'
     },
     saveFields(d, next) {
       let std = this.std, r
@@ -321,7 +366,7 @@ export default {
           this.error(r.response.data)
         })
       }
-    }
+    },
   },
   created() {
     let d = this.dict.groups
@@ -331,7 +376,7 @@ export default {
         return r
       })
     })
-    columns.user.items = this.$store.state.users
+    colJiaoJian.user.items = this.$store.state.users
   }
 }
 </script>

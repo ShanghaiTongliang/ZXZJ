@@ -3,10 +3,6 @@ class Pipeline {
   protected $pipes = [];
   protected $arg;
 
-  function __construct() {
-
-  }
-
   function pipe($pipe): Pipeline {
     $this->pipes[] = $pipe;
     return $this;
@@ -17,9 +13,9 @@ class Pipeline {
     return $this;
   }
 
-  function then($resole) {
+  function then(callable $resole) {
     if($this->pipes) {
-      array_reduce(array_reverse($this->pipes), function($next, $cur) {
+      array_reduce(array_reverse($this->pipes), function(callable $next, callable $cur) {
         return function($arg) use($next, $cur) {
           call_user_func($cur, $arg, $next);
         };

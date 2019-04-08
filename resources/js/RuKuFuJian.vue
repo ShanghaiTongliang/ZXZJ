@@ -1,13 +1,15 @@
 <template>
   <div v-if="$route.name == 'ruKuFuJian'">
     <div>
-      <div class="group">从 <input type="date" v-model="from" :disabled="editing"> 到 <input type="date" v-model="to" :disabled="editing"></div> <button @click="query" :disabled="editing">查询</button>
+      <div class="group">从 <input type="month" v-model="from" :disabled="editing"> 到 <input type="month" v-model="to" :disabled="editing"></div> <button @click="query" :disabled="editing">查询</button>
     </div>
     <moditable :table="tbl" @edit="edit" @cancel="cancel" @save="save" @delete="del">
       <a href="#/ruKuFuJian/create" class="act">新建</a>
+      <span class="dt-info">{{`${this.$store.state.ruKuFuJian.length}条记录`}}</span>
     </moditable>
   </div>
-  <kvtable v-else :table="kv"><a href="#/ruKuFuJian" class="act">返回</a></kvtable>
+  <kvtable v-else-if="$route.name == 'createRuKuFuJian'" :table="kv"><a href="#/ruKuFuJian" class="act">返回</a></kvtable>
+  <div v-else>不合格处置</div>
 </template>
 
 <script>
@@ -70,8 +72,8 @@ export default {
   components: {Datable, Kvtable, Moditable},
   data() {
     return {
-      from: (new Date).toDate(),
-      to: (new Date).toDate(),
+      from: (new Date).toDate().substr(0, 7),
+      to: (new Date).toDate().substr(0, 7),
       tbl: {
         caption: '站修入库配件复检记录表',
         columns,

@@ -18,7 +18,7 @@ class Statement {
       $sql = 'select ' . (is_array($col) ? implode(', ', $col) : $col) . ' from `' . $this->class::getTableName() . '`';
       if($this->condition) {
         $sql .= ' where ' . (($a = is_array($this->condition)) ? implode(' and ', array_map(function($k) {
-          return $k . '=?';
+          return "`$k`=?";
         }, array_keys($this->condition))) : $this->condition);
         if($this->orderBy) {
           $sql .= " order by {$this->orderBy[0]}";

@@ -13,17 +13,17 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "chart.js": "^2.7.3",
+    "chart.js": "^2.8.0",
     "chartjs-plugin-zoom": "^0.6.6",
     "js-cookie": "^2.2.0",
     "pinyin-engine": "github:oblind/pinyin-engine",
-    "vue": "^2.5.22",
+    "vue": "^2.6.10",
     "vue-router": "^3.0.2",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
-    "laravel-mix": "^4.0.14",
-    "vue-template-compiler": "^2.5.22",
+    "laravel-mix": "^4.0.15",
+    "vue-template-compiler": "^2.6.10",
     "webpack-bundle-analyzer": "^3.0.3"
   }
 }

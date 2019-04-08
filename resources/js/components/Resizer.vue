@@ -1,13 +1,22 @@
 <style>
-.resizer-box {display: flex}
+.resizer-box {
+  display: flex;
+  transition: all .2s;
+}
+.resizer-box>div:first-child {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
 .resizer {
   width: .5em;
   background-color: rgba(0, 0, 0, .3);
   position: relative;
   cursor: col-resize;
   flex-shrink: 0;
+  user-select: none;
 }
-.resizer-btn {
+.resizer>b {
   background-color: yellow;
   border: 1px outset white;
   cursor: pointer;
@@ -22,8 +31,6 @@
   box-sizing: border-box;
   z-index: 50;
 }
-.resizer-enter-active, .resizer-leave-active  {transition: all .3s ease}
-.resizer-enter, .resizer-leave-to {margin-left: calc(-100% + .5em)}
 </style>
 <script>
 function mobile() {
@@ -48,38 +55,30 @@ export default {
       type: Boolean,
       default: true
     },
-    flex: {
-      type: Boolean,
-      default: true
-    }
+    contentStyle: Object
   },
   render(h) {
-    let s = h('transition', {
-      attrs: {name: 'resizer'}
-    }, [this.v ? h('div', {style: {
-      display: this.v ? this.flex ? 'flex' : '' : 'none',
-      width: this.w + 'px'
-    }, key: 5}, [this.$slots.default]) : '']), m = h('div', {
-        class: 'resizer',
-        on: mobile() ? {
-          touchstart: this.touchstart
-        } : {
-          mousedown: this.touchstart
-        }
-      }, [
-        h('b', {
-          class: 'resizer-btn',
-          on: {
-            mousedown: e => {
-              e.stopPropagation()
-              this.v = !this.v
-              this.$emit('visible', this.v)
-            }
-          }
-        }, this.v ^ this.right ? '<' : '>')
-      ]
-    )
-    return h('div', {class: 'resizer-box'}, this.right ? [m, s] : [s, m])
+    let s, t = {width: `${this.w}px`}, m
+    if(this.contentStyle)
+      for(let k in this.contentStyle)
+        t[k] = this.contentStyle[k]
+    s = h('div', {style: t}, this.$slots.default)
+    m = h('div', {class: 'resizer', on: mobile() ? {
+      touchstart: this.touchstart
+    } : {
+      mousedown: this.touchstart
+    }}, [h('b', {on: {
+      mousedown: e => {
+        e.stopPropagation()
+        this.v = !this.v
+        this.$emit('visible', this.v)
+      }
+    }}, this.v ^ this.right ? '<' : '>')])
+    return h('div', {class: 'resizer-box', style: this.right ? {
+      marginRight: this.v ? null : `-${this.w}px`
+    } : {
+      marginLeft: this.v ? null : `-${this.w}px`
+    }}, this.right ? [m, s] : [s, m])
   },
   data() {
     return {
@@ -111,8 +110,6 @@ export default {
     },
     touchMove(e) {
       if(this.move) {
-        //防止选择文本
-        e.preventDefault()
         if(e.targetTouches)
           e = e.targetTouches[0]
         let d = e.pageX - this.x0

@@ -8,6 +8,7 @@
   top: 0;
   z-index: 1;
 }
+.dt-body {margin-top: -2em}
 table.datable {
   border-spacing: 0;
   text-align: center;
@@ -71,7 +72,7 @@ div.act, a.act {
   border-radius: .3em;
   background-color: white;
 }
-.act button {margin: .2em}
+.act>* {margin: .2em !important}
 .dt-info {
   position: absolute;
   right: 0;

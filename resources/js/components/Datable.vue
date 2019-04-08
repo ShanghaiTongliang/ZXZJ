@@ -66,7 +66,7 @@ export default {
   components: {Edit, ComboBox, Pinyin, TableCell},
   render(h) {
     let tbl = [], head = [], body = [], th = [], bth = [], atd= [], hide = {}, c = this.table.caption instanceof Function ? this.table.caption.call(this.$parent) : this.table.caption, cols = this.table.columns
-    if(c || this.$slots.default)
+    if(c !== undefined || this.$slots.default)
       head.push(h('caption', [c ? h('span', {domProps: {innerHTML: c}}) : null, this.$slots.default]))
     if(cols) {
       let e
@@ -86,7 +86,7 @@ export default {
       }
       if(this.table.data && this.table.data.length) {
         for(let i = 0; i < this.table.data.length; i++) {
-          let row = this.table.data[i], td = []
+          let row = this.table.editingIndex !== undefined && this.table.editingIndex == i ? this.table.__tmp : this.table.data[i], td = []
           for(let j in cols) {
             let c = cols[j]
             if(!(c instanceof Object))
@@ -111,7 +111,7 @@ export default {
                 if(this.table.editingIndex == i) {
                   if(c.master && l)
                     l = f(c, l, row)
-                  d = c.render.call(this.$parent, h, this.table.__tmp, j, i, l)
+                  d = c.render.call(this.$parent, h, row, j, i, l)
                 } else
                   d = c.render.call(this.$parent, h, row, j, i, l)
                 td.push(h('td', p, d instanceof Object ? [d] : d))
@@ -161,24 +161,21 @@ export default {
                 }
               } else {  //编辑状态单元格
                 if(c.master && l)
-                  l = f(c, l, this.table.__tmp)
+                  l = f(c, l, row)
                 td.push(h('table-cell', {
                   props: {
-                    column: cols[j], value: this.table.__tmp[j], items: l, options: this.options
+                    column: cols[j], value: row[j], items: l, options: this.options
                   }, /*class: c.class, style: c.style,*/
                   on: {
                     input: d => {
-                      let r = this.table.__tmp, self = this
-                      r[j] = d
+                      let r = row
+                      row[j] = d
                       if(c.type == 'select' && this.slaves && this.slaves[j])
                         for(let s of this.slaves[j]) {
                           let sl = l.find(v => v[keyName] == r[j])
-                          if(sl && (sl = sl[s]) && sl.length)
-                            r[s] = sl[0][keyName]
-                          else
-                            r[s] = null
+                          r[s] = sl && (sl = sl[s]) && sl.length ? sl[0][keyName] : null
                         }
-                      c.onchange && c.onchange.call(this.$parent, d, i)
+                      c.onchange && c.onchange.call(this.$parent, d, i, r)
                     }
                   }
                 }))
@@ -248,7 +245,7 @@ export default {
         scroll: this.onScroll
       }}, [h('div', {style: {width: '200%', height: '200%'}})]),
       h('table', {staticClass: 'datable dt-head', ref: 'head'}, head),
-      h('table', {staticClass: 'datable', style: head.length > 1 ? {marginTop: '-2em'} : null}, tbl)
+      h('table', {staticClass: 'datable dt-body'}, tbl)
     ])
   },
   data: function() {

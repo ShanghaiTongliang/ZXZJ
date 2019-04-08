@@ -240,7 +240,7 @@ abstract class Base extends Decachable implements JsonSerializable {
     _getdb:
     try {
       $db = static::getDatabase();
-      $r = $db->exec('delete from ' . static::getTableName() . ' where ' . static::$primary . '=' . $this->{static::$primary});
+      $r = $db->exec('delete from `' . static::getTableName() . '` where ' . static::$primary . '=' . $this->{static::$primary});
     } catch(\Throwable $e) {
       if($e->getCode() == 2006)
         goto _getdb;

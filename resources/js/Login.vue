@@ -10,8 +10,8 @@
   <div>
     <div class="container">
       <form v-if="$route.name == 'login'" class="form" @submit.prevent="login">
-        用户名<input type="text" v-model="data.name"><br>
-        　密码<input type="password" v-model="data.password"><br>
+        用户名<input type="text" v-model="data.name"><div class="close" @click="clear"/><br>
+        　密码<input type="password" v-model="data.password"><div class="close" @click="clear"/><br>
         <label><input type="checkbox" v-model="data.remember">自动登录</label>
         <input type="submit" value="登录"><br>
         <a href="#/auth/register">注册</a> <a href="#/auth/reset">重置密码</a>
@@ -55,7 +55,7 @@ export default {
     ...mapState(['user'])
   },
   methods: {
-    ...mapMutations(['auth', 'loading']),
+    ...mapMutations(['auth', 'loading', 'message']),
     login() {
       this.loading(true)
       delete this.data.password_confirmation
@@ -80,11 +80,16 @@ export default {
       })
     },
     reset() {
-      axios.put('zxzj/api/user/' + this.user.id + '/password', this.data).then(r => {
-        console.log(r.data)
+      this.loading(true)
+      axios.post('zxzj/api/user/password', {name: this.data.name, action: 'apply'}).then(r => {
+        this.loading(false)
+        this.message('重置密码请求已发出, 请与管理员联系')
       }).catch(r => {
         this.err = r.response.data
       })
+    },
+    clear(e) {
+      e.target.previousSibling.value = ''
     }
   }
 }

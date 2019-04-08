@@ -46,6 +46,7 @@ export default {
       if(v) {
         this.menu[0].caption = this.user.name
         this.menu[0].icon = this.user.icon
+        this.menu[0].href = this.user.url
       }
     }
   },
