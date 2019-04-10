@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2019-04-10 19:26:59
+-- 生成日期： 2019-04-11 00:44:15
 -- 服务器版本： 10.3.13-MariaDB
 -- PHP 版本： 7.2.16
 
@@ -671,7 +671,7 @@ INSERT INTO `jiaoJianCount` (`id`, `month`, `cheJian`, `count`, `counts`) VALUES
 (7, '2019-03', 1, 22, '{}'),
 (8, '2018-12', 1, 45, '{}'),
 (9, '2019-02', 1, 333, '{}'),
-(10, '2019-04', 1, 11, '{\"0\":1,\"1\":2,\"2\":2,\"5\":0,\"6\":5,\"15\":1}');
+(10, '2019-04', 1, 1, '{\"0\":1}');
 
 -- --------------------------------------------------------
 
@@ -682,18 +682,16 @@ INSERT INTO `jiaoJianCount` (`id`, `month`, `cheJian`, `count`, `counts`) VALUES
 CREATE TABLE `peiJian` (
   `id` smallint(5) UNSIGNED NOT NULL,
   `name` varchar(64) DEFAULT NULL,
-  `xingHao` varchar(64) DEFAULT NULL,
-  `leiBie` tinyint(3) UNSIGNED DEFAULT NULL,
-  `danWei` varchar(16) DEFAULT NULL
+  `leiBie` tinyint(3) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- 转存表中的数据 `peiJian`
 --
 
-INSERT INTO `peiJian` (`id`, `name`, `xingHao`, `leiBie`, `danWei`) VALUES
-(1, '轴承', 'RD2', 2, '对'),
-(2, 'ff', 'ss', 1, 'ee');
+INSERT INTO `peiJian` (`id`, `name`, `leiBie`) VALUES
+(1, '轴承', 2),
+(2, 'ff', 1);
 
 -- --------------------------------------------------------
 
@@ -727,20 +725,21 @@ INSERT INTO `pingJia` (`id`, `poster`, `cheJian`, `title`, `detail`, `attachment
 CREATE TABLE `ruKuFuJian` (
   `id` int(10) UNSIGNED NOT NULL,
   `date` date DEFAULT NULL,
-  `peiJian` smallint(5) UNSIGNED DEFAULT NULL,
+  `xingHao` smallint(5) UNSIGNED DEFAULT NULL,
   `ruKuShuLiang` int(10) UNSIGNED DEFAULT NULL,
   `fuJianShuLiang` tinyint(3) UNSIGNED DEFAULT NULL,
   `bianHao` varchar(255) DEFAULT NULL,
   `jieGuo` tinyint(3) UNSIGNED DEFAULT NULL,
-  `user` smallint(5) UNSIGNED DEFAULT NULL
+  `user` smallint(5) UNSIGNED DEFAULT NULL,
+  `cheJian` tinyint(3) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- 转存表中的数据 `ruKuFuJian`
 --
 
-INSERT INTO `ruKuFuJian` (`id`, `date`, `peiJian`, `ruKuShuLiang`, `fuJianShuLiang`, `bianHao`, `jieGuo`, `user`) VALUES
-(1, '2019-03-08', 1, 5, 1, '111', 1, 3);
+INSERT INTO `ruKuFuJian` (`id`, `date`, `xingHao`, `ruKuShuLiang`, `fuJianShuLiang`, `bianHao`, `jieGuo`, `user`, `cheJian`) VALUES
+(1, '2019-03-08', 1, 5, 1, '111', 1, 3, 1);
 
 -- --------------------------------------------------------
 
@@ -780,6 +779,25 @@ INSERT INTO `user` (`id`, `name`, `password`, `token`, `groups`, `banZu`, `state
 (20, '张八', 'fdjPkQXbQxVaM', NULL, '[4]', 3, NULL),
 (21, '容工', 'fdjPkQXbQxVaM', NULL, '[254]', 3, NULL),
 (22, '123', '49a7DBHlRgrCQ', NULL, '[255]', 3, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `xingHao`
+--
+
+CREATE TABLE `xingHao` (
+  `id` smallint(5) UNSIGNED NOT NULL,
+  `name` varchar(64) DEFAULT NULL,
+  `peiJian` smallint(5) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `xingHao`
+--
+
+INSERT INTO `xingHao` (`id`, `name`, `peiJian`) VALUES
+(1, 'RD2', 1);
 
 -- --------------------------------------------------------
 
@@ -900,6 +918,12 @@ ALTER TABLE `user`
   ADD PRIMARY KEY (`id`);
 
 --
+-- 表的索引 `xingHao`
+--
+ALTER TABLE `xingHao`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- 表的索引 `xiuCheng`
 --
 ALTER TABLE `xiuCheng`
@@ -986,6 +1010,12 @@ ALTER TABLE `ruKuFuJian`
 --
 ALTER TABLE `user`
   MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- 使用表AUTO_INCREMENT `xingHao`
+--
+ALTER TABLE `xingHao`
+  MODIFY `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- 使用表AUTO_INCREMENT `xiuCheng`
