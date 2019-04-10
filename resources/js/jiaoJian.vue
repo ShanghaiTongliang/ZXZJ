@@ -3,6 +3,18 @@
   min-height: 5.5em;
   margin-bottom: .5em;
 }
+.jj-date {
+  display: inline-block;
+  margin: .1em;
+}
+.jj-date input {width: 2.5em !important}
+.jj-date input.gray:focus {background-color: white}
+.jj-date span {
+  width: 1.4em;
+  display: inline-block;
+  text-align: right;
+  margin-right: .1em;
+}
 </style>
 <script>
 import axios from 'axios'
@@ -113,7 +125,7 @@ export default {
         [h('a', {attrs: {href: '#/jiaoJian', class: 'act'}}, '返回')])
     }
     c = this.curCheJian
-    let pnl = h('div', [
+    let ds, pnl = h('div', [
     h('div', {class: 'group'}, [
       '单位 ', h('select', {attrs: {disabled: d}, on: {
         change: e => {
@@ -136,7 +148,7 @@ export default {
         change: e => this.month = e.target.value
       }}, months.map((m, i) => h('option', {attrs: {value: m}, domProps: {selected: this.month == m}, key: i}, m)))
     ]),
-    this.rn == 1 ? h('div', {class: 'group'}, ['检修总数 ', h('input', {
+    this.rn == 1 ? h('div', {class: 'group'}, `检修总数: ${this.count || 0}` /*['检修总数 ', h('input', {
       attrs: {type: 'number', min: 0, placeholder: '请输入', disabled: d},
       domProps: {value: t && t.count},
       on: {
@@ -148,7 +160,7 @@ export default {
         if(!isNaN(this.count)) {
           this.loading(true)
           console.log(this.cheJian)
-          axios.put('zxzj/api/jiaoJian/count', {cheJian: this.cheJian, month: this.month, count: this.count}).then(r => {
+          axios.put('api/jiaoJian/count', {cheJian: this.cheJian, month: this.month, count: this.count}).then(r => {
             if(!t) {
               t = {id: r.data.id, month: this.month}
               c.jiaoJian.push(t)
@@ -163,8 +175,21 @@ export default {
         } else
           this.error('请输入数量')
       }
-    }}, '保存')]) : null])
-    return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [pnl, gs, h('mission', {
+    }}, '保存')]*/) : null])
+    if(this.rn == 1) {
+      ds = ['日检修量']
+      for(let i = 0; i < this.dateCount; i++)
+        ds.push(h('div', {class: 'jj-date'}, [h('span', i + 1), h('input',
+          {attrs: {type: 'number', min: 0, id: i, class: this.counts[i] === undefined ? 'gray' : undefined}, domProps: {value: this.counts[i]}, on: {
+            input: this.countInput
+          }}
+        )]))
+      ds.push(h('button', {style: 'margin-left: .2em'}, '保存'))
+      ds = h('form', {class: 'group', style: 'text-align: left', on: {
+        submit: e => this.saveCount(e, t, c)
+      }}, ds)
+    }
+    return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [pnl, ds, gs, h('mission', {
       props: {mission: this.mission, role: this.role, editing: this.editingXiaFa}, on: {
         onEditing: v => {
           console.log(this, this.editingXiaFa)
@@ -179,7 +204,9 @@ export default {
       danWei: this.$store.state.danWei[0].id,
       cheJian: this.$store.state.danWei[0].cheJian[0].id,
       month: months[0],
+      dateCount: 0,
       count: undefined,
+      counts: {},
       editable: false,
       selection: null,
       mission: null,
@@ -196,7 +223,7 @@ export default {
           onclick(d) {
             if(confirm('是否下发不合格通知单 ?')) {
               this.loading(true)
-              axios.post(`zxzj/api/jiaoJian/${d.id}/chuLi`).then(r => {
+              axios.post(`api/jiaoJian/${d.id}/chuLi`).then(r => {
                 this.loading(false)
                 this.message('下发成功')
                 d.state = 1
@@ -227,7 +254,7 @@ export default {
           onclick(d) {
             this.saveFields(d, r => {
               this.loading(true)
-              axios.post('zxzj/api/jiaoJian', r).then(res => {
+              axios.post('api/jiaoJian', r).then(res => {
                 this.loading(false)
                 r.id = res.data
                 let b = this.dict.user[r.user].banZu
@@ -255,7 +282,13 @@ export default {
     },
     curMonth() {
       let r = this.curCheJian && this.curCheJian.jiaoJian.find(g => g.month == this.month)
-      this.count = r && r.count
+      if(r) {
+        this.count = r.count
+        this.counts = r.counts
+      } else {
+        this.count = 0
+        this.counts = {}
+      }
       return r
     },
     table() {
@@ -309,6 +342,7 @@ export default {
       immediate: true,
       handler(v) {
         let i, c = new Date(v.substr(0, 4), v.substr(5), 0).getDate()
+        this.dateCount = c
         colJiaoJian.date.min = `${v}-01`
         colJiaoJian.date.max = `${v}-${c}`
       }
@@ -320,6 +354,35 @@ export default {
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
+    countInput(e) {
+      if(e.target.value === '')
+        Vue.delete(this.counts, e.target.id)
+      else
+        Vue.set(this.counts, e.target.id, parseInt(e.target.value))
+    },
+    saveCount(e, t, c) {
+      e.preventDefault()
+      let n = 0
+      for(let d in this.counts)
+        n += this.counts[d]
+      this.count = n
+      if(c) {
+        this.loading(true)
+        axios.put('api/jiaoJian/count', {cheJian: this.cheJian, month: this.month, counts: this.counts}).then(r => {
+          if(!t) {
+            t = {id: r.data.id, month: this.month}
+            c.jiaoJian.push(t)
+          }
+          Vue.set(t, 'count', this.count)
+          this.loading(false)
+          this.message('保存成功')
+        }).catch(r => {
+          this.loading(false)
+          this.error(r.response.data)
+        })
+      } else
+        this.error('请输入数量')
+    },
     rowSelect(r) {
       this.selection = r
       this.editingXiaFa = false
@@ -345,7 +408,7 @@ export default {
     save(d, i, next) {
       this.saveFields(d, r => {
         this.loading(true)
-        axios.put(`zxzj/api/jiaoJian/${d.id}`, r).then(() => {
+        axios.put(`api/jiaoJian/${d.id}`, r).then(() => {
           this.loading(false)
           this.message('保存成功')
           next()
@@ -357,7 +420,7 @@ export default {
     },
     del(d, i, next) {
       if(confirm('确定要删除数据 ?')) {
-        axios.delete(`zxzj/api/jiaoJian/${d.id}`).then(() => {
+        axios.delete(`api/jiaoJian/${d.id}`).then(() => {
           this.loading(false)
           this.message('删除成功')
           next()

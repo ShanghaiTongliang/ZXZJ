@@ -132,7 +132,7 @@ export default {
       }}, months.map((m, i) => h('option', {attrs: {value: m}, domProps: {selected: this.month == m}, key: i}, m))),
       h('span', '数量'), h('input', {attrs: {type: 'number'}, domProps: {value: t && t.count}}),
       ' ', h('button', {on: {
-        click: e => axios.put('zxzj/api/jiaoJian/count', {}).then(r => {
+        click: e => axios.put('api/jiaoJian/count', {}).then(r => {
 
         }).catch(r => {
 
@@ -176,7 +176,7 @@ export default {
           caption: '保存',
           onclick(d) {
             this.saveFields(d, r => {
-              axios.post('zxzj/api/jiaoJian', r).then(res => {
+              axios.post('api/jiaoJian', r).then(res => {
                 r.id = res.data
                 fixJiaoJian.call(this.$store.state, r)
                 this.$store.state.jiaoJian.push(r)
@@ -186,7 +186,7 @@ export default {
               if(!this.list.length) {
                 let l = {}
                 l.guZhang = r.guZhang
-                axios.post('zxzj/api/standard/guZhangList', l).then(r => {
+                axios.post('api/standard/guZhangList', l).then(r => {
                   l.id = r.data
                   this.std.guZhangList.push(l)
                 }).catch(r => this.error(r.response.data))
@@ -279,7 +279,7 @@ export default {
           else
             if(confirm(`是否添加新的 故障: ${d.guZhang} ?`)) {
               this.loading(true)
-              a.push(axios.post(`zxzj/api/standard/guZhang`, d.guZhang).then(res => {
+              a.push(axios.post(`api/standard/guZhang`, d.guZhang).then(res => {
                 std.guZhang.push(res.data)
                 this.$store.state.dict.guZhang[res.data.id] = res.data
                 r.guZhang = res.data.id
@@ -293,7 +293,7 @@ export default {
     save(d, i, next) {
       this.saveFields(d, r => {
         this.loading(true)
-        axios.put(`zxzj/api/jiaoJian/${d.id}`, r).then(() => {
+        axios.put(`api/jiaoJian/${d.id}`, r).then(() => {
           this.loading(false)
           this.message('保存成功')
           next()
@@ -305,7 +305,7 @@ export default {
     },
     del(d, i, next) {
       if(confirm('确定要删除数据 ?')) {
-        axios.delete(`zxzj/api/jiaoJian/${d.id}`).then(() => {
+        axios.delete(`api/jiaoJian/${d.id}`).then(() => {
           this.loading(false)
           this.message('删除成功')
           next()

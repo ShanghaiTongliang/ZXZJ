@@ -43,7 +43,7 @@ columns = {
     caption: '状态',
     render(h, r, j) {
       let t = r[j]
-      return t && h('span', 
+      return t && h('span',
         {class: `${stateColor[r[j]]} url`, on: {
           click: () => {
             this.$parent.mission = this.$parent.$store.state.jiaoJianChuLi.find(g => g.id == r.id)
@@ -228,7 +228,7 @@ export default {
       if(this.banZu)
         q.banZu = this.banZu
       this.loading(true)
-      axios.post('zxzj/jiaoJian/query', q).then(res => {
+      axios.post('api/jiaoJian/query', q).then(res => {
         this.loading(false)
         res.data.forEach(g => this.$store.state.fixJiaoJian(g))
         this.tbl.data = res.data

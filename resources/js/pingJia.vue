@@ -137,7 +137,7 @@ export default {
         this.error('请输入内容')
       else {
         if(this.new)
-          this._save(axios.post, 'zxzj/api/pingJia', r => {
+          this._save(axios.post, 'api/pingJia', r => {
             this.pingJia.id = r.data.id
             this.$store.state.pingJia.push(this.pingJia)
             this.$router.push('/pingJia')
@@ -146,7 +146,7 @@ export default {
           let id = this.pingJia.id
           delete this.pingJia.id
           delete this.pingJia.url
-          this._save(axios.put, `zxzj/api/pingJia/${id}`, r => {
+          this._save(axios.put, `api/pingJia/${id}`, r => {
             for(let k in this.pingJia)
               this.curPingJia[k] = this.pingJia[k]
             this.$router.push(`/pingJia/${id}`)

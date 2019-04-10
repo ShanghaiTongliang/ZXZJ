@@ -35,12 +35,16 @@ class JiaoJianController extends Yaf\Controller_Abstract {
   function updateCountAction() {
     $a = json_decode(file_get_contents('php://input'));
     if($c = Table::open('cheJian')::find($a->cheJian)) {
-      if(!$c = Table::open('jiaoJianCount')::where(['month' => $a->month, 'cheJian' => $a->cheJian])->first()) {
-        $c = new Table('jiaoJianCount');
+      if(!$c = JiaoJianCountModel::where(['month' => $a->month, 'cheJian' => $a->cheJian])->first()) {
+        $c = new JiaoJianCountModel;
         $c->cheJian = $a->cheJian;
         $c->month = $a->month;
       }
-      $c->count = $a->count;
+      $t = 0;
+      foreach($a->counts as $n)
+        $t += $n;
+      $c->count = $t;
+      $c->counts = $a->counts;
       $c->save();
       echo json_encode(['id' => $c->id]);
     } else

@@ -98,7 +98,7 @@ export default {
               this.error(`${g.id}: ${g.name} 已经存在`)
             else {
               this.loading(true)
-              axios.post('zxzj/api/group', d).then(() => {
+              axios.post('api/group', d).then(() => {
                 this.groups.push(d)
                 this.groups.sort((a, b) => a.id - b.id)
                 this.$store.state.fixGroup(d)
@@ -146,7 +146,7 @@ export default {
             d.permission.forEach(v => p |= v)
             g.cheJian.push({id: d.id, permission: p})
             this.loading(true)
-            axios.put(`zxzj/api/group/${this.group.id}`, g).then(() => {
+            axios.put(`api/group/${this.group.id}`, g).then(() => {
               this.group.cheJian = g.cheJian
               this.loading(false)
               this.message('保存成功')
@@ -223,7 +223,7 @@ export default {
         this.error(`用户组 ${d.name} 已经存在`)
       else {
         this.loading(true)
-        axios.put(`zxzj/api/group/${d.id}`, {name: d.name}).then(() => {
+        axios.put(`api/group/${d.id}`, {name: d.name}).then(() => {
           this.loading(false)
           this.message('保存成功')
           next()
@@ -238,7 +238,7 @@ export default {
         this.error(`请先删除 ${d.name} 下所有用户`)
       else if(confirm(`确定要删除 ${d.name} ?`)) {
         this.loading(true)
-        axios.delete(`zxzj/api/group/${d.id}`).then(() => {
+        axios.delete(`api/group/${d.id}`).then(() => {
           this.loading(false)
           this.message('删除成功')
           next()
@@ -262,7 +262,7 @@ export default {
       cs[i].id = d.id
       cs[i].permission = p
       this.loading(true)
-      axios.put(`zxzj/api/group/${g.id}`, {cheJian: cs}).then(() => {
+      axios.put(`api/group/${g.id}`, {cheJian: cs}).then(() => {
         g.cheJian[i].id = cs[i].id
         g.cheJian[i].permission = cs[i].permission
         this.loading(false)
@@ -278,7 +278,7 @@ export default {
         this.loading(true)
         let c = [...this.group.cheJian]
         c.splice(i, 1)
-        axios.put(`zxzj/api/group/${this.group.id}`, {cheJian: c}).then(() => {
+        axios.put(`api/group/${this.group.id}`, {cheJian: c}).then(() => {
           this.group.cheJian.splice(i, 1)
           this.loading(false)
           this.message('保存成功')

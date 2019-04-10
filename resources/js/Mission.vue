@@ -99,7 +99,7 @@ export default {
         if(this.stage == checking) {
           this.loading(true)
           let d = {state: checkedin, chuLi: this.chuLi, chuLiRen: this.user.id, chuLiShiJian: t}
-          axios.put(`zxzj/api/jiaoJian/${g.id}/chuLi`, d).then(() => {
+          axios.put(`api/jiaoJian/${g.id}/chuLi`, d).then(() => {
             this.$store.state.jiaoJian.find(v => v.id == g.id).state = d.state
             for(let k in d)
               g[k] = d[k]
@@ -112,7 +112,7 @@ export default {
         } else {  //复检
           this.loading(true)
           let d = {state: this.fuJian, fuJianRen: this.user.id, fuJianShiJian: t}
-          axios.put(`zxzj/api/jiaoJian/${g.id}/chuLi`, d).then(() => {
+          axios.put(`api/jiaoJian/${g.id}/chuLi`, d).then(() => {
             this.$store.state.jiaoJian.find(v => v.id == g.id).state = d.state
             for(let k in d)
               g[k] = d[k]

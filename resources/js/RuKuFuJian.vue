@@ -89,7 +89,7 @@ export default {
           onclick(d) {
             if(this.check(d)) {
               this.loading(true)
-              axios.post('zxzj/api/ruKuFuJian', d).then(r => {
+              axios.post('api/ruKuFuJian', d).then(r => {
                 this.loading(false)
                 this.message('保存成功')
                 d.id = r.data.id
@@ -144,7 +144,7 @@ export default {
       if(this.from > this.to)
         this.from = this.to
       this.loading(true)
-      axios.post('zxzj/api/ruKuFuJian/query', {from: this.from, to: this.to}).then(r => {
+      axios.post('api/ruKuFuJian/query', {from: this.from, to: this.to}).then(r => {
         this.loading(false)
         r.data.forEach(d => this.$store.state.fixRuKuFuJian(d))
         this.$store.state.ruKuFuJian = r.data
@@ -169,7 +169,7 @@ export default {
         delete t.leiBie
         delete t.danWei
         columns.user.items = this.$store.state.users
-        axios.put(`zxzj/api/ruKuFuJian/${d.id}`, t).then(r => {
+        axios.put(`api/ruKuFuJian/${d.id}`, t).then(r => {
           this.loading(false)
           this.message('保存成功')
           this.$store.state.fixRuKuFuJian(d)

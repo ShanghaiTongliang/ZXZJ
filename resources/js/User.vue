@@ -90,6 +90,20 @@ export default {
       let r = this.users.filter(u => u.state == 1)
       this.tblReset.data = r
       return r
+    },
+    danWei() {
+      return [{
+        id: null,
+        name: '无',
+        cheJian: [{
+          id: null,
+          name: '无',
+          banZu: [{
+            id: null,
+            name: '无'
+          }]
+        }]
+      }, ...this.$store.state.danWei]
     }
   },
   watch: {
@@ -105,10 +119,10 @@ export default {
     ...mapMutations(['loading', 'message', 'error']),
     save(d, i, next, o) {
       this.loading(true)
-      axios.put(`zxzj/api/user/${d.id}`, {name: d.name, groups: d.groups, banZu: d.banZu}).then(res => {
+      axios.put(`api/user/${d.id}`, {name: d.name, groups: d.groups, banZu: d.banZu}).then(res => {
         this.loading(false)
         if(d.banZu != o.banZu) {
-          let f, t = this.dict.banZu[d.banZu].user
+          let f, t
           if(o.banZu !== null) {
             f = this.dict.banZu[o.banZu].user
             for(let i = 0; i < f.length; i++)
@@ -117,8 +131,11 @@ export default {
                 break
               }
           }
-          t.push(d)
-          t.sort((a, b) => a.id - b.id)
+          if(d.banZu) {
+            t = this.dict.banZu[d.banZu].user
+            t.push(d)
+            t.sort((a, b) => a.id - b.id)
+          }
         }
         next()
         this.message('保存成功')
@@ -130,7 +147,7 @@ export default {
     del(d, i, next) {
       if(confirm(`确定要删除用户 ${d.name} ?`)) {
         this.loading(true)
-        axios.delete(`zxzj/api/user/${d.id}`).then(res => {
+        axios.delete(`api/user/${d.id}`).then(res => {
           this.loading(false)
           this.message('删除成功')
           next()
@@ -143,7 +160,7 @@ export default {
     },
     resetPassword(action, d) {
       this.loading(true)
-      axios.post('zxzj/api/user/password', {action, id: d.id}).then(() => {
+      axios.post('api/user/password', {action, id: d.id}).then(() => {
         d.state = null
         this.loading(false)
         this.message('操作成功')
@@ -161,7 +178,7 @@ export default {
         this.error('新密码和确认密码不一致')
       else {
         this.loading(true)
-        axios.put(`zxzj/api/user/${this.$route.params.id}/password`, {
+        axios.put(`api/user/${this.$route.params.id}/password`, {
           id: this.curUser.id, previous: e.previous.value,
           password: e.password.value, password_confirmation: e.confirm.value
         }).then(r => {
@@ -176,7 +193,7 @@ export default {
   },
   created() {
     columns.groups.items = this.$store.state.groups
-    columns.danWei.items = this.$store.state.danWei
+    columns.danWei.items = this.danWei
   }
 }
 </script>

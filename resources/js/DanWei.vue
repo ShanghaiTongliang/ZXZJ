@@ -45,19 +45,25 @@ export default {
         this.tbl.caption = this.dict[tier[t]][p[ids[t]]].name
         a.push(h('a', {attrs: {href: `#${pre}`}}, '返回'))
       }
+      let u
       if(t < 2) {
         if(a.length)
           a.push(' ')
         a.push(h('a', {attrs: {href: `#${pre}${cur}/create`}}, `新建${names[n]}`))
         this.tbl.readonly = false
+        if(t >= 0) {
+          let us = this.$store.state.users.filter(u => u[tier[t]] == p[ids[t]])
+          this.tblUser.data = us
+          u = h('datable', {props: {table: this.tblUser}}, [h('div', {class: 'dt-info'}, `共${us.length}人`)])
+        }
       } else
         this.tbl.readonly = true
       columns.name.caption = names[n]
       this.tbl.data = this[n]
-      return h('moditable', {props: {table: this.tbl}, on: {
+      return h('div', [h('moditable', {props: {table: this.tbl}, on: {
         save: this.save,
         delete: this.del
-      }}, [h('div', {attrs: {class: 'act'}}, a)])
+      }}, [h('div', {attrs: {class: 'act'}}, a), h('div', {attrs: {class: 'dt-info'}}, `共${this[n].length}${names[tier[t + 1]]}`)]), u])
     }
   },
   data() {
@@ -66,6 +72,17 @@ export default {
         caption: null,
         columns,
         editingIndex: -1,
+        data: null
+      },
+      tblUser: {
+        caption: '全部用户',
+        columns: {
+          id: 'id',
+          name: {
+            caption: '用户名',
+            href: 'url'
+          }
+        },
         data: null
       },
       kv: {
@@ -81,7 +98,7 @@ export default {
               this.error(`${v.name} 已经存在`)
             else {
               this.loading(true)
-              axios.post(`zxzj/api${pre}${cur}`, v).then(res => {
+              axios.post(`api${pre}${cur}`, v).then(res => {
                 this.loading(false)
                 v.id = res.data.id
                 if(t >= 0)
@@ -143,7 +160,7 @@ export default {
         return
       }
       this.loading(true)
-      axios.put(`zxzj/api${pre}${cur}/${d.id}`, {name: d.name}).then(r => {
+      axios.put(`api${pre}${cur}/${d.id}`, {name: d.name}).then(r => {
         this.loading(false)
         this.message('保存成功')
         next()
@@ -160,7 +177,7 @@ export default {
         this.error(`请先删除 ${d.name} 内的所有${names[tier[t]]}`)
       else if(confirm(`确定要删除 ${d.name} ?`)) {
         this.loading(true)
-        axios.delete(`zxzj/api${pre}${cur}/${d.id}`).then(r => {
+        axios.delete(`api${pre}${cur}/${d.id}`).then(r => {
           this.loading(false)
           this.message('删除成功')
           next()
@@ -172,7 +189,7 @@ export default {
     },
     saveCheJian(d, i, next) {
       this.loading(true)
-      axios.put(`zxzj/api/danWei/${d.id}`, {name: d.name}).then(r => {
+      axios.put(`api/danWei/${d.id}`, {name: d.name}).then(r => {
         this.loading(false)
         this.message('保存成功')
         next()

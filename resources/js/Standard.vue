@@ -77,7 +77,7 @@ export default {
         save: (d, i, next) => {
           if(this.check(d, n, this.tbl[n].columns)) {
             this.loading(true)
-            axios.put(`zxzj/api/standard/${n}/${d.id}`, d).then(res => {
+            axios.put(`api/standard/${n}/${d.id}`, d).then(res => {
               this.loading(false)
               this.message('保存成功')
               next()
@@ -92,7 +92,7 @@ export default {
             this.error(`${names[n]}: ${d.name} 已被使用, 不能删除`)
           else if(confirm(`确定要删除 ${names[n]}: ${d.name} ?`)) {
             this.loading(true)
-            axios.delete(`zxzj/api/standard/${this.$route.name}/${d.id}`).then(res => {
+            axios.delete(`api/standard/${this.$route.name}/${d.id}`).then(res => {
               this.loading(false)
               this.message('删除成功')
               next()
@@ -121,7 +121,7 @@ export default {
             let n = this.type.name
             if(this.check(d, n, this.kv[n].columns)) {
               this.loading(true)
-              axios.post(`zxzj/api/standard/${n}/${d.id}`, d).then(r => {
+              axios.post(`api/standard/${n}/${d.id}`, d).then(r => {
                 this.loading(false)
                 this.message('保存成功')
                 d.id = r.data.id

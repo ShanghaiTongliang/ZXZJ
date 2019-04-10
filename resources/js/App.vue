@@ -28,7 +28,7 @@ export default {
         items: [{
           caption: '退出',
           onclick() {
-            axios.delete('zxzj/api/auth').then(() => {
+            axios.delete('api/auth').then(() => {
               let state = this.$store.state
               state.users = state.groups = state.user = null
               this.$router.replace('/auth/login')
@@ -57,7 +57,7 @@ export default {
     let id = parseInt(cookie.get('id'))
     if(id) {
       this.loading(true)
-      axios.get('zxzj/api/auth').then(res => {
+      axios.get('api/auth').then(res => {
         this.loading(false)
         this.auth({data: res.data, id})
       }).catch(res => {
