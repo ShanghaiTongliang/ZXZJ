@@ -13,7 +13,7 @@ import ComboBox from './ComboBox'
 import Pinyin from './Pinyin'
 
 export default {
-  props: ['column', 'value', 'items', 'options'],
+  props: ['id', 'column', 'value', 'items', 'options'],
   components: {Edit, ComboBox, Pinyin},
   render(h) {
     let c = this.column, r
@@ -96,7 +96,7 @@ export default {
         }})]
         break
       case 'int': case'number':
-        r = [h('input', {attrs: {id: this.key, type: 'number', min: c.min, max: c.max}, domProps: {value: this.value}, on: {
+        r = [h('input', {attrs: {id: this.id, type: 'number', min: c.min, max: c.max}, domProps: {value: this.value}, on: {
           input: c.type == 'int' ? e => {
             this.$emit('input', parseInt(e.target.value))
            } :
@@ -106,7 +106,7 @@ export default {
         }})]
         break
       default:
-        r = [h('input', {attrs: {id: this.key, type: c.type, min: c.min, max: c.max}, domProps: {value: this.value}, on: {
+        r = [h('input', {attrs: {id: this.id, type: c.type, min: c.min, max: c.max}, domProps: {value: this.value}, on: {
           input: e => this.$emit('input', e.target.value)
         }})]
       }

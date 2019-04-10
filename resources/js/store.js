@@ -8,7 +8,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    users: null, user: null, groups: null, danWei: null, std: null, jiaoJian: null, jiaoJianChuLi: null, rukuFuJian: null, pingJia: null, dict: null,
+    users: null, user: null, groups: null, danWei: null, std: null, jiaoJian: null, jiaoJianChuLi: null, ruKuFuJian: null, pingJia: null, dict: null,
     vertical: false, loading: false, message: null, error: false,
 
     fixJiaoJian(g) {
@@ -17,10 +17,9 @@ export default new Vuex.Store({
       g.dengJi = t.dengJi
     },
     fixRuKuFuJian(g) {
-      let t = this.dict.peiJian[g.peiJian]
-      g.xingHao = t.xingHao
-      g.leiBie = t.leiBie
-      g.danWei = t.danWei
+      let t = this.dict.xingHao[g.xingHao], p = this.dict.peiJian[t.peiJian]
+      g.peiJian = t.peiJian
+      g.leiBie = p.leiBie
     },
     fixPingJia(p) {
       p.url = `#/pingJia/${p.id}`
@@ -96,7 +95,15 @@ export default new Vuex.Store({
       dict.dengJi = {}
       dengJi.forEach(d => dict.dengJi[d.id] = d)
       dict.peiJian = {}
-      data.std.peiJian.forEach(p => dict.peiJian[p.id] = p)
+      dict.xingHao = {}
+      data.std.xingHao = []
+      data.std.peiJian.forEach(p => {
+        dict.peiJian[p.id] = p
+        p.xingHao.forEach(x => {
+          data.std.xingHao.push(x)
+          dict.xingHao[x.id] = x
+        })
+      })
       let t = []
       data.std.daBuWei = daBuWei
       data.std.daBuWei.forEach(d => d.guZhang.forEach(g => t.push(g)))

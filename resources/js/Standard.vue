@@ -12,7 +12,8 @@ const names = {
   cheZhong: '车种',
   daBuWei: '大部位',
   guZhang: '故障',
-  peiJian: '配件'
+  peiJian: '配件',
+  xingHao: '型号',
 },
 contain = {},
 columns = {
@@ -44,23 +45,21 @@ colGuZhang = {
     caption: '名称',
     type: 'text',
   },
-  xingHao: {
-    caption: '型号',
-    type: 'text'
-  },
-  id: 'id',
-  name: {
-    caption: '名称',
-    type: 'text',
-  },
   leiBie: {
     caption: '类别',
     type: 'select',
     items: peiJianLeiBie
-  },
-  danWei: {
-    caption: '单位',
+  }
+}, colXingHao = {
+  id: 'id',
+  name: {
+    caption: '名称',
     type: 'text'
+  },
+  peiJian: {
+    caption: '配件',
+    type: 'select',
+    items: null
   }
 }
 
@@ -88,7 +87,9 @@ export default {
           }
         },
         delete: (d, i, next) => {
-          if(this.$store.state[contain[n]].find(g => g[n] == d.id))
+          if(n == 'peiJian' && this.$store.state.dict.peiJian[d.id].xingHao.length)
+            this.error(`请先删除 ${d.name} 下所有 型号`)
+          else if(this.$store.state[contain[n]].find(g => g[n] == d.id))
             this.error(`${names[n]}: ${d.name} 已被使用, 不能删除`)
           else if(confirm(`确定要删除 ${names[n]}: ${d.name} ?`)) {
             this.loading(true)
@@ -142,6 +143,8 @@ export default {
     r.kv.guZhang.columns = colGuZhang
     r.tbl.peiJian.columns = colPeiJian
     r.kv.peiJian.columns = colPeiJian
+    r.tbl.xingHao.columns = colXingHao
+    r.kv.xingHao.columns = colXingHao
     return r
   },
   computed: {
@@ -174,9 +177,11 @@ export default {
   created() {
     colGuZhang.daBuWei.items = this.std.daBuWei
     colGuZhang.dengJi.items = this.std.dengJi
+    colXingHao.peiJian.items = this.std.peiJian
     for(let k in names)
       contain[k] = 'jiaoJian'
     contain.peiJian = 'ruKuFuJian'
+    contain.xingHao = 'ruKuFuJian'
   }
 }
 </script>

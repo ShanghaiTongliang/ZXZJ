@@ -3,7 +3,9 @@
 </style>
 <template>
   <div>
-    <side-menu id="nav" :menu="menu" :selection="selection" :width="140" @select="select"></side-menu>
+    <resizer :width="140">
+      <side-menu id="nav" :menu="menu" :selection="selection" @select="select"></side-menu>
+    </resizer>
     <keep-alive>
       <router-view v-if="$route.meta.keepAlive" class="container"></router-view>
     </keep-alive>
@@ -12,9 +14,10 @@
 </template>
 <script>
 import SideMenu from './components/SideMenu'
+import Resizer from './components/Resizer'
 
 export default {
-  components: {SideMenu},
+  components: {SideMenu, Resizer},
   data() {
     return {
       menu: [{
@@ -89,6 +92,10 @@ export default {
           name: 'peiJian',
           caption: '配件',
           href: '#/standard/peiJian'
+        }, {
+          name: 'xingHao',
+          caption: '型号',
+          href: '#/standard/xingHao'
         }]
       }],
       selection: null

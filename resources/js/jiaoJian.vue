@@ -118,7 +118,7 @@ export default {
       }
       if(this.rn > 2)
         on.rowSelect = this.rowSelect
-      gs = h('moditable', {attrs: {id: 'list'}, props: {table: this.table, selection: this.selection}, on}, [this.rn == 1 ? t ? h('a', {attrs: {href: '#/jiaoJian/create', class: 'act'}}, '新建') : h('div', {class: 'act'}, '请输入检修总数') : null, h('div', {class: 'dt-info'}, `${this.tbl.data.length}条记录`)])
+      gs = h('moditable', {attrs: {id: 'list'}, props: {table: this.table, selection: this.selection}, on}, [this.rn == 1 ? t && t.count ? h('a', {attrs: {href: '#/jiaoJian/create', class: 'act'}}, '新建') : h('div', {class: 'act'}, '请输入检修数量') : null, h('div', {class: 'dt-info'}, `${this.tbl.data.length}条记录`)])
     } else {
       d = true
       gs = h('kvtable', {props: {table: this.kv, vertical: this.$store.state.vertical}},
@@ -148,7 +148,7 @@ export default {
         change: e => this.month = e.target.value
       }}, months.map((m, i) => h('option', {attrs: {value: m}, domProps: {selected: this.month == m}, key: i}, m)))
     ]),
-    this.rn == 1 ? h('div', {class: 'group'}, `检修总数: ${this.count || 0}` /*['检修总数 ', h('input', {
+    this.rn == 1 ? h('div', {class: 'group'}, `检修总量: ${this.count || 0}` /*['检修总数 ', h('input', {
       attrs: {type: 'number', min: 0, placeholder: '请输入', disabled: d},
       domProps: {value: t && t.count},
       on: {
@@ -191,10 +191,7 @@ export default {
     }
     return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [pnl, ds, gs, h('mission', {
       props: {mission: this.mission, role: this.role, editing: this.editingXiaFa}, on: {
-        onEditing: v => {
-          console.log(this, this.editingXiaFa)
-          this.editingXiaFa = v
-        }
+        onEditing: v => this.editingXiaFa = v
       }, key: 'm'
     })])
   },

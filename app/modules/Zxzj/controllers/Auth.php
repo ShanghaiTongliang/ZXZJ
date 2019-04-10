@@ -42,6 +42,12 @@ class AuthController extends Yaf\Controller_Abstract {
           $b->user[] = $u->id;
           break;
         }
+    foreach($ps = Table::open('peiJian')::get() as $p)
+      $p->xingHao = [];
+    foreach(Table::open('xingHao')::get() as $x)
+      foreach($ps as $p)
+        if($x->peiJian == $p->id)
+          $p->xingHao[] = $x;
 
     $y = date('Y');
     $m = date('m');
@@ -63,7 +69,7 @@ class AuthController extends Yaf\Controller_Abstract {
       'std' => [
         'xiuCheng' => Table::open('xiuCheng')::get(),
         'cheZhong' => Table::open('cheZhong')::get(),
-        'peiJian' => Table::open('peiJian')::get()
+        'peiJian' => $ps,
       ],
       'jiaoJian' => Table::open('jiaoJian')::where("date >= '$y0-$m0-01' and date <= '$y-$m-$d'")->get(),
       'ruKuFuJian' => Table::open('ruKuFuJian')::where("date = '$t'")->get(),

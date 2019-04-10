@@ -33,6 +33,7 @@ export default {
           return r
         },
         onclick(d, i) {
+          event.preventDefault()
           Vue.set(p.table, '__tmp', clone(p.table.data[i]))
           Vue.set(p.table, 'editingIndex', i)
           if(ctx.listeners.edit)
@@ -42,17 +43,6 @@ export default {
         caption: '保存',
         condition(d, i) {
           return p.table.editingIndex == i
-        },
-        onclick(d, i) {
-          const save = function() {
-            p.table.editingIndex = -1
-            Vue.set(p.table.data, i, p.table.__tmp)
-            p.table.__tmp = null
-          }
-          if(ctx.listeners.save)
-            ctx.listeners.save(p.table.__tmp, i, save, p.table.data[i])
-          else
-            save()
         }
       }, {
         caption: '取消',
@@ -60,6 +50,7 @@ export default {
           return p.table.editingIndex == i
         },
         onclick(d, i) {
+          event.preventDefault()
           if(ctx.listeners.cancel)
             ctx.listeners.cancel(d, i)
           p.table.__tmp = null
@@ -71,6 +62,7 @@ export default {
           return p.table.__moditable.editable
         },
         onclick(d, i) {
+          event.preventDefault()
           const del = () => {
             p.table.data.splice(i, 1)
           }
@@ -81,7 +73,21 @@ export default {
         }
       }])
     }
-    return h('datable', {...ctx.data, props: {table: p.table, selection: p.selection}}, ctx.children)
+    return h('datable', {...ctx.data, props: {outer: 'form', table: p.table, selection: p.selection}, on: {
+      submit: () => {
+        event.preventDefault()
+        let i = p.table.editingIndex
+        const save = function() {
+          Vue.set(p.table.data, i, p.table.__tmp)
+          p.table.editingIndex = -1
+          p.table.__tmp = null
+        }
+        if(ctx.listeners.save)
+          ctx.listeners.save(p.table.__tmp, i, save, p.table.data[i])
+        else
+          save()
+      }
+    }}, ctx.children)
   }
 }
 </script>

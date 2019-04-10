@@ -3,6 +3,13 @@
     <div>
       <div class="group">从 <input type="month" v-model="from" :disabled="editing"> 到 <input type="month" v-model="to" :disabled="editing"></div> <button @click="query" :disabled="editing">查询</button>
     </div>
+    <br>
+    <br>
+    复检以谁为单位 ？
+    <br>
+    <br>
+    <br>
+    <br>
     <moditable :table="tbl" @edit="edit" @cancel="cancel" @save="save" @delete="del">
       <a href="#/ruKuFuJian/create" class="act">新建</a>
       <span class="dt-info">{{`${this.$store.state.ruKuFuJian.length}条记录`}}</span>
@@ -14,7 +21,7 @@
 
 <script>
 import axios from 'axios'
-import {mapMutations} from 'vuex'
+import {mapMutations, mapState} from 'vuex'
 import Datable from './components/Datable'
 import Kvtable from './components/Kvtable'
 import Moditable from './components/Moditable'
@@ -28,14 +35,21 @@ const columns = {
   peiJian: {
     caption: '配件名称',
     type: 'select',
-    items: null
+    itemName: 'xingHao',
+    items: null,
+    onchange(d, i, r) {
+      r.leiBie = this.dict.peiJian[d].leiBie
+    }
   },
-  xingHao: '型号',
+  xingHao: {
+    caption: '型号',
+    type: 'select',
+    master: ['peiJian']
+  },
   leiBie: {
     caption: '类别',
     items: peiJianLeiBie
   },
-  danWei: '单位',
   ruKuShuLiang: {
     caption: '入库数量',
     type: 'int',
@@ -105,13 +119,14 @@ export default {
     }
   },
   computed: {
+    ...mapState(['dict']),
     editing() {
       return this.tbl.editingIndex >= 0
     },
     users() {
       let c = this.$store.state.user.cheJian, r = []
       if(c) {
-        c = this.$store.state.dict.cheJian[c]
+        c = this.dict.cheJian[c]
         c.banZu.forEach(b => b.user.forEach(u => r.push(u)))
       }
       return r

@@ -152,6 +152,13 @@ export default [{
         name: 'createPeiJian',
         path: 'create'
       }]
+    }, {
+      name: 'xingHao',
+      path: 'xingHao',
+      children: [{
+        name: 'createXingHao',
+        path: 'create'
+      }]
     }]
   }]
 }]

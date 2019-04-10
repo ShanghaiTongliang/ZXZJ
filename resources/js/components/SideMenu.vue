@@ -3,15 +3,13 @@
   flex-grow: 1;
   overflow: auto;
 }
+.side-menu>li>span, .side-menu>li>a {padding: .5em}
 .side-menu .menu {margin: 0 0 0 1.5em}
 .click {cursor: pointer}
 </style>
 <script>
-import Resizer from './Resizer'
-
 export default {
-  components: {Resizer},
-  props: ['menu', 'selection', 'width', 'right'],
+  props: ['menu', 'selection'],
   render(h) {
     let p = this.$parent, r = (menu, f) => {
       return h('ul', {class: ['menu', f && 'side-menu']}, menu.filter(mi => mi.condition === undefined || mi.condition instanceof Function && mi.condition.call(p) || mi.condition)
@@ -27,7 +25,12 @@ export default {
           ct = 'a'
           ca = {attrs: {href: mi.href}}
         }
-        ca.class = {deny: !(mi.onclick || mi.href), select: this.sel == mi}
+        ca.class = {select: this.sel == mi}
+        if(!(mi.onclick || mi.href))
+          if(mi.caption === undefined)
+            ca.class.split = true
+          else
+            ca.class.deny = true
         ca.on = {
           click: e => {
             if(mi.onclick || mi.href) {
@@ -41,7 +44,7 @@ export default {
         return h('li', {key: i}, [h(ct, ca, c), mi.items && r(mi.items)])
       }))
     }
-    return h('resizer', {props: {width: this.width, right: this.right}}, [this.$slots.header, r(this.menu, true), this.$slots.footer])
+    return r(this.menu, true)
   },
   data() {
     return {

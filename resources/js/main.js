@@ -4,7 +4,7 @@ import router from './router'
 import store from './store'
 import App from './App'
 import './components/date'
-import orientation from './orientation'
+import orientation from './components/orientation'
 
 axios.defaults.headers.common = {
   'X-Requested-With': 'XMLHttpRequest',

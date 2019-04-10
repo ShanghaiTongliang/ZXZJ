@@ -3,7 +3,7 @@
   display: flex;
   transition: all .2s;
 }
-.resizer-box>div:first-child {
+.resizer-content {
   display: flex;
   flex-direction: column;
   overflow: auto;
@@ -62,7 +62,7 @@ export default {
     if(this.contentStyle)
       for(let k in this.contentStyle)
         t[k] = this.contentStyle[k]
-    s = h('div', {style: t}, this.$slots.default)
+    s = h('div', {style: t, class: 'resizer-content'}, this.$slots.default)
     m = h('div', {class: 'resizer', on: mobile() ? {
       touchstart: this.touchstart
     } : {
@@ -71,6 +71,10 @@ export default {
       mousedown: e => {
         e.stopPropagation()
         this.v = !this.v
+        if(this.v && this.collapsed) {
+          this.w = 100
+          this.collapsed = false
+        }
         this.$emit('visible', this.v)
       }
     }}, this.v ^ this.right ? '<' : '>')])
@@ -121,8 +125,8 @@ export default {
       if(this.move) {
         this.move = false
         if(this.w < 50) {
-          this.w = 50
           this.$emit('visible', this.v = false)
+          this.collapsed = true
         }
         this.$emit('resize', this.w + 'px')
       }

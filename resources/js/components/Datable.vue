@@ -11,13 +11,11 @@
 .asc {
   width: 16px;
   height: 16px;
-  display: inline-block;
   background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjgiIGZpbGw9ImdyZWVuIi8+CiAgPHBvbHlnb24gcG9pbnRzPSI4LDIgMTQsMTEgMiwxMSIgc3R5bGU9ImZpbGw6d2hpdGUiLz4KPC9zdmc+);
 }
 .desc {
   width: 16px;
   height: 16px;
-  display: inline-block;
   background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjgiIGZpbGw9ImdyZWVuIi8+CiAgPHBvbHlnb24gcG9pbnRzPSI4LDE0IDE0LDUgMiw1IiBzdHlsZT0iZmlsbDp3aGl0ZSIvPgo8L3N2Zz4=);
 }
 </style>
@@ -30,7 +28,7 @@ import Pinyin from './Pinyin'
 import TableCell from './TableCell'
 
 export default {
-  props: ['table', 'selection'],
+  props: ['outer', 'table', 'selection'],
   /*
   table: {
     caption: 标题
@@ -164,18 +162,18 @@ export default {
                   l = f(c, l, row)
                 td.push(h('table-cell', {
                   props: {
-                    column: cols[j], value: row[j], items: l, options: this.options
+                    id: j, column: cols[j], value: row[j], items: l, options: this.options
                   }, /*class: c.class, style: c.style,*/
                   on: {
                     input: d => {
-                      let r = row
+                      let _this = this
                       row[j] = d
                       if(c.type == 'select' && this.slaves && this.slaves[j])
                         for(let s of this.slaves[j]) {
-                          let sl = l.find(v => v[keyName] == r[j])
-                          r[s] = sl && (sl = sl[s]) && sl.length ? sl[0][keyName] : null
+                          let sl = l.find(v => v[keyName] == row[j])
+                          Vue.set(row, s, sl && (sl = sl[c.itemName || s]) && sl.length ? sl[0][keyName] : null)
                         }
-                      c.onchange && c.onchange.call(this.$parent, d, i, r)
+                      c.onchange && c.onchange.call(this.$parent, d, i, row)
                     }
                   }
                 }))
@@ -235,8 +233,9 @@ export default {
       tbl.push(h('tbody', this.table.data && this.table.data.map(
         (r, i) => h('tr', {key: i}, r && r.map((c, j) => h('td', {domProps: c, key: j})))
       )))
-    return h('div', {staticClass: 'dt-out',
+    return h(this.outer || 'div', {staticClass: 'dt-out',// attrs: {autocomplete: true},
       on: {
+        submit: e => this.$emit('submit'),
         scroll: e => this.$emit('scroll', e, e.target.clientHeight, e.target.scrollTop, e.target.clientHeight),
       }}, [h('div', {ref: 'r1', attrs: {class: 'dt-resize'}, on: {
         scroll: this.onScroll
