@@ -2,17 +2,33 @@
 #list {
   min-height: 5.5em;
   margin-bottom: .5em;
+  flex-grow: 1;
 }
+.jj-calendar {
+  text-align: left;
+  width: 24em;
+  margin: .1em auto;
+}
+.jj-calendar>* {margin: .1em}
 .jj-date {
+  text-align: center;
   display: inline-block;
-  margin: .1em;
+  width: 3.2em;
 }
-.jj-date input {width: 2.5em !important}
+.jj-date input {
+  width: 1.5em !important;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.jj-date input::-webkit-inner-spin-button, .jj-date input::-webkit-outer-spin-button {-webkit-appearance: none}
+.jj-date input.gray {
+  border: 1px inset;
+  padding: 2px 1px;
+}
 .jj-date input.gray:focus {background-color: white}
 .jj-date span {
   width: 1.4em;
   display: inline-block;
-  text-align: right;
   margin-right: .1em;
 }
 </style>
@@ -148,46 +164,22 @@ export default {
         change: e => this.month = e.target.value
       }}, months.map((m, i) => h('option', {attrs: {value: m}, domProps: {selected: this.month == m}, key: i}, m)))
     ]),
-    this.rn == 1 ? h('div', {class: 'group'}, `检修总量: ${this.count || 0}` /*['检修总数 ', h('input', {
-      attrs: {type: 'number', min: 0, placeholder: '请输入', disabled: d},
-      domProps: {value: t && t.count},
-      on: {
-        input: e => this.count = parseInt(e.target.value)
-      }
-    }),
-    ' ', h('button', {attrs: {disabled: d}, on: {
-      click: e => {
-        if(!isNaN(this.count)) {
-          this.loading(true)
-          console.log(this.cheJian)
-          axios.put('api/jiaoJian/count', {cheJian: this.cheJian, month: this.month, count: this.count}).then(r => {
-            if(!t) {
-              t = {id: r.data.id, month: this.month}
-              c.jiaoJian.push(t)
-            }
-            Vue.set(t, 'count', this.count)
-            this.loading(false)
-            this.message('保存成功')
-          }).catch(r => {
-            this.loading(false)
-            this.error(r.response.data)
-          })
-        } else
-          this.error('请输入数量')
-      }
-    }}, '保存')]*/) : null])
+    this.rn == 1 ? h('div', {class: 'group'}, `检修总量: ${this.count || 0}`) : null])
     if(this.rn == 1) {
-      ds = ['日检修量']
-      for(let i = 0; i < this.dateCount; i++)
+      ds = ['一', '二', '三', '四', '五', '六', '日'].map(t => h('div', {class: 'jj-date'}, t))
+      let i, d = (new Date(`${this.month}-01`)).getDay()
+      for(i = 1; i < d; i++)
+        ds.push(h('div', {class: 'jj-date'}))
+      for(i = 0; i < this.dateCount; i++)
         ds.push(h('div', {class: 'jj-date'}, [h('span', i + 1), h('input',
           {attrs: {type: 'number', min: 0, id: i, class: this.counts[i] === undefined ? 'gray' : undefined}, domProps: {value: this.counts[i]}, on: {
             input: this.countInput
           }}
         )]))
-      ds.push(h('button', {style: 'margin-left: .2em'}, '保存'))
-      ds = h('form', {class: 'group', style: 'text-align: left', on: {
+      ds.push(h('button', {style: 'float: right'}, '保存'))
+      ds = h('div', {style: 'display: flex; margin: auto; flex-shrink: 0'}, [h('div', {style: 'width: 1.8em; display: inline-block'}, '日检修量'), h('form', {class: 'group jj-calendar', on: {
         submit: e => this.saveCount(e, t, c)
-      }}, ds)
+      }}, ds)])
     }
     return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [pnl, ds, gs, h('mission', {
       props: {mission: this.mission, role: this.role, editing: this.editingXiaFa}, on: {
@@ -371,6 +363,7 @@ export default {
             c.jiaoJian.push(t)
           }
           Vue.set(t, 'count', this.count)
+          Vue.set(t, 'counts', this.counts)
           this.loading(false)
           this.message('保存成功')
         }).catch(r => {

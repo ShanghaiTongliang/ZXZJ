@@ -76,7 +76,11 @@ export default {
         save: (d, i, next) => {
           if(this.check(d, n, this.tbl[n].columns)) {
             this.loading(true)
-            axios.put(`api/standard/${n}/${d.id}`, d).then(res => {
+            let t = {...d}
+            delete t.id
+            if(n == 'peiJian')
+              delete t.xingHao
+            axios.put(`api/standard/${n}/${d.id}`, t).then(res => {
               this.loading(false)
               this.message('保存成功')
               next()

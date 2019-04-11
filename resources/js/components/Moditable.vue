@@ -86,7 +86,8 @@ export default {
           ctx.listeners.save(p.table.__tmp, i, save, p.table.data[i])
         else
           save()
-      }
+      },
+      rowSelect: (r, i) => ctx.listeners.rowSelect && ctx.listeners.rowSelect(r, i)
     }}, ctx.children)
   }
 }
