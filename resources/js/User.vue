@@ -41,15 +41,9 @@ const columns = {
     items: null
   },
   cheJian: {
-    caption: '车间',
+    caption: '作业场',
     type: 'select',
-    itemName: 'banZu',
     master: ['danWei']
-  },
-  banZu: {
-    caption: '班组',
-    type: 'select',
-    master: ['danWei', 'cheJian']
   }
 }
 
@@ -97,11 +91,7 @@ export default {
         name: '无',
         cheJian: [{
           id: null,
-          name: '无',
-          banZu: [{
-            id: null,
-            name: '无'
-          }]
+          name: '无'
         }]
       }, ...this.$store.state.danWei]
     }
@@ -119,20 +109,20 @@ export default {
     ...mapMutations(['loading', 'message', 'error']),
     save(d, i, next, o) {
       this.loading(true)
-      axios.put(`api/user/${d.id}`, {name: d.name, groups: d.groups, banZu: d.banZu}).then(res => {
+      axios.put(`api/user/${d.id}`, {name: d.name, groups: d.groups, cheJian: d.cheJian}).then(res => {
         this.loading(false)
-        if(d.banZu != o.banZu) {
+        if(d.cheJian != o.cheJian) {
           let f, t
-          if(o.banZu !== null) {
-            f = this.dict.banZu[o.banZu].user
+          if(o.cheJian !== null) {
+            f = this.dict.cheJian[o.cheJian].user
             for(let i = 0; i < f.length; i++)
               if(f[i].id == o.id) {
                 f.splice(i, 1)
                 break
               }
           }
-          if(d.banZu) {
-            t = this.dict.banZu[d.banZu].user
+          if(d.cheJian) {
+            t = this.dict.cheJian[d.cheJian].user
             t.push(d)
             t.sort((a, b) => a.id - b.id)
           }

@@ -39,6 +39,7 @@ import {mapState, mapMutations} from 'vuex'
 import Datable from './components/Datable'
 import Kvtable from './components/Kvtable'
 import Moditable from './components/Moditable'
+import ChejianMonth from './ChejianMonth'
 import Mission from './Mission'
 import {PERMISSION_DATA, stateColor, chuLiStates} from './global'
 
@@ -46,9 +47,7 @@ const colJiaoJian = {
   date: {
     caption: '日期',
     //class: 'dt-nowrap',
-    type: 'date',
-    min: null,
-    max: null
+    type: 'date'
   },
   cheHao: {
     caption: '车号',
@@ -94,35 +93,15 @@ const colJiaoJian = {
       return t && `<span class="${stateColor[t]}">${chuLiStates.find(s => s.id == t).name}</span>`
     }
   },
-  banZu: {
-    caption: '班组',
-    type: 'select',
-    itemName: 'user',
-    items: null
-  },
   user: {
     caption: '质检员',
     type: 'select',
-    master: ['banZu'],
     items: null
   }
-}, months = []
-
-function init() {
-  let d = new Date, y = d.getFullYear(), m = d.getMonth() + 1
-  for(let i = 0; i < 12; i++) {
-    months.push(`${y}-${m > 9 ? m : '0' + m}`)
-    if(m > 1) m--
-    else {
-      m = 12
-      y--
-    }
-  }
 }
-init()
 
 export default {
-  components: {Datable, Kvtable, Moditable, Mission},
+  components: {Datable, Kvtable, Moditable, ChejianMonth, Mission},
   render(h) {
     let gs, c, d, on, t = this.curMonth
     if(this.rn) {
@@ -141,30 +120,7 @@ export default {
         [h('a', {attrs: {href: '#/jiaoJian', class: 'act'}}, '返回')])
     }
     c = this.curCheJian
-    let ds, pnl = h('div', [
-    h('div', {class: 'group'}, [
-      '单位 ', h('select', {attrs: {disabled: d}, on: {
-        change: e => {
-          this.danWei = parseInt(e.target.value)
-          this.cheJian = this.curDanWei.cheJian[0].id
-        }
-      }}, this.$store.state.danWei && this.$store.state.danWei.map(
-        (d, i) => h('option', {attrs: {value: d.id}, domProps: {selected: this.danWei == d.id}, key: i}, d.name)
-      ))
-    ]),
-    h('div', {class: 'group'}, [
-      '车间 ', h('select', {attrs: {disabled: d}, on: {
-        change: e => this.cheJian = parseInt(e.target.value)
-      }}, this.curDanWei && this.curDanWei.cheJian.map(
-        (c, i) => h('option', {attrs: {value: c.id}, domProps: {selected: this.cheJian == c.id}, key: i}, c.name)
-      ))
-    ]),
-    h('div', {class: 'group'}, [
-      '月份 ', h('select', {attrs: {disabled: d}, on: {
-        change: e => this.month = e.target.value
-      }}, months.map((m, i) => h('option', {attrs: {value: m}, domProps: {selected: this.month == m}, key: i}, m)))
-    ]),
-    this.rn == 1 ? h('div', {class: 'group'}, `检修总量: ${this.count || 0}`) : null])
+    let ds
     if(this.rn == 1) {
       ds = ['一', '二', '三', '四', '五', '六', '日'].map(t => h('div', {class: 'jj-date'}, t))
       let i, d = (new Date(`${this.month}-01`)).getDay()
@@ -172,7 +128,7 @@ export default {
         ds.push(h('div', {class: 'jj-date'}))
       for(i = 0; i < this.dateCount; i++)
         ds.push(h('div', {class: 'jj-date'}, [h('span', i + 1), h('input',
-          {attrs: {type: 'number', min: 0, id: i, class: this.counts[i] === undefined ? 'gray' : undefined}, domProps: {value: this.counts[i]}, on: {
+          {attrs: {type: 'number', min: 0, step: 1, id: i, class: this.counts[i] === undefined ? 'gray' : undefined}, domProps: {value: this.counts[i]}, on: {
             input: this.countInput
           }}
         )]))
@@ -181,18 +137,27 @@ export default {
         submit: e => this.saveCount(e, t, c)
       }}, ds)])
     }
-    return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [pnl, ds, gs, h('mission', {
-      props: {mission: this.mission, role: this.role, editing: this.editingXiaFa}, on: {
-        onEditing: v => this.editingXiaFa = v
-      }, key: 'm'
-    })])
+    return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [
+      h('chejian-month', {props: {
+        danWei: this.danWei, cheJian: this.cheJian,
+        month: this.month, disabled: d, state: this.$store.state
+      }, on: {
+        cheJianChanged: this.cheJianChanged,
+        monthChanged: this.monthChanged
+      }}, this.rn == 1 ? [h('div', {class: 'group'}, `检修总量: ${this.count || 0}`)] : null
+), ds, gs, h('mission', {
+        props: {mission: this.mission, role: this.role, editing: this.editingXiaFa}, on: {
+          onEditing: v => this.editingXiaFa = v
+        }, key: 'm'
+      })
+    ])
   },
   data() {
     return {
       rn: null,
       danWei: this.$store.state.danWei[0].id,
       cheJian: this.$store.state.danWei[0].cheJian[0].id,
-      month: months[0],
+      month: null,
       dateCount: 0,
       count: undefined,
       counts: {},
@@ -246,7 +211,6 @@ export default {
               axios.post('api/jiaoJian', r).then(res => {
                 this.loading(false)
                 r.id = res.data
-                let b = this.dict.user[r.user].banZu
                 this.$store.state.fixJiaoJian(r)
                 this.$store.state.jiaoJian.push(r)
                 this.message('新建成功')
@@ -288,7 +252,7 @@ export default {
         this.selection = d.length ? d[0] : null
       }
       this.tbl.data = d
-      colJiaoJian.banZu.items = this.curCheJian && this.curCheJian.banZu
+      colJiaoJian.user.items = this.curCheJian && this.curCheJian.user
       return this.tbl
     },
     missions() {
@@ -327,15 +291,6 @@ export default {
         colJiaoJian.dengJi.items = v.dengJi
       },
     },
-    month: {
-      immediate: true,
-      handler(v) {
-        let i, c = new Date(v.substr(0, 4), v.substr(5), 0).getDate()
-        this.dateCount = c
-        colJiaoJian.date.min = `${v}-01`
-        colJiaoJian.date.max = `${v}-${c}`
-      }
-    },
     selection(g) {
       this.mission = g && this.$store.state.jiaoJianChuLi.find(c => c.id == g.id)
       this.editingXiaFa = false
@@ -343,11 +298,23 @@ export default {
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
+    cheJianChanged(d, c) {
+      this.danWei = d
+      this.cheJian = c
+    },
+    monthChanged(m) {
+      this.month = m
+      this.dateCount = new Date(m.substr(0, 4), m.substr(5), 0).getDate()
+    },
     countInput(e) {
-      if(e.target.value === '')
-        Vue.delete(this.counts, e.target.id)
+      let v
+      if(e.target.validity.valid)
+        if(e.target.value === '')
+          Vue.delete(this.counts, e.target.id)
+        else
+          !isNaN(v = parseInt(e.target.value)) && Vue.set(this.counts, e.target.id, v)
       else
-        Vue.set(this.counts, e.target.id, parseInt(e.target.value))
+        e.target.form.reportValidity()
     },
     saveCount(e, t, c) {
       e.preventDefault()

@@ -51,9 +51,9 @@ export default {
           href: '#/ruKuFuJian/chuZhi'
         }]
       }, {
-        name: 'jiaoJianGuZhang',
+        name: 'jiaoJianFenXi',
         caption: '故障分析',
-        href: '#/jiaoJianGuZhang'
+        href: '#/jiaoJianFenXi'
       }, {
         name: 'pingJias',
         caption: '质检员工作评价',

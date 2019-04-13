@@ -71,7 +71,7 @@ export default {
                         else
                           Vue.set(row, s, null)
                       }
-                    c.onchange && c.onchange.call(this.$parent, d, i)
+                    c.onchange && c.onchange.call(this.$parent, d, i, row)
                   }
                 }}))
               } else {
@@ -100,7 +100,7 @@ export default {
           th.push('操作')
           td.push(h('td', a.map((a, j) => a.href && row[a.href] ? h('a', {domProps: {href: row[a.href]}, key: j}, a.caption) : h('button', {
             on: {
-            click: () => a.onclick && a.onclick.call(this.$parent, row)
+            click: () => this.next = a.onclick
           }, key: j, domProps: {innerHTML: a.caption}}))))
         }
       }
@@ -121,7 +121,12 @@ export default {
       r.push(h('thead', [h('tr', th.map(th => h('th', th)))]))
       r.push(h('tbody', [h('tr', td)]))
     }
-    return h('div', {class: {'dt-out': true}}, [h('table', {class: {datable: true, 'kv-ver': this.vertical}}, r)])
+    return h('form', {class: {'dt-out': true}, on: {
+      submit: e => {
+        e.preventDefault()
+        this.next && this.next.call(this.$parent, row)
+      }
+    }}, [h('table', {class: {datable: true, 'kv-ver': this.vertical}}, r)])
   },
   data() {
     return {
@@ -133,7 +138,8 @@ export default {
           keyName: 'id',
           valueName: 'name'
         }
-      }, this.table.options)
+      }, this.table.options),
+      next: null
     }
   },
   computed: {

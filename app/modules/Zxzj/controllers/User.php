@@ -79,4 +79,16 @@ class UserController extends Yaf\Controller_Abstract {
     }
     response(_('user does not exists'));
   }
+
+  function upgradeAction() {
+    $bs = [];
+    foreach(Table::open('banZu')::get() as $b)
+      $bs[$b->id] = $b;
+    foreach(UserModel::get() as $u) {
+      if($u->banZu) {
+        $u->cheJian = $bs[$u->banZu]->cheJian;
+        $u->save();
+      }
+    }
+  }
 }

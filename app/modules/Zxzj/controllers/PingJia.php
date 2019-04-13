@@ -27,6 +27,6 @@ class PingJiaController extends Yaf\Controller_Abstract {
       $p->delete();
       $p::resetAutoIncrement();
     } else
-      response(_('pingJia not found'));    
+      response(_('pingJia not found'));
   }
 }

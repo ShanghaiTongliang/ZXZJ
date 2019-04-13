@@ -20,7 +20,7 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
     //本地化
     Language::addTranslation([
       'danWei' => '单位',
-      'cheJian' => '车间',
+      'cheJian' => '作业场',
       'banZu' => '班组',
       'previous' => '原密码',
       'format incorrect' => '格式错误',
@@ -34,8 +34,8 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
       'standard type not found' => '标准类型未找到',
       'danWei not found' => '单位未找到',
       'danWei %s already already exists' => '单位 %s 已经存在',
-      'cheJian not found' => '车间未找到',
-      'cheJian %s already already exists' => '车间 %s 已经存在',
+      'cheJian not found' => '作业场未找到',
+      'cheJian %s already already exists' => '作业场 %s 已经存在',
       'banZu not found' => '班组未找到',
       'banZu %s already already exists' => '班组 %s 已经存在',
       'please delete all subitems first' => '请先删除所有子项目',
@@ -73,6 +73,10 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
       $p['controller'] = 'user';
       $p['action'] = 'store';
       $router->post('user', $p);
+
+      $p['action'] = 'upgrade';
+      $router->get('user', $p);
+
       //重置密码
       $p['action'] = 'resetPassword';
       $router->post('user/password', $p);
@@ -105,7 +109,7 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $router->put('danWei/:did', $p);
         $p['action'] = 'destroy';
         $router->delete('danWei/:did', $p);
-        //车间
+        //作业场
         $p['action'] = 'storeCheJian';
         $router->post('danWei/:did/cheJian', $p);
         $p['action'] = 'updateCheJian';
@@ -186,7 +190,6 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $p['action'] = 'destroy';
         $router->delete('pingJia/:id', $p);
       });
-
     });
   }
 

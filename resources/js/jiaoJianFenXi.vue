@@ -5,7 +5,7 @@ import Datable from './components/Datable'
 import Tabs from './components/Tabs'
 import Popup from './components/Popup'
 import Mission from './Mission'
-import {stateColor, chuLiStates} from './global'
+import {stateColor, chuLiStates, daBuWei} from './global'
 
 const lv = {1: 6, 2: 3, 3: 1}, num = ['一', '二', '三', '四'],
 colCheJian = [{
@@ -46,7 +46,9 @@ columns = {
       return t && h('span',
         {class: `${stateColor[r[j]]} url`, on: {
           click: () => {
-            this.$parent.mission = this.$parent.$store.state.jiaoJianChuLi.find(g => g.id == r.id)
+            let _this = this.tbl ? this : this.$parent
+            //this.$parent.mission = this.$parent.$store.state.jiaoJianChuLi.find(g => g.id == r.id)
+            _this.mission = this.$parent.$store.state.jiaoJianChuLi.find(g => g.id == r.id)
           }
         }},
         chuLiStates.find(s => s.id == t).name
@@ -58,11 +60,7 @@ columns = {
     items: null
   },
   cheJian: {
-    caption: '车间',
-    items: null
-  },
-  banZu: {
-    caption: '班组',
+    caption: '作业场',
     items: null
   },
   user: {
@@ -82,7 +80,7 @@ export default {
           tabIndex: i => this.timeTabIndex(i)
         }, slot: 1},
         this.tblTime.map((t, i) => {
-          let th = [[h('th', {attrs: {rowspan: 2}}, '单位'), h('th', {attrs: {rowspan: 2}}, '车间')], []], r, a = {attrs: {colspan: 3, width: '12.5%'}}
+          let th = [[h('th', {attrs: {rowspan: 2}}, '单位'), h('th', {attrs: {rowspan: 2}}, '作业场')], []], r, a = {attrs: {colspan: 3, width: '12.5%'}}
           dbw.forEach(d => {
             th[0].push(h('th', a, d.name))
             th[1].push(h('th', 'A'), h('th', 'B'), h('th', 'C'))
@@ -95,8 +93,27 @@ export default {
               h('thead', th.map(r => h('tr', r))),
               h('tbody', t.data.length ? t.data.map(d => {
                 let t, r = h('tr', t = d.data.map(d => h('td', d)))
-                if(d.detail.length)
-                  t[1].data = {class: 'url', on: {click: () => this.tblPopCheJian.data = d.detail}}
+                if(d.detail.length) {
+                  t[1].data = {class: 'url', on: {
+                    click: () => this.tblPopCheJian.data = d.detail}
+                  }
+                  dbw.forEach((p, i) => {
+                    for(let l = 1, j; l < 4; l++) {
+                      j = i * 3 + l - 2
+                      if(d.data[j])
+                        t[j].data = {class: 'url', on: {
+                          click: () => this.tblPopCheJian.data = d.detail.filter(d => d.daBuWei == i && d.dengJi == l)
+                        }}
+                    }
+                  })
+                  for(let l = 1; l < 4; l++) {
+                    let i = dbw.length * 3 - 2 + l
+                    if(d.data[i])
+                      t[i].data = {class: 'url', on: {
+                        click: () => this.tblPopCheJian.data = d.detail.filter(d => d.dengJi == l)
+                      }}
+                  }
+                }
                 return r
               }) : [h('tr', [h('td', {attrs: {colspan: dbw.length * 3 + 2}}, '无数据')])])
             ])
@@ -124,7 +141,7 @@ export default {
             change: e => this.danWei = parseInt(e.target.value)
           }}, this.danWeis.map((d, i) => h('option', {attrs: {value: d.id}, key: i}, d.name)))
         ]),
-        h('div', {class: 'group'}, ['车间 ',
+        h('div', {class: 'group'}, ['作业场 ',
           h('select', {domProps: {value: this.cheJian}, on: {
             change: e => this.cheJian = parseInt(e.target.value)
           }}, this.curDanWei.cheJian.map((d, i) => h('option', {attrs: {value: d.id}, key: i}, d.name)))
@@ -137,12 +154,12 @@ export default {
         tabIndex: this.onTabIndex,
         pageShow: this.pageShow
       }}, r),
-      h('popup', {props: {popup: this.mission}, on: {
-        close: () => this.mission = null
-      }}, [h('mission', {props: {mission: this.mission}})]),
       h('popup', {props: {popup: this.tblPopCheJian.data.length, caption: '交检故障详细列表'}, on: {
         close: () => this.tblPopCheJian.data = []
-      }}, [h('datable', {props: {table: this.tblPopCheJian}})])
+      }}, [h('datable', {props: {table: this.tblPopCheJian}})]),
+      h('popup', {props: {popup: this.mission}, on: {
+        close: () => this.mission = null
+      }}, [h('mission', {props: {mission: this.mission}})])
     ])
   },
   data() {
@@ -151,7 +168,6 @@ export default {
       to: (new Date).toDate().substr(0, 7),
       danWei: this.$store.state.danWei[0].id,
       cheJian: 0,
-      banZu: 0,
       tabIndex: 0,
       mission: null,
       tabs: [{
@@ -161,7 +177,7 @@ export default {
         caption: '时间',
         flex: true
       }, {
-        caption: '车间',
+        caption: '作业场',
         flex: true
       }],
       tabTime: [],
@@ -189,7 +205,7 @@ export default {
       return r
     },
     curDanWei() {
-      let r = [{id: 0, name: '全部', banZu: [{id: 0, name: '全部'}]}], t
+      let r = [{id: 0, name: '全部'}], t
       if(t = this.danWeis.find(d => d.id == this.danWei)) {
         if(t.id) {
           t.cheJian.forEach(c => r.push(c))
@@ -199,21 +215,7 @@ export default {
           return t
         }
       }
-    },
-    /*curCheJian() {
-      let r = [{id: 0, name: '全部'}], t
-      if(t = this.curDanWei && this.curDanWei.cheJian.find(c => c.id == this.cheJian))
-        if(t.id) {
-          t.banZu.forEach(b => r.push(b))
-          return {id: t.id, name: t.name, banZu: r}
-        } else {
-          this.banZu = 0
-          return t
-        }
-    },
-    curBanZu() {
-      return this.curCheJian && this.curCheJian.banZu.find(b => b.id == this.banZu)
-    },*/
+    }
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
@@ -225,8 +227,6 @@ export default {
         q.danWei = this.danWei
       if(this.cheJian)
         q.cheJian = this.cheJian
-      if(this.banZu)
-        q.banZu = this.banZu
       this.loading(true)
       axios.post('api/jiaoJian/query', q).then(res => {
         this.loading(false)
@@ -248,7 +248,7 @@ export default {
           ms.push(t)
           this.tabTime.push(t)
           this.tblTime.push({
-            caption: `${t} 各车间交检分析`,
+            caption: `${t} 各作业场交检分析`,
             data: []
           })
         }

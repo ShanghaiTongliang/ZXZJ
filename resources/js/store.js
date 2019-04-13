@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import router from './router'
 import routes from './routes'
-import {daBuWei, dengJi} from './global'
+import {daBuWei, dengJi, peiJianLeiBie} from './global'
 
 Vue.use(Vuex)
 
@@ -34,12 +34,8 @@ export default new Vuex.Store({
       this.dict.danWei[d.id] = d
     },
     fixCheJian(c) {
-      c.url = `#/danWei/${c.danWei}/cheJian/${c.id}/banZu`
+      c.url = `#/danWei/${c.danWei}/cheJian/${c.id}/user`
       this.dict.cheJian[c.id] = c
-    },
-    fixBanZu(b) {
-      b.url = `#/danWei/${this.dict.cheJian[b.cheJian].danWei}/cheJian/${b.cheJian}/banZu/${b.id}/user`
-      this.dict.banZu[b.id] = b
     },
     fixUser(u) {
       u.permission = {}
@@ -53,41 +49,31 @@ export default new Vuex.Store({
   },
   mutations: {
     auth(state, {data, id, url}) {
-      let dict = {groups: {}, danWei: {}, cheJian: {}, banZu: {}, user: {}}
+      let dict = {groups: {}, danWei: {}, cheJian: {}, user: {}}
       state.dict = dict
       data.groups.forEach(g => state.fixGroup(g))
       state.groups = data.groups
-      data.users.filter(u => u.banZu == null).forEach(u => {
-        u.danWei = u.cheJian = null
-      })
+      data.users.filter(u => u.cheJian == null).forEach(u => u.danWei = null)
       state.users = data.users
       //建立字典
       data.danWei.forEach(d => {
         state.fixDanWei(d)
         d.cheJian.forEach(c => {
           state.fixCheJian(c)
-          c.banZu.forEach(b => {
-            state.fixBanZu(b, c)
-            b.user = b.user.map(id => {
-              return state.users.find(u => {
-                return u.id == id
-              })
+          c.user = c.user.map(id => {
+            return state.users.find(u => {
+              return u.id == id
             })
-            b.user.forEach(u => {
-              u.danWei = d.id
-              u.cheJian = c.id
-              u.banZu = b.id
-            })
+          })
+          c.user.forEach(u => {
+            u.danWei = d.id
+            u.cheJian = c.id
           })
         })
       })
-      let cs = [], bs = []
-      data.danWei.forEach(d => d.cheJian.forEach(c => {
-        cs.push(c)
-        c.banZu.forEach(b => bs.push(b))
-      }))
+      let cs = []
+      data.danWei.forEach(d => d.cheJian.forEach(c => cs.push(c)))
       data.std.cheJian = cs
-      data.std.banZu = bs
       state.danWei = data.danWei
       data.users.forEach(u => state.fixUser(u))
       dict.cheZhong = {}
@@ -104,6 +90,8 @@ export default new Vuex.Store({
           dict.xingHao[x.id] = x
         })
       })
+      dict.leiBie = {}
+      peiJianLeiBie.forEach(l => dict.leiBie[l.id] = l)
       let t = []
       data.std.daBuWei = daBuWei
       data.std.daBuWei.forEach(d => d.guZhang.forEach(g => t.push(g)))

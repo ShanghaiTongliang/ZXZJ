@@ -1,6 +1,6 @@
 import Frame from './Frame.vue'
 import jiaoJian from './jiaoJian.vue'
-import jiaoJianGuZhang from './jiaoJianGuZhang.vue'
+import jiaoJianFenXi from './jiaoJianFenXi.vue'
 import ruKuFuJian from './ruKuFuJian.vue'
 import pingJia from './pingJia.vue'
 import DanWei from './DanWei.vue'
@@ -46,9 +46,9 @@ export default [{
       path: 'chuZhi'
     }]
   }, {
-    name: 'jiaoJianGuZhang',
-    path: 'jiaoJianGuZhang',
-    component: jiaoJianGuZhang,
+    name: 'jiaoJianFenXi',
+    path: 'jiaoJianFenXi',
+    component: jiaoJianFenXi,
     meta: {keepAlive: true}
   }, {
     name: 'pingJias',
@@ -80,15 +80,8 @@ export default [{
         name: 'createCheJian',
         path: 'create',
       }, {
-        name: 'banZu',
-        path: ':cid/banZu',
-        children: [{
-          name: 'createBanZu',
-          path: 'create',
-        }, {
-          name: 'user',
-          path: ':bid/user'
-        }]
+        name: 'user',
+        path: ':cid/user'
       }]
     }]
   }, {

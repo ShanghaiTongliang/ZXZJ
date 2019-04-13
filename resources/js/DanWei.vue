@@ -5,17 +5,15 @@ import Datable from './components/Datable'
 import Moditable from './components/Moditable'
 import Kvtable from './components/Kvtable'
 
-const tier = ['danWei', 'cheJian', 'banZu', 'user'],
+const tier = ['danWei', 'cheJian', 'user'],
 ids = ['did', 'cid', 'bid'],
 fix = {
   danWei: 'fixDanWei',
-  cheJian: 'fixCheJian',
-  banZu: 'fixBanZu'
+  cheJian: 'fixCheJian'
 },
 names = {
   danWei: '单位',
-  cheJian: '车间',
-  banZu: '班组',
+  cheJian: '作业场',
   user: '用户'
 },
 columns = {
@@ -46,7 +44,7 @@ export default {
         a.push(h('a', {attrs: {href: `#${pre}`}}, '返回'))
       }
       let u
-      if(t < 2) {
+      if(t < 1) {
         if(a.length)
           a.push(' ')
         a.push(h('a', {attrs: {href: `#${pre}${cur}/create`}}, `新建${names[n]}`))
@@ -127,11 +125,8 @@ export default {
     cheJian() {
       return this.dict.danWei[this.$route.params.did].cheJian
     },
-    banZu() {
-      return this.dict.cheJian[this.$route.params.cid].banZu
-    },
     user() {
-      return this.dict.banZu[this.$route.params.bid].user
+      return this.dict.cheJian[this.$route.params.cid].user
     }
   },
   watch: {
@@ -186,39 +181,6 @@ export default {
           this.error(r.response.data)
         })
       }
-    },
-    saveCheJian(d, i, next) {
-      this.loading(true)
-      axios.put(`api/danWei/${d.id}`, {name: d.name}).then(r => {
-        this.loading(false)
-        this.message('保存成功')
-        next()
-      }).catch(r => {
-        this.loading(false)
-        this.error(r.response.data)
-      })
-
-    },
-    delCheJian(d, i, next) {
-      if(d.banZu.length)
-        this.error(`请先删除 ${d.name} 内的所有班组`)
-      else if(confirm(`确定要删除 ${d.name} ?`)) {
-
-        return
-      }
-      return false
-    },
-    saveBanZu(d, i) {
-
-    },
-    delBanZu(d, i) {
-      if(d.user.length)
-        this.error(`请先删除 ${d.name} 内的所有质检员`)
-      else if(confirm(`确定要删除 ${d.name} ?`)) {
-
-        return
-      }
-      return false
     }
   }
 }

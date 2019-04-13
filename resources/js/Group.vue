@@ -20,7 +20,7 @@ const columns = {
     href: 'url'
   },
   cheJian: {
-    caption: '车间',
+    caption: '作业场',
     filter(cs) {
       let d = this.$store.state.dict.cheJian
       return cs.map(c => {
@@ -35,7 +35,7 @@ const columns = {
   }
 }, colGroup = {
   id: {
-    caption: '车间',
+    caption: '作业场',
     type: 'select',
     items: null
   },
@@ -63,7 +63,7 @@ export default {
         delete: this.groupDel
       }}, [h('div', {attrs: {class: 'act'}}, [
         h('a', {attrs: {href: '#/group'}}, '返回'), ' ',
-        h('a', {attrs: {href: `#/group/${this.$route.params.gid}/create`}}, '添加车间')
+        h('a', {attrs: {href: `#/group/${this.$route.params.gid}/create`}}, '添加作业场')
       ])])
       break
     case 'createGroupCheJian':
@@ -124,7 +124,7 @@ export default {
         caption: null,
         columns: {
           id: {
-            caption: '车间',
+            caption: '作业场',
             type: 'select',
             items: null
           },
@@ -138,7 +138,7 @@ export default {
           caption: '保存',
           onclick(d) {
             if(!d.id) {
-              this.error('请选择车间')
+              this.error('请选择作业场')
               return
             }
             let g = {cheJian: [...this.group.cheJian]}, i, p = 0
@@ -206,7 +206,7 @@ export default {
               })
               this.tblGroup.columns.id.items = this.cheJian
             } else
-              this.kvPermission.caption = g.name + ' 添加车间'
+              this.kvPermission.caption = g.name + ' 添加作业场'
           } else
             this.$router.replace('/group')
         }

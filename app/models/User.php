@@ -7,9 +7,9 @@ class UserModel extends BaseModel {
   /**@var UserModel */
   static $user;
 
-  function admin($u) {
-    if(in_array(255, $this->groups))
-      return true;
+  function admin(UserModel $u = null) {
+    if(!$u)
+      return in_array(255, $this->groups);
     $gs = []; $cs = [];
     foreach(GroupModel::get() as $g)
       $gs[$g->id] = $g;
@@ -17,7 +17,7 @@ class UserModel extends BaseModel {
       if($g = $gs[$id] ?? null)
         foreach($g->cheJian as $c)
           $cs[] = $c;
-    if($u->groups) {
+    if($u->groups) {  //目标处于用户所能管理组内
       foreach($cs as $c)
         if($c->permission & GroupModel::PERMISSION_MANAGE)
           foreach($u->groups as $id)
@@ -25,7 +25,7 @@ class UserModel extends BaseModel {
               foreach($g->cheJian as $uc)
                 if($uc->id == $c->id)
                   return true;
-    } else
+    } else  //目标用户无组，任何有管理权限者都可管理
       foreach($cs as $c)
         if($c->permission & GroupModel::PERMISSION_MANAGE)
           return true;
