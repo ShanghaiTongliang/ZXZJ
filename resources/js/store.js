@@ -53,21 +53,17 @@ export default new Vuex.Store({
       state.dict = dict
       data.groups.forEach(g => state.fixGroup(g))
       state.groups = data.groups
-      data.users.filter(u => u.cheJian == null).forEach(u => u.danWei = null)
       state.users = data.users
       //建立字典
       data.danWei.forEach(d => {
         state.fixDanWei(d)
         d.cheJian.forEach(c => {
+          c.danWei = d.id
           state.fixCheJian(c)
           c.user = c.user.map(id => {
             return state.users.find(u => {
               return u.id == id
             })
-          })
-          c.user.forEach(u => {
-            u.danWei = d.id
-            u.cheJian = c.id
           })
         })
       })

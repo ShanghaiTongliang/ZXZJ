@@ -81,12 +81,12 @@ class UserController extends Yaf\Controller_Abstract {
   }
 
   function upgradeAction() {
-    $bs = [];
-    foreach(Table::open('banZu')::get() as $b)
-      $bs[$b->id] = $b;
+    $cs = [];
+    foreach(Table::open('cheJian')::get() as $c)
+      $cs[$c->id] = $c;
     foreach(UserModel::get() as $u) {
-      if($u->banZu) {
-        $u->cheJian = $bs[$u->banZu]->cheJian;
+      if($u->cheJian) {
+        $u->danWei = $cs[$u->cheJian]->danWei;
         $u->save();
       }
     }

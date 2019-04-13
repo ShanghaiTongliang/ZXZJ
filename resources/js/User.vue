@@ -86,21 +86,28 @@ export default {
       return r
     },
     danWei() {
-      return [{
+      let r = this.$store.state.danWei.map(d => {
+        let r = {...d}
+        r.cheJian = [...d.cheJian]
+        return r
+      })
+      r.push({
         id: null,
         name: '无',
-        cheJian: [{
-          id: null,
-          name: '无'
-        }]
-      }, ...this.$store.state.danWei]
+        cheJian: []
+      })
+      r.forEach(d => d.cheJian.push({
+        id: null,
+        name: '无'
+      }))
+      return r
     }
   },
   watch: {
     $route: {
       immediate: true,
       handler(r) {
-        if(r.name == 'curUser' && this.$store.state.user != this.curUser)
+        if(r.name == 'curUser' && this.$store.state.user.id != this.curUser.id)
           this.$router.replace('/jiaoJian')
       }
     }
@@ -109,7 +116,7 @@ export default {
     ...mapMutations(['loading', 'message', 'error']),
     save(d, i, next, o) {
       this.loading(true)
-      axios.put(`api/user/${d.id}`, {name: d.name, groups: d.groups, cheJian: d.cheJian}).then(res => {
+      axios.put(`api/user/${d.id}`, {name: d.name, groups: d.groups, danWei: d.danWei, cheJian: d.cheJian}).then(res => {
         this.loading(false)
         if(d.cheJian != o.cheJian) {
           let f, t
