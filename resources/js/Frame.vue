@@ -3,7 +3,7 @@
 </style>
 <template>
   <div>
-    <resizer :width="140">
+    <resizer :width="width" :visible="visible" @resize="resize" @toggle="toggle">
       <side-menu id="nav" :menu="menu" :selection="selection" @select="select"></side-menu>
     </resizer>
     <keep-alive>
@@ -20,6 +20,8 @@ export default {
   components: {SideMenu, Resizer},
   data() {
     return {
+      width: this.$store.state.options.width || 140,
+      visible: this.$store.state.options.visible,
       menu: [{
         caption: '整车交检故障',
         items: [{
@@ -129,6 +131,14 @@ export default {
   methods: {
     select(selection) {
       this.selection = selection
+    },
+    resize(w) {
+      this.width = w
+      this.$store.commit('width', w)
+    },
+    toggle(v) {
+      this.visible = v
+      this.$store.commit('toggle', v)
     }
   }
 }

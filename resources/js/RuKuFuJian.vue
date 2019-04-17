@@ -57,8 +57,7 @@ const columns = {
     min: 1,
     step: 1,
     onchange(d, i, r) {
-      if(r.leiBie == 1)
-        Vue.set(r, 'fuJianShuLiang', d)
+      Vue.set(r, 'fuJianShuLiang', r.leiBie == 1 ? d : Math.round(d < 100 ? d * .03 : d < 300 ? d * .02 : d * .015) || 1)
     }
   },
   fuJianShuLiang: {
@@ -111,6 +110,7 @@ export default {
           onclick(d) {
             if(this.check(d)) {
               this.loading(true)
+              d.cheJian = this.cheJian
               let t = {...d}
               delete t.peiJian
               delete t.leiBie
@@ -170,10 +170,6 @@ export default {
           this.error(`请输入${columns[k].caption}`)
           return
         }
-      if(!d.bianHao) {
-        this.error(`请输入编号`)
-        return
-      }
       return true
     },
     /*query() {
@@ -201,7 +197,7 @@ export default {
       if(this.check(d)) {
         this.loading(true)
         let t = {...d}
-        delete t.xingHao
+        delete t.peiJian
         delete t.leiBie
         delete t.danWei
         columns.user.items = this.$store.state.users

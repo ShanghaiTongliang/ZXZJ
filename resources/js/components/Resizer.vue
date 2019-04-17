@@ -75,7 +75,7 @@ export default {
           this.w = 100
           this.collapsed = false
         }
-        this.$emit('visible', this.v)
+        this.$emit('toggle', this.v)
       }
     }}, this.v ^ this.right ? '<' : '>')])
     return h('div', {class: 'resizer-box', style: this.right ? {
@@ -118,17 +118,17 @@ export default {
           e = e.targetTouches[0]
         let d = e.pageX - this.x0
         this.w = this.w0 + (this.right ? -d : d)
-        //this.$emit('resizing', this.w + 'px')
+        //this.$emit('resizing', this.w)
       }
     },
     touchEnd(e) {
       if(this.move) {
         this.move = false
         if(this.w < 50) {
-          this.$emit('visible', this.v = false)
+          this.$emit('toggle', this.v = false)
           this.collapsed = true
         }
-        this.$emit('resize', this.w + 'px')
+        this.$emit('resize', this.w)
       }
     }
   },

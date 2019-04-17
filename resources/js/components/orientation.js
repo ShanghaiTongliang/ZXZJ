@@ -9,4 +9,4 @@ export default function orientation(cb) {
     callback(window.innerWidth < window.innerHeight, e)
 }
 
-window.addEventListener(window.onorientationchange === undefined ? 'resize' : 'orientationchange', e => setTimeout(orientation, 0, e))
+window.addEventListener(window.onorientationchange === undefined ? 'resize' : 'orientationchange', e => setTimeout(orientation, 100, e))

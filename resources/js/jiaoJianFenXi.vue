@@ -1,3 +1,8 @@
+<style>
+.time-tbl th.odd {background-color: lightyellow !important}
+.time-tbl td.odd {background-color: #eee !important}
+.time-tbl tr:nth-of-type(even) td.odd {background-color: lightcyan !important}
+</style>
 <script>
 import axios from 'axios';
 import {mapState, mapMutations} from 'vuex'
@@ -47,7 +52,6 @@ columns = {
         {class: `${stateColor[r[j]]} url`, on: {
           click: () => {
             let _this = this.tbl ? this : this.$parent
-            //this.$parent.mission = this.$parent.$store.state.jiaoJianChuLi.find(g => g.id == r.id)
             _this.mission = this.$parent.$store.state.jiaoJianChuLi.find(g => g.id == r.id)
           }
         }},
@@ -80,19 +84,23 @@ export default {
           tabIndex: i => this.timeTabIndex(i)
         }, slot: 1},
         this.tblTime.map((t, i) => {
-          let th = [[h('th', {attrs: {rowspan: 2}}, '单位'), h('th', {attrs: {rowspan: 2}}, '作业场')], []], r, a = {attrs: {colspan: 3, width: '12.5%'}}
-          dbw.forEach(d => {
-            th[0].push(h('th', a, d.name))
-            th[1].push(h('th', 'A'), h('th', 'B'), h('th', 'C'))
+          let th = [[h('th', {attrs: {rowspan: 2}}, '单位'), h('th', {attrs: {rowspan: 2}}, '作业场')], []],
+            a = [{attrs: {colspan: 3, width: '12.5%'}}], b = [{}], d = [...dbw, {name: '总计'}], r
+          a[1] = {...a[0], class: 'odd'}
+          b[1] = {class: 'odd'}
+          d.forEach((d, i) => {
+            th[0].push(h('th', a[i %= 2], d.name))
+            th[1].push(h('th', b[i], 'A'), h('th', b[i], 'B'), h('th', b[i], 'C'))
           })
-          th[0].push(h('th', a, '总计'))
-          th[1].push(h('th', 'A'), h('th', 'B'), h('th', 'C'))
           return h('div', {class: 'dt-out', slot: i, key: i}, [
             h('table', {class: 'datable dt-head time-tbl'}, [
               h('caption', t.caption),
               h('thead', th.map(r => h('tr', r))),
               h('tbody', t.data.length ? t.data.map(d => {
-                let t, r = h('tr', t = d.data.map(d => h('td', d)))
+                let t, r = h('tr', t = d.data.map((d, i) => {
+                  let c = b[i > 1 && !(Math.floor((i - 2) / 3) % 2) ? 1 : 0]
+                  return h('td', d ? {...c} : c, d)
+                }))
                 if(d.detail.length) {
                   t[1].data = {class: 'url', on: {
                     click: () => this.tblPopCheJian.data = d.detail}
@@ -100,18 +108,22 @@ export default {
                   dbw.forEach((p, i) => {
                     for(let l = 1, j; l < 4; l++) {
                       j = i * 3 + l - 2
-                      if(d.data[j])
-                        t[j].data = {class: 'url', on: {
+                      if(d.data[j]) {
+                        t[j].data.class = (t[j].data.class || '') + ' url'
+                        t[j].data.on = {
                           click: () => this.tblPopCheJian.data = d.detail.filter(d => d.daBuWei == i && d.dengJi == l)
-                        }}
+                        }
+                      }
                     }
                   })
                   for(let l = 1; l < 4; l++) {
                     let i = dbw.length * 3 - 2 + l
-                    if(d.data[i])
-                      t[i].data = {class: 'url', on: {
+                    if(d.data[i]) {
+                      t[i].data.class = (t[i].data.class || '') + ' url'
+                      t[i].data.on = {
                         click: () => this.tblPopCheJian.data = d.detail.filter(d => d.dengJi == l)
-                      }}
+                      }
+                    }
                   }
                 }
                 return r
@@ -154,9 +166,9 @@ export default {
         tabIndex: this.onTabIndex,
         pageShow: this.pageShow
       }}, r),
-      h('popup', {props: {popup: this.tblPopCheJian.data.length, caption: '交检故障详细列表'}, on: {
+      h('popup', {props: {popup: this.tblPopCheJian.data.length}, on: {
         close: () => this.tblPopCheJian.data = []
-      }}, [h('datable', {props: {table: this.tblPopCheJian}})]),
+      }}, [h('datable', {props: {table: this.tblPopCheJian}}, [h('div', {class: 'dt-info'}, `共${this.tblPopCheJian.data.length}条记录`)])]),
       h('popup', {props: {popup: this.mission}, on: {
         close: () => this.mission = null
       }}, [h('mission', {props: {mission: this.mission}})])
@@ -170,16 +182,16 @@ export default {
       cheJian: 0,
       tabIndex: 0,
       mission: null,
-      tabs: [{
-        caption: '详情',
-        flex: true
-      }, {
-        caption: '时间',
-        flex: true
-      }, {
-        caption: '作业场',
-        flex: true
-      }],
+      tabs: [
+        '详情',
+        {
+          caption: '按月份',
+          flex: true
+        }, {
+          caption: '按作业场',
+          flex: true
+        }
+      ],
       tabTime: [],
       tiTime: 0,
       tabCheJian: [],
@@ -192,6 +204,7 @@ export default {
       tblTime: null,
       tblCheJian: null,
       tblPopCheJian: {
+        caption: '交检故障详细列表',
         columns,
         data: []
       }
@@ -232,7 +245,8 @@ export default {
         this.loading(false)
         res.data.forEach(g => this.$store.state.fixJiaoJian(g))
         this.tbl.data = res.data
-        let ds
+        //各单位, 按月份总计
+        let ds, dtss = []
         if(this.danWei == 0)
           ds = this.$store.state.danWei.map(d => ({...d}))
         else {
@@ -268,10 +282,11 @@ export default {
               caption: c.name,
               flex: true
             })
-            let tb = [], dj = {1: 0, 2: 0, 3: 0}, j, p = 0
+            let dts = {data: [d.name, c.name, ...Array(dbw.length * 3)], detail: []},
+              tb = [], dj = {1: 0, 2: 0, 3: 0}, j, k, v, p = 0, sum = ['总计', 0, 0, 0, 0, 0, 0, 0]
             ms.forEach((t, i) => {
               //dt: 时间 行数据
-              let dt = {data: [d.name, c.name, ...Array(dbw.length * 3)], detail: []}, r = []
+              let dt = {data: [d.name, c.name, ...Array(dbw.length * 3)], detail: []}, r = [], a, b
               this.tblTime[i].data.push(dt)
               if(m = c.jiaoJian.count.find(m => m.month == t)) {
                 //gs: 故障, ts: 故障车, pc: 合格数
@@ -279,8 +294,10 @@ export default {
                 dbw.forEach(d => d.dj = {1: 0, 2: 0, 3: 0})
                 gs.forEach(g => {
                   //时间
+                  console.log(c.name)
                   dbw[g.daBuWei].dj[g.dengJi]++
                   dt.detail.push(g)
+                  dts.detail.push(g)
                   //归并相同车号
                   let t = ts.find(v => v.date == g.date && v.cheHao.toUpperCase() == g.cheHao.toUpperCase())
                   if(!t) {
@@ -291,25 +308,36 @@ export default {
                   dj[g.dengJi]++
                 })
                 dbw.forEach((d, i) => {
-                  if(d.dj[1]) {
-                    dt.data[i * 3 - 1] = d.dj[1]
-                    dt.data[l] = (dt.data[l] || 0) + d.dj[1]
+                  if(v = d.dj[1]) {
+                    dt.data[j = i * 3 - 1] = v
+                    dt.data[l] = (dt.data[l] || 0) + v
+                    dts.data[j] = (dts.data[j] || 0) + v
+                    dts.data[l] = (dts.data[l] || 0) + v
                   }
-                  if(d.dj[2]) {
-                    dt.data[i * 3] = d.dj[2]
-                    dt.data[l + 1] = (dt.data[l + 1] || 0) + d.dj[2]
+                  if(v = d.dj[2]) {
+                    dt.data[j = i * 3] = v
+                    dt.data[k = l + 1] = (dt.data[k] || 0) + v
+                    dts.data[j] = (dts.data[j] || 0) + v
+                    dts.data[k] = (dts.data[k] || 0) + v
                   }
-                  if(d.dj[3]) {
-                    dt.data[i * 3 + 1] = d.dj[3]
-                    dt.data[l + 2] = (dt.data[l + 2] || 0) + d.dj[3]
+                  if(v = d.dj[3]) {
+                    dt.data[j = i * 3 + 1] = v
+                    dt.data[k = l + 2] = (dt.data[k] || 0) + v
+                    dts.data[j] = (dts.data[j] || 0) + v
+                    dts.data[k] = (dts.data[k] || 0) + v
                   }
                 })
-
                 ts.forEach(t => t.g < 6 && pc++)
                 r.push(t, m.count, m.count - ts.length + pc)
-                for(let k in dj)
+                for(k in dj)
                   r.push(dj[k])
-                r.push(Math.round((m.count - ts.length + pc) * 100 / m.count) + '%', Math.round((ts.length - pc) * 100 / m.count) + '%')
+                a = m.count - ts.length + pc
+                b = ts.length - pc
+                r.push(Math.round(a * 100 / m.count) + '%', Math.round(b * 100 / m.count) + '%')
+                for(j = 1; j < 6; j++)
+                  sum[j] += r[j]
+                sum[6] += a
+                sum[7] += b
               } else
                 r.push(t)
               i += mb
@@ -332,6 +360,14 @@ export default {
               }
               tb.push(r)
             })
+            dtss.push(dts)
+            if(sum[1]) {
+              sum[6] = Math.round(sum[6] * 100 / sum[1]) + '%'
+              sum[7] = Math.round(sum[7] * 100 / sum[1]) + '%'
+            } else
+              for(j = 1; j < sum.length; j++)
+                sum[j] = null
+            tb.push(sum)
             this.tblCheJian.push({
               caption: `${d.name}${c.name}交检分析`,
               columns: colCheJian,
@@ -340,6 +376,14 @@ export default {
             })
           })
         })
+        //按月份 总计
+        if(this.from != this.to) {
+          this.tabTime.push('总计')
+          this.tblTime.push({
+            caption: `${this.from} - ${this.to} 各作业场交检分析`,
+            data: dtss
+          })
+        }
         this.tabIndex = 0
         this.tiTime = 0
         this.tiCheJian = 0

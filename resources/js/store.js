@@ -9,7 +9,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     users: null, user: null, groups: null, danWei: null, std: null, jiaoJian: null, jiaoJianChuLi: null, ruKuFuJian: null, pingJia: null, dict: null,
-    vertical: false, loading: false, message: null, error: false,
+    vertical: false, options: null, loading: false, message: null, error: false,
 
     fixJiaoJian(g) {
       let t = this.dict.guZhang[g.guZhang]
@@ -138,6 +138,14 @@ export default new Vuex.Store({
     error(state, v) {
       state.error = true
       this.commit('fade', v)
+    },
+    width(state, w) {
+      state.options.width = w
+      localStorage.setItem('options', JSON.stringify(state.options))
+    },
+    toggle(state, v) {
+      state.options.visible = v
+      localStorage.setItem('options', JSON.stringify(state.options))
     }
   }
 })

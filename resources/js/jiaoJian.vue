@@ -6,14 +6,14 @@
 }
 .jj-calendar {
   text-align: left;
-  width: 24em;
-  margin: .1em auto;
+  width: 100%;
+  width: 21em;
 }
-.jj-calendar>* {margin: .1em}
+.jj-calendar, .jj-calendar>* {margin: .1em auto}
 .jj-date {
   text-align: center;
   display: inline-block;
-  width: 3.2em;
+  width: 3em;
 }
 .jj-date input {
   width: 1.5em !important;
@@ -116,7 +116,7 @@ export default {
       gs = h('moditable', {attrs: {id: 'list'}, props: {table: this.table, selection: this.selection}, on}, [this.rn == 1 ? t && t.count ? h('a', {attrs: {href: '#/jiaoJian/create', class: 'act'}}, '新建') : h('div', {class: 'act'}, '请输入检修数量') : null, h('div', {class: 'dt-info'}, `${this.tbl.data.length}条记录`)])
     } else {
       d = true
-      gs = h('kvtable', {props: {table: this.kv, vertical: this.$store.state.vertical}},
+      gs = h('kvtable', {props: {table: this.kv, vertical: this.vertical}},
         [h('a', {attrs: {href: '#/jiaoJian', class: 'act'}}, '返回')])
     }
     c = this.curCheJian
@@ -133,7 +133,7 @@ export default {
           }}
         )]))
       ds.push(h('button', {style: 'float: right'}, '保存'))
-      ds = h('div', {style: 'display: flex; margin: auto; flex-shrink: 0'}, [h('div', {style: 'width: 1.8em; display: inline-block'}, '日检修量'), h('form', {class: 'group jj-calendar', on: {
+      ds = h('div', {style: {margin: 'auto', flexShrink: 0, display: this.vertical ? null : 'flex'}}, [h('div', {style: this.vertical ? null : 'width: 1.8em'}, '日检修量'), h('form', {class: 'group jj-calendar', on: {
         submit: e => this.saveCount(e, t, c)
       }}, ds)])
     }
@@ -226,7 +226,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['user', 'std', 'dict']),
+    ...mapState(['user', 'std', 'dict', 'vertical']),
     curDanWei() {
       return this.$store.state.danWei && this.$store.state.danWei.find(d => d.id == this.danWei)
     },

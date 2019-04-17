@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div style="display: flex; flex-direction: column">
     <template v-if="$route.name == 'users'">
-      <datable v-if="reset.length" :table="tblReset"></datable>
+      <datable v-if="reset.length" :table="tblReset" style="flex-shrink: 0; max-height: 50%"></datable>
       <moditable :table="tbl" @save="save" @delete="del"></moditable>
     </template>
     <template v-else-if="$store.state.user == curUser">
