@@ -109,7 +109,7 @@ class AuthController extends Yaf\Controller_Abstract {
     echo json_encode([
       'users' => $us,
       'groups' => $gs,
-      'config' => Table::open('config')::first(),
+      'options' => OptionModel::first()->options,
       //单位人员信息
       'danWei' => $ds,
       'std' => [

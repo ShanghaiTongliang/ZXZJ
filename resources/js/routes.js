@@ -7,6 +7,7 @@ import DanWei from './DanWei.vue'
 import User from './User.vue'
 import Group from './Group.vue'
 import Standard from './Standard.vue'
+import Option from './Option.vue'
 
 export default [{
   name: 'home',
@@ -162,5 +163,9 @@ export default [{
         path: 'create'
       }]
     }]
+  }, {
+    name: 'option',
+    path: 'option',
+    component: Option
   }]
 }]

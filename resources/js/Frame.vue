@@ -110,6 +110,10 @@ export default {
           caption: '型号',
           href: '#/standard/xingHao'
         }]
+      }, {
+        name: 'option',
+        caption: '系统参数',
+        href: '#/option'
       }],
       selection: null
     }

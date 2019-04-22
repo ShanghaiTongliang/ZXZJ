@@ -11,6 +11,7 @@
 import axios from 'axios';
 import Tabs from './components/Tabs'
 import Datable from './components/Datable'
+import {sizeFilter} from './components/filters'
 import {mapState, mapMutations} from 'vuex';
 
 const columns = {
@@ -36,9 +37,7 @@ const columns = {
   },
   size: {
     caption: '大小',
-    filter(t) {
-      return t > 0x100000 ? Math.round(t * 10 / 0x100000) / 10 + 'M' : t > 0x400 ? Math.round(t * 10 / 0x400) / 10 + 'K' : t
-    }
+    filter: sizeFilter
   }
 }
 export default {

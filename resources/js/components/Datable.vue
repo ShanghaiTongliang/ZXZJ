@@ -166,7 +166,6 @@ export default {
                   }, /*class: c.class, style: c.style,*/
                   on: {
                     input: d => {
-                      let _this = this
                       row[j] = d
                       if(c.type == 'select' && this.slaves && this.slaves[j])
                         for(let s of this.slaves[j]) {

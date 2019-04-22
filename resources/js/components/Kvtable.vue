@@ -98,10 +98,17 @@ export default {
         let a = tbl.actions.filter(a => a.condition === undefined || (a.condition instanceof Function ? a.condition.call(this.$parent) : a.condition))
         if(a.length) {
           th.push('操作')
-          td.push(h('td', a.map((a, j) => a.href && row[a.href] ? h('a', {domProps: {href: row[a.href]}, key: j}, a.caption) : h('button', {
-            on: {
-            click: () => this.next = a.onclick
-          }, key: j, domProps: {innerHTML: a.caption}}))))
+          td.push(h('td', a.map((a, j) => a.href && row[a.href] ? h('a', {domProps: {href: row[a.href]}, key: j}, a.caption) : h('button', {on: {
+            click: () => {
+              if(a.type == 'button') {
+                if(a.onclick) {
+                  this.next = null
+                  a.onclick.call(this.$parent, row)
+                }
+              } else
+                this.next = a.onclick
+            }
+          }, key: j, attrs: {type: a.type}, domProps: {innerHTML: a.caption}}))))
         }
       }
     } else {
@@ -113,11 +120,8 @@ export default {
     if(this.vertical)
       r.push(h('tbody', th.map((th, i) => h('tr', {key: i}, [h('td', th), td[i]]))))
     else {
-      if(!ne) {
-        //if(th.length)
-        //  th[0].attrs = {colspan: th.length}
+      if(!ne)
         td.push(h('td', {attrs: {colspan: th.length}}, '无数据'))
-      }
       r.push(h('thead', [h('tr', th.map(th => h('th', th)))]))
       r.push(h('tbody', [h('tr', td)]))
     }

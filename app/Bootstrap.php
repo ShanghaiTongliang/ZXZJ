@@ -207,6 +207,11 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         //$router->put('zhiJianYuan/ziLiao', $p);
         $p['action'] = 'destroyZiLiao';
         $router->delete('zhiJianYuan/ziLiao', $p);
+
+        //系统参数
+        $p['controller'] = 'option';
+        $p['action'] = 'update';
+        $router->put('option', $p);
       });
     });
   }

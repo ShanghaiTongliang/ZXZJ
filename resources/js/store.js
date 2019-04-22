@@ -2,14 +2,16 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import router from './router'
 import routes from './routes'
+import merge from './components/merge'
 import {daBuWei, dengJi, peiJianLeiBie} from './global'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    users: null, user: null, groups: null, danWei: null, std: null, jiaoJian: null, jiaoJianChuLi: null, ruKuFuJian: null, zhiJianYuan: null, dict: null,
-    vertical: false, options: null, loading: false, message: null, error: false,
+    users: null, user: null, groups: null, danWei: null, std: null, options: null,
+    jiaoJian: null, jiaoJianChuLi: null, ruKuFuJian: null, zhiJianYuan: null,
+    dict: null, vertical: false, loading: false, message: null, error: false,
 
     fixJiaoJian(g) {
       let t = this.dict.guZhang[g.guZhang]
@@ -57,6 +59,7 @@ export default new Vuex.Store({
       data.groups.forEach(g => state.fixGroup(g))
       state.groups = data.groups
       state.users = data.users
+      merge(state.options, data.options)
       //建立字典
       data.danWei.forEach(d => {
         state.fixDanWei(d)
@@ -146,11 +149,11 @@ export default new Vuex.Store({
     },
     width(state, w) {
       state.options.frame.width = w
-      localStorage.setItem('options', JSON.stringify(state.options))
+      localStorage.setItem('options', JSON.stringify({frame: state.options.frame}))
     },
     toggle(state, v) {
       state.options.frame.visible = v
-      localStorage.setItem('options', JSON.stringify(state.options))
+      localStorage.setItem('options', JSON.stringify({frame: state.options.frame}))
     }
   }
 })
