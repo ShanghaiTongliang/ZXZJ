@@ -1,8 +1,8 @@
 import Frame from './Frame.vue'
-import jiaoJian from './jiaoJian.vue'
-import jiaoJianFenXi from './jiaoJianFenXi.vue'
-import ruKuFuJian from './ruKuFuJian.vue'
-import pingJia from './pingJia.vue'
+import JiaoJian from './JiaoJian.vue'
+import JiaoJianFenXi from './JiaoJianFenXi.vue'
+import RuKuFuJian from './RuKuFuJian.vue'
+import ZhiJianYuan from './ZhiJianYuan.vue'
 import DanWei from './DanWei.vue'
 import User from './User.vue'
 import Group from './Group.vue'
@@ -15,7 +15,7 @@ export default [{
   children: [{
     name: 'jiaoJian',
     path: 'jiaoJian',
-    component: jiaoJian,
+    component: JiaoJian,
     meta: {keepAlive: true},
     children: [{
       name: 'createJiaoJian',
@@ -37,7 +37,7 @@ export default [{
   }, {
     name: 'ruKuFuJian',
     path: 'ruKuFuJian',
-    component: ruKuFuJian,
+    component: RuKuFuJian,
     children: [{
       name: 'createRuKuFuJian',
       path: 'create'
@@ -48,23 +48,32 @@ export default [{
   }, {
     name: 'jiaoJianFenXi',
     path: 'jiaoJianFenXi',
-    component: jiaoJianFenXi,
+    component: JiaoJianFenXi,
     meta: {keepAlive: true}
   }, {
-    name: 'pingJias',
-    path: 'pingJia',
-    component: pingJia,
-    meta: {keepAlive: true},
+    name: 'zhiJianYuan',
+    path: 'zhiJianYuan',
+    component: ZhiJianYuan,
     children: [{
-      name: 'createPingJia',
-      path: 'create'
-    }, {
-      name: 'pingJia',
-      path: ':id',
+      name: 'dianWens',
+      path: 'dianWen',
       children: [{
-        name: 'editPingJia',
-        path: 'edit'
+        name: 'createDianWen',
+        path: 'create'
+      }, {
+        name: 'dianWen',
+        path: ':id',
+        children: [{
+          name: 'editDianWen',
+          path: 'edit'
+        }]
       }]
+    }, {
+      name: 'zhiDaoShu',
+      path: 'zhiDaoShu'
+    }, {
+      name: 'ziLiao',
+      path: 'ziLiao'
     }]
   }, {
     name: 'danWei',

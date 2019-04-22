@@ -16,10 +16,9 @@ let root = new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
-store.state.options = localStorage
 
 let o = localStorage.getItem('options')
-store.state.options = o ? JSON.parse(o) : {visible: true}
+store.state.options = o ? JSON.parse(o) : {frame: {visible: true}}
 window.root = root
 
 orientation((v, e) => root.$store.state.vertical = v)

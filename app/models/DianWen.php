@@ -1,5 +1,5 @@
 <?php
 
-class PingJiaModel extends BaseModel {
+class DianWenModel extends BaseModel {
   protected static $jsonFields = ['cheJian'];
 }

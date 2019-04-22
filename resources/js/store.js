@@ -8,7 +8,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    users: null, user: null, groups: null, danWei: null, std: null, jiaoJian: null, jiaoJianChuLi: null, ruKuFuJian: null, pingJia: null, dict: null,
+    users: null, user: null, groups: null, danWei: null, std: null, jiaoJian: null, jiaoJianChuLi: null, ruKuFuJian: null, zhiJianYuan: null, dict: null,
     vertical: false, options: null, loading: false, message: null, error: false,
 
     fixJiaoJian(g) {
@@ -21,8 +21,11 @@ export default new Vuex.Store({
       g.peiJian = t.peiJian
       g.leiBie = p.leiBie
     },
-    fixPingJia(p) {
-      p.url = `#/pingJia/${p.id}`
+    fixFile(f, t) {
+      f.url = `zhiJianYuan/${t}/${f.name}`
+    },
+    fixDianWen(d) {
+      d.url = `#/zhiJianYuan/dianWen/${d.id}`
     },
     fixGroup(g) {
       if(g.id != 255)
@@ -105,8 +108,10 @@ export default new Vuex.Store({
       state.jiaoJianChuLi = data.jiaoJianChuLi
       data.ruKuFuJian.forEach(r => state.fixRuKuFuJian(r))
       state.ruKuFuJian = data.ruKuFuJian
-      data.pingJia.forEach(p => state.fixPingJia(p))
-      state.pingJia = data.pingJia
+      data.zhiJianYuan.dianWen.forEach(d => state.fixDianWen(d))
+      data.zhiJianYuan.zhiDaoShu.forEach(f => state.fixFile(f, 'zhiDaoShu'))
+      data.zhiJianYuan.ziLiao.forEach(f => state.fixFile(f, 'ziLiao'))
+      state.zhiJianYuan = data.zhiJianYuan
 
       state.user = data.users.find(u => u.id == id)
       state.user.url = `#/user/${state.user.id}`
@@ -140,11 +145,11 @@ export default new Vuex.Store({
       this.commit('fade', v)
     },
     width(state, w) {
-      state.options.width = w
+      state.options.frame.width = w
       localStorage.setItem('options', JSON.stringify(state.options))
     },
     toggle(state, v) {
-      state.options.visible = v
+      state.options.frame.visible = v
       localStorage.setItem('options', JSON.stringify(state.options))
     }
   }

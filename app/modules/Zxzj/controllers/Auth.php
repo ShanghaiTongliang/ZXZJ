@@ -2,6 +2,24 @@
 use Zxzj\Redis;
 
 class AuthController extends Yaf\Controller_Abstract {
+
+  static function scandir(string $p): array {
+    $r = [];
+    if($fs = scandir($p)) {
+      foreach($fs as $f) {
+        if($f != '.' && $f != '..') {
+          $t = "$p/$f";
+          $r[] = [
+            'name' => $f,
+            'time' => filemtime($t),
+            'size' => filesize($t)
+          ];
+        }
+      }
+    }
+    return $r;
+  }
+
   function indexAction() {
     $us = UserModel::get();
     $gs = GroupModel::get();
@@ -85,6 +103,9 @@ class AuthController extends Yaf\Controller_Abstract {
       $m0 = 1;
     }
     $sql = "date >= '$y0-$m0-01' and date <= '$y-$m-$d'";
+    //作业指导书, 学习资料
+    $zds = static::scandir('zhiJianYuan/zhiDaoShu');
+    $zl = static::scandir('zhiJianYuan/ziLiao');
     echo json_encode([
       'users' => $us,
       'groups' => $gs,
@@ -99,7 +120,11 @@ class AuthController extends Yaf\Controller_Abstract {
       'jiaoJian' => Table::open('jiaoJian')::where($sql)->get(),
       'ruKuFuJian' => Table::open('ruKuFuJian')::where($sql)->get(),
       'jiaoJianChuLi' => Table::open('jiaoJianChuLi')::orderBy('xiaFaShiJian', 'desc')->get(),
-      'pingJia' => PingJiaModel::get()
+      'zhiJianYuan' => [
+        'dianWen' => DianWenModel::get(),
+        'zhiDaoShu' => $zds,
+        'ziLiao' => $zl
+      ]
     ], JSON_UNESCAPED_UNICODE);
   }
 

@@ -149,7 +149,7 @@ export default {
                 if(row._td && row._td[j])
                   p = {...p, ...row._td[j]}
                 if(c.href && row[c.href])
-                  td.push(h('td', p, [h('a', {domProps: {href: row[c.href]}}, t)]))
+                  td.push(h('td', p, [h('a', {attrs: {href: row[c.href], target: c.target}}, t)]))
                 else {
                   p.domProps = {innerHTML: t === undefined ? null : t}
                   if(c.type == 'pre')

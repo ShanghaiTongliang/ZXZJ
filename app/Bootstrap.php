@@ -41,7 +41,9 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
       'please delete all subitems first' => '请先删除所有子项目',
       'user already exists' => '用户已存在',
       'user does not exists' => '用户不存在',
-      'pingJia not found' => '评价未找到',
+      'dianWen not found' => '电文未找到',
+      'zhiDaoShu not found' => '指导书未找到',
+      'ziLiao not found' => '资料未找到',
     ], 'zh-cn');
     Language::set($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
@@ -181,14 +183,30 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $p['action'] = 'query';
         $router->post('ruKuFuJian/query', $p);
 
-        //评价
-        $p['controller'] = 'pingJia';
-        $p['action'] = 'store';
-        $router->post('pingJia', $p);
-        $p['action'] = 'update';
-        $router->put('pingJia/:id', $p);
-        $p['action'] = 'destroy';
-        $router->delete('pingJia/:id', $p);
+        //质检员
+        //电文下发
+        $p['controller'] = 'zhiJianYuan';
+        $p['action'] = 'storeDianWen';
+        $router->post('zhiJianYuan/dianWen', $p);
+        $p['action'] = 'updateDianWen';
+        $router->put('zhiJianYuan/dianWen/:id', $p);
+        $p['action'] = 'destroyDianWen';
+        $router->delete('zhiJianYuan/dianWen/:id', $p);
+        //作业指导书
+        $p['action'] = 'storeZhiDaoShu';
+        $router->post('zhiJianYuan/zhiDaoShu', $p);
+        //PUT没有 $_FILES变量
+        //$p['action'] = 'updateZhiDaoShu';
+        //$router->put('zhiJianYuan/zhiDaoShu', $p);
+        $p['action'] = 'destroyZhiDaoShu';
+        $router->delete('zhiJianYuan/zhiDaoShu', $p);
+        //资料
+        $p['action'] = 'storeZiLiao';
+        $router->post('zhiJianYuan/ziLiao', $p);
+        //$p['action'] = 'updateZiLiao';
+        //$router->put('zhiJianYuan/ziLiao', $p);
+        $p['action'] = 'destroyZiLiao';
+        $router->delete('zhiJianYuan/ziLiao', $p);
       });
     });
   }

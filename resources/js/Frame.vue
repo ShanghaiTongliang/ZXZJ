@@ -20,8 +20,8 @@ export default {
   components: {SideMenu, Resizer},
   data() {
     return {
-      width: this.$store.state.options.width || 140,
-      visible: this.$store.state.options.visible,
+      width: this.$store.state.options.frame.width || 140,
+      visible: this.$store.state.options.frame.visible,
       menu: [{
         caption: '整车交检故障',
         items: [{
@@ -57,9 +57,20 @@ export default {
         caption: '故障分析',
         href: '#/jiaoJianFenXi'
       }, {
-        name: 'pingJias',
-        caption: '质检员工作评价',
-        href: '#/pingJia'
+        caption: '质检员技术管理',
+        items: [{
+          name: 'dianWens',
+          caption: '电文下发',
+          href: '#/zhiJianYuan/dianWen'
+        }, {
+          name: 'zhiDaoShu',
+          caption: '质检作业指导书',
+          href: '#/zhiJianYuan/zhiDaoShu'
+        }, {
+          name: 'ziLiao',
+          caption: '学习资料',
+          href: '#/zhiJianYuan/ziLiao'
+        }]
       }, {
         name: 'danWei',
         caption: '单位',
