@@ -141,7 +141,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['dict', 'user', 'dict', 'zhiJianYuan']),
+    ...mapState(['dict', 'user', 'dict', 'options', 'zhiJianYuan']),
     tabs() {
       let r = [], pj = this.zhiJianYuan.dianWen, ps
       for(let id in this.user.permission) {
@@ -220,12 +220,11 @@ export default {
       i.type = 'file'
       i.addEventListener('change', e => {
         let f = e.target.files[0]
-        if(f.size > 0x28000)
-          this.error('文件不能大于160K')
+        if(f.size > this.options.zhiJianYuan.uploadMaxSize)
+          this.error(`文件不能大于${sizeFilter(this.options.zhiJianYuan.uploadMaxSize)}`)
         else {
           let fd = new FormData
           fd.append('file', f)
-          this.loading(true)
           cb(fd, f)
         }
       })
@@ -233,8 +232,15 @@ export default {
     },
     upload(t) {
       this.check((fd, f) => {
+        if(this.zhiJianYuan[t].find(d => d.name == f.name)) {
+          this.error(`${f.name} 已经存在`)
+          return
+        }
+        this.loading(true)
         axios.post(`api/zhiJianYuan/${t}`, fd).then(() => {
-          this.zhiJianYuan[t].push({name: f.name, time: f.lastModifiedDate.getTime() / 1000, size: f.size})
+          let d = {name: f.name, time: f.lastModifiedDate.getTime() / 1000, size: f.size}
+          this.$store.state.fixFile(d, t)
+          this.zhiJianYuan[t].push(d)
           this.loading(false)
           this.message('上传成功')
         }).catch(r => {
@@ -245,6 +251,7 @@ export default {
     },
     update(t, d) {
       this.check((fd, f) => {
+        this.loading(true)
         fd.append('name', d.name)
         axios.post(`api/zhiJianYuan/${t}`, fd).then(() => {
           d.time = f.lastModifiedDate.getTime() / 1000
