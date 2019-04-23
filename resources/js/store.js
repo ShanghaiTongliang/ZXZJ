@@ -11,7 +11,7 @@ export default new Vuex.Store({
   state: {
     users: null, user: null, groups: null, danWei: null, std: null, options: null,
     jiaoJian: null, jiaoJianChuLi: null, ruKuFuJian: null, zhiJianYuan: null,
-    dict: null, vertical: false, loading: false, message: null, error: false,
+    dict: null, vertical: false, loading: false, progress: undefined, message: null, error: false,
 
     fixJiaoJian(g) {
       let t = this.dict.guZhang[g.guZhang]
@@ -130,6 +130,10 @@ export default new Vuex.Store({
     },
     loading(state, v) {
       state.loading = v
+    },
+    progress(state, v) {
+      state.loading = v === undefined ? false : true
+      state.progress = v
     },
     fade(state, v) {
       state.message = v

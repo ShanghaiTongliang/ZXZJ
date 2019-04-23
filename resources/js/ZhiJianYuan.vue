@@ -179,7 +179,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['loading', 'message', 'error']),
+    ...mapMutations(['loading', 'progress', 'message', 'error']),
     _save(f, url, cb) {
       this.loading(true)
       f.call(axios, url, this.dianWen).then(r => {
@@ -237,7 +237,9 @@ export default {
           return
         }
         this.loading(true)
-        axios.post(`api/zhiJianYuan/${t}`, fd).then(() => {
+        axios.post(`api/zhiJianYuan/${t}`, fd, {
+          onUploadProgress: e => e.total && this.progress(e.loaded / e.total)
+        }).then(() => {
           let d = {name: f.name, time: f.lastModifiedDate.getTime() / 1000, size: f.size}
           this.$store.state.fixFile(d, t)
           this.zhiJianYuan[t].push(d)

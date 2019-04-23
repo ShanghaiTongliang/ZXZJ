@@ -23,6 +23,8 @@
   z-index: 100;
   display: flex;
 }
+.progress {margin: auto}
+.progress div {color: white}
 .loading {
   width: 64px;
   height: 64px;
@@ -83,12 +85,16 @@
 <script>
 export default {
   functional: true,
-  props: ['loading'],
+  props: ['loading', 'value', 'max'],
   render(h, ctx) {
-    let a = []
+    let a = [], p = ctx.props
     for(let i = 0; i < 8; i++)
       a.push(h('div'))
-    return h('div', {class: 'mask', style: ctx.props.loading ? undefined : {display: 'none'}}, [h('div', {class: 'loading'}, a)])
+    return h('div', {class: 'mask', style: p.loading ? undefined : {display: 'none'}}, [
+        p.value === undefined ? h('div', {class: 'loading'}, a) :
+        h('div', {class: 'progress'}, [h('div', `${(p.value * 100 / (p.max || 1)).toFixed()}%`), h('progress', {attrs: {value: p.value, max: p.max}})])
+      ]
+    )
   }
 }
 </script>

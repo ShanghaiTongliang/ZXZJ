@@ -7,7 +7,7 @@
     <router-view v-else id="frame"></router-view>
     <div class="footer">联系电话: 021-51244254</div>
     <message :message="$store.state.message" :error="$store.state.error"></message>
-    <loading :loading="$store.state.loading"></loading>
+    <loading :loading="$store.state.loading" :value="$store.state.progress"></loading>
   </div>
 </template>
 <script>
