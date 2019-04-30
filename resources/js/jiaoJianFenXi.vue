@@ -294,7 +294,6 @@ export default {
                 dbw.forEach(d => d.dj = {1: 0, 2: 0, 3: 0})
                 gs.forEach(g => {
                   //时间
-                  console.log(c.name)
                   dbw[g.daBuWei].dj[g.dengJi]++
                   dt.detail.push(g)
                   dts.detail.push(g)

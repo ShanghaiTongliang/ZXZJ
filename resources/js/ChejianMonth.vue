@@ -15,7 +15,7 @@ init()
 
 export default {
   functional: true,
-  props: ['danWei', 'cheJian', 'month', 'disabled', 'state'],
+  props: ['danWei', 'cheJian', 'month', 'disabled', 'state', 'vertical'],
   render(h, ctx) {
     let p = ctx.props, l = ctx.listeners, ds = p.state.danWei, cd = ds && ds.find(d => d.id == p.danWei), m = p.month
     if(!m) {
@@ -23,7 +23,7 @@ export default {
       if(l.monthChanged)
         l.monthChanged(m)
     }
-    return h('div', [
+    return h('div', {style: p.vertical && 'display: flex; flex-direction: column'}, [
       h('div', {class: 'group'}, [
         '单位 ', h('select', {attrs: {disabled: p.disabled}, on: {
           change: e => {

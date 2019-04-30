@@ -19,6 +19,13 @@ let root = new Vue({
 
 let o = localStorage.getItem('options')
 store.state.options = o ? JSON.parse(o) : {frame: {visible: true}}
+o = localStorage.getItem('state')
+if(o) {
+  store.state.state = JSON.parse(o)
+  store.state.std.daBuWei = JSON.parse(localStorage.getItem('daBuWei'))
+  store.state.std.cheZhong = JSON.parse(localStorage.getItem('cheZhong'))
+} else
+  store.state.state = {guZhangTime: '', cheZhongTime: ''}
 window.root = root
 
-orientation((v, e) => root.$store.state.vertical = v)
+orientation(v => store.state.vertical = v)

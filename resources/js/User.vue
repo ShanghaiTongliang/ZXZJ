@@ -1,17 +1,28 @@
 <template>
-  <div style="display: flex; flex-direction: column">
+  <div style="display: flex; flex-direction: column; position: relative">
     <template v-if="$route.name == 'users'">
       <datable v-if="reset.length" :table="tblReset" style="flex-shrink: 0; max-height: 50%"></datable>
       <moditable :table="tbl" @save="save" @delete="del"></moditable>
     </template>
     <template v-else-if="$store.state.user == curUser">
-      <div style="position: relative; font-weight: bold"><a href="#/user" class="act">返回</a>{{curUser.name}} 修改密码</div>
-      <form class="form" @submit.prevent="changePassword">
-        　原密码<input type="password" name="previous"><br>
-        　新密码<input type="password" name="password"><br>
-        确认密码<input type="password" name="confirm"><br>
-        <input type="submit" value="修改密码">
-      </form>
+      <a href="#/user" class="act" style="bottom: auto; font-weight: bold">返回</a>
+      <template v-if="curUser.state == USER_STATE_APPROVED_RESET_PASSWORD">
+        请重置您的密码
+        <form class="form" @submit.prevent="changePassword">
+          　新密码<input type="password" name="password"><br>
+          确认密码<input type="password" name="confirm"><br>
+          <input type="submit" value="重置密码">
+        </form>
+      </template>
+      <template v-else>
+        {{curUser.name}} 修改密码
+        <form class="form" @submit.prevent="changePassword">
+          　原密码<input type="password" name="previous"><br>
+          　新密码<input type="password" name="password"><br>
+          确认密码<input type="password" name="confirm"><br>
+          <input type="submit" value="修改密码">
+        </form>
+      </template>
     </template>
   </div>
 </template>
@@ -21,6 +32,7 @@ import Vue from 'vue'
 import Datable from './components/Datable'
 import Moditable from './components/Moditable'
 import { mapState, mapMutations } from 'vuex'
+import {USER_STATE_APPLY_RESET_PASSWORD, USER_STATE_APPROVED_RESET_PASSWORD} from './global'
 
 const columns = {
   id: 'id',
@@ -51,6 +63,7 @@ export default {
   components: {Datable, Moditable},
   data() {
     return {
+      USER_STATE_APPROVED_RESET_PASSWORD,
       show: true,
       tbl: {
         caption: '用户',
@@ -63,12 +76,14 @@ export default {
         actions: [{
           caption: '重置',
           onclick(d) {
-            this.resetPassword('approve', d)
+            if(confirm(`确定要重置 ${d.name} 的密码 ?`))
+              this.resetPassword('approve', d)
           }
         }, {
           caption: '拒绝',
           onclick(d) {
-            this.resetPassword('reject', d)
+            if(confirm(`确定要拒绝 ${d.name} 的重置密码请求 ?`))
+              this.resetPassword('reject', d)
           }
         }],
         data: null
@@ -81,7 +96,7 @@ export default {
       return this.users.find(u => u.id == this.$route.params.id)
     },
     reset() {
-      let r = this.users.filter(u => u.state == 1)
+      let r = this.users.filter(u => u.state == USER_STATE_APPLY_RESET_PASSWORD)
       this.tblReset.data = r
       return r
     },
@@ -165,7 +180,7 @@ export default {
     },
     changePassword(e) {
       e = e.target
-      if(!e.previous.value)
+      if(e.previous && !e.previous.value)
         this.error('请输入原密码')
       else if(!e.password.value)
         this.error('请输入新密码')
@@ -175,10 +190,10 @@ export default {
         this.error('新密码和确认密码不一致')
       else {
         this.loading(true)
-        axios.put(`api/user/${this.$route.params.id}/password`, {
-          id: this.curUser.id, previous: e.previous.value,
-          password: e.password.value, password_confirmation: e.confirm.value
-        }).then(r => {
+        let d = {id: this.curUser.id, password: e.password.value, password_confirmation: e.confirm.value}
+        if(e.previous)
+          d.previous = e.previous.value
+        axios.put(`api/user/${this.$route.params.id}/password`, d).then(r => {
           this.loading(false)
           this.message('修改成功')
         }).catch(r => {

@@ -103,7 +103,7 @@ const colJiaoJian = {
 export default {
   components: {Datable, Kvtable, Moditable, ChejianMonth, Mission},
   render(h) {
-    let gs, c, d, on, t = this.curMonth
+    let ds, gs, c, d, on, t = this.curMonth
     if(this.rn) {
       d = this.tbl.editingIndex >= 0
       on = {
@@ -116,11 +116,10 @@ export default {
       gs = h('moditable', {attrs: {id: 'list'}, props: {table: this.table, selection: this.selection}, on}, [this.rn == 1 ? t && t.count ? h('a', {attrs: {href: '#/jiaoJian/create', class: 'act'}}, '新建') : h('div', {class: 'act'}, '请输入检修数量') : null, h('div', {class: 'dt-info'}, `${this.tbl.data.length}条记录`)])
     } else {
       d = true
-      gs = h('kvtable', {props: {table: this.kv, vertical: this.vertical}},
+      gs = h('kvtable', {style: 'flex-grow: 1', props: {table: this.kv, vertical: this.vertical}},
         [h('a', {attrs: {href: '#/jiaoJian', class: 'act'}}, '返回')])
     }
     c = this.curCheJian
-    let ds
     if(this.rn == 1) {
       ds = ['一', '二', '三', '四', '五', '六', '日'].map(t => h('div', {class: 'jj-date'}, t))
       let i, d = (new Date(`${this.month}-01`)).getDay()
@@ -133,19 +132,21 @@ export default {
           }}
         )]))
       ds.push(h('button', {style: 'float: right'}, '保存'))
-      ds = h('div', {style: {margin: 'auto', flexShrink: 0, display: this.vertical ? null : 'flex'}}, [h('div', {style: this.vertical ? null : 'width: 1.8em'}, '日检修量'), h('form', {class: 'group jj-calendar', on: {
+      ds = h('div', {style: {margin: 'auto', flexShrink: 0, display: this.vertical ? null : 'flex'}}, [h('div', {style: this.vertical ? null : 'width: 1em; margin: 0 .2em 0 .5em'}, '日检修量'), h('form', {class: 'group jj-calendar', on: {
         submit: e => this.saveCount(e, t, c)
       }}, ds)])
     }
-    return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [
-      h('chejian-month', {props: {
-        danWei: this.danWei, cheJian: this.cheJian,
-        month: this.month, disabled: d, state: this.$store.state
-      }, on: {
-        cheJianChanged: this.cheJianChanged,
-        monthChanged: this.monthChanged
-      }}, this.rn == 1 ? [h('div', {class: 'group'}, `检修总量: ${this.count || 0}`)] : null
-), ds, gs, h('mission', {
+    return h('div', {style: 'display: flex; flex-direction: column'}, [
+      h('div', {style: {display: 'flex', margin: 'auto', flexShrink: 0, flexDirection: this.vertical ? 'column' : null}}, [
+        h('chejian-month', {props: {
+          danWei: this.danWei, cheJian: this.cheJian, month: this.month,
+          disabled: d, state: this.$store.state, vertical: this.rn == 1 && !this.vertical
+        }, on: {
+          cheJianChanged: this.cheJianChanged,
+          monthChanged: this.monthChanged
+        }}, this.rn == 1 ? [h('div', {class: 'group'}, `检修总量: ${this.count || 0}`)] : null), ds
+      ])
+      , gs, h('mission', {
         props: {mission: this.mission, role: this.role, editing: this.editingXiaFa}, on: {
           onEditing: v => this.editingXiaFa = v
         }, key: 'm'
@@ -182,8 +183,8 @@ export default {
                 this.message('下发成功')
                 d.state = 1
                 this.$store.state.fixJiaoJian(r.data)
-                this.$store.state.jiaoJianChuLi.push(r.data)
-                this.$store.state.jiaoJianChuLi.sort((a, b) => {
+                this.jiaoJianChuLi.push(r.data)
+                this.jiaoJianChuLi.sort((a, b) => {
                   a = a.xiaFaShiJian
                   b = b.xiaFaShiJian
                   return a == b ? 0 : a > b ? -1 : 1
@@ -212,7 +213,7 @@ export default {
                 this.loading(false)
                 r.id = res.data
                 this.$store.state.fixJiaoJian(r)
-                this.$store.state.jiaoJian.push(r)
+                this.jiaoJian.push(r)
                 this.message('新建成功')
                 this.$router.push('/jiaoJian')
               }).catch(r => {
@@ -226,7 +227,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['user', 'std', 'dict', 'vertical']),
+    ...mapState(['user', 'std', 'dict', 'vertical', 'jiaoJian', 'jiaoJianChuLi']),
     curDanWei() {
       return this.$store.state.danWei && this.$store.state.danWei.find(d => d.id == this.danWei)
     },
@@ -245,18 +246,20 @@ export default {
       return r
     },
     table() {
-      let d = this.$store.state.jiaoJian.filter(g =>
-        g.cheJian == this.cheJian && g.date.substr(0, 7) == this.month)
-      if(this.rn > 2) {
-        d = d.filter(g => g.state)
-        this.selection = d.length ? d[0] : null
+      if(this.jiaoJian) {
+        let d = this.jiaoJian.filter(g =>
+          g.cheJian == this.cheJian && g.date.substr(0, 7) == this.month)
+        if(this.rn > 2) {
+          d = d.filter(g => g.state)
+          this.selection = d.length ? d[0] : null
+        }
+        this.tbl.data = d
       }
-      this.tbl.data = d
       colJiaoJian.user.items = this.curCheJian && this.curCheJian.user
       return this.tbl
     },
     missions() {
-      return this.$store.state.jiaoJianChuLi.filter(g => g.cheJian == this.cheJian && g.date.substr(0, 7) == this.month)
+      return this.jiaoJianChuLi.filter(g => g.cheJian == this.cheJian && g.date.substr(0, 7) == this.month)
     }
   },
   watch: {
@@ -292,7 +295,7 @@ export default {
       },
     },
     selection(g) {
-      this.mission = g && this.$store.state.jiaoJianChuLi.find(c => c.id == g.id)
+      this.mission = g && this.jiaoJianChuLi.find(c => c.id == g.id)
       this.editingXiaFa = false
     }
   },

@@ -1,6 +1,9 @@
 <?php
 
 class UserModel extends BaseModel {
+  const USER_STATE_APPLY_RESET_PASSWORD = 1;
+  const USER_STATE_APPROVED_RESET_PASSWORD = 2;
+
   protected static $hidden = ['password', 'token'];
   protected static $jsonFields = ['groups'];
   protected static $cacheFields = ['icon'];

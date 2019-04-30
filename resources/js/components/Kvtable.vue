@@ -59,7 +59,7 @@ export default {
               } else if(this.table.editing && c.type && (c.editable === undefined || (c.editable instanceof Function ? c.editable.call(this.$parent) : c.editable))) {
                 //if(c.master && l)
                 //  l = f(c, l, row)
-                td.push(h('table-cell', {props: {column: cols[i], value: row[i], items: l, options: this.options}, on: {
+                td.push(h('table-cell', {props: {id: i, column: cols[i], value: row[i], items: l, options: this.options}, on: {
                   input: d => {
                     let c = cols[i]
                     row[i] = d

@@ -96,7 +96,7 @@ export default {
         }})]
         break
       case'number':
-        r = [h('input', {attrs: {id: this.id, type: 'number', min: c.min, max: c.max, step: c.step}, domProps: {value: this.value}, on: {
+        r = [h('input', {attrs: {type: 'number', min: c.min, max: c.max, step: c.step}, domProps: {value: this.value}, on: {
           input: e => {
             let i
             if(e.target.validity.valid)

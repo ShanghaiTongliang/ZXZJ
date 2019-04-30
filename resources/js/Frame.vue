@@ -15,6 +15,7 @@
 <script>
 import SideMenu from './components/SideMenu'
 import Resizer from './components/Resizer'
+import {USER_STATE_APPROVED_RESET_PASSWORD} from './global'
 
 export default {
   components: {SideMenu, Resizer},
@@ -122,7 +123,10 @@ export default {
     $route: {
       immediate: true,
       handler(r, from) {
-        if(!r.name)
+        let u = this.$store.state.user
+        if(u.state == USER_STATE_APPROVED_RESET_PASSWORD && r.name != 'curUser')
+          this.$router.replace(`/user/${u.id}`)
+        else if(!r.name)
           this.$router.replace('/jiaoJian')
         else {
           function find(menu, r) {

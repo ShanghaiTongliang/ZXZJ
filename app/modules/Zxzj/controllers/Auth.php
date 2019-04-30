@@ -106,15 +106,16 @@ class AuthController extends Yaf\Controller_Abstract {
     //作业指导书, 学习资料
     $zds = static::scandir('zhiJianYuan/zhiDaoShu');
     $zl = static::scandir('zhiJianYuan/ziLiao');
+    $o = OptionModel::first();
     echo json_encode([
       'users' => $us,
       'groups' => $gs,
-      'options' => OptionModel::first()->options,
+      'options' => $o->options,
+      'state' => $o->state,
       //单位人员信息
       'danWei' => $ds,
       'std' => [
         'xiuCheng' => Table::open('xiuCheng')::get(),
-        'cheZhong' => Table::open('cheZhong')::get(),
         'peiJian' => $ps,
       ],
       'jiaoJian' => Table::open('jiaoJian')::where($sql)->get(),

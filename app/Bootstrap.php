@@ -135,13 +135,12 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $p['action'] = 'destroy';
         $router->delete('group/:id', $p);
 
-        //故障
-        $p['controller'] = 'guzhang';
-        $p['action'] = 'index';
-        $router->get('guzhang', $p);
-
         //标准参数
         $p['controller'] = 'standard';
+        $p['action'] = 'indexDaBuWei';
+        $router->get('standard/daBuWei', $p);
+        $p['action'] = 'indexCheZhong';
+        $router->get('standard/cheZhong', $p);
         $p['action'] = 'store';
         $router->post('standard/:type', $p);
         $p['action'] = 'update';

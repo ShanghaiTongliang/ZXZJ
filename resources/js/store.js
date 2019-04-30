@@ -1,15 +1,16 @@
+import axios from 'axios'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import router from './router'
 import routes from './routes'
 import merge from './components/merge'
-import {daBuWei, dengJi, peiJianLeiBie} from './global'
+import {dengJi, peiJianLeiBie} from './global'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    users: null, user: null, groups: null, danWei: null, std: null, options: null,
+    users: null, user: null, groups: null, danWei: null, std: {daBuWei: null, guZhang: null}, options: null, state: null,
     jiaoJian: null, jiaoJianChuLi: null, ruKuFuJian: null, zhiJianYuan: null,
     dict: null, vertical: false, loading: false, progress: undefined, message: null, error: false,
 
@@ -79,7 +80,6 @@ export default new Vuex.Store({
       state.danWei = data.danWei
       data.users.forEach(u => state.fixUser(u))
       dict.cheZhong = {}
-      data.std.cheZhong.forEach(d => dict.cheZhong[d.id] = d)
       dict.dengJi = {}
       dengJi.forEach(d => dict.dengJi[d.id] = d)
       dict.peiJian = {}
@@ -93,22 +93,59 @@ export default new Vuex.Store({
         })
       })
       dict.leiBie = {}
-      peiJianLeiBie.forEach(l => dict.leiBie[l.id] = l)
-      let t = []
-      data.std.daBuWei = daBuWei
-      data.std.daBuWei.forEach(d => d.guZhang.forEach(g => t.push(g)))
-      data.std.dengJi = dengJi
-      data.std.guZhang = t
       dict.guZhang = {}
-      data.std.daBuWei.forEach(d => d.guZhang.forEach(g => {
-        dict.guZhang[g.id] = g
-        g.daBuWei = d.id
-      }))
-      state.std = data.std
-      data.jiaoJian.forEach(g => state.fixJiaoJian(g))
+      peiJianLeiBie.forEach(l => dict.leiBie[l.id] = l)
+      let fixDaBuWei = d => {
+        let t = []
+        if(d)
+          state.std.daBuWei = d
+        state.std.daBuWei.forEach(d => d.guZhang.forEach(g => {
+          dict.guZhang[g.id] = g
+          g.daBuWei = d.id
+          t.push(g)
+        }))
+        state.std.guZhang = t
+        state.jiaoJian.forEach(g => state.fixJiaoJian(g))
+        state.jiaoJianChuLi.forEach(c => state.fixJiaoJian(c))
+      }, fixCheZhong = d => {
+        if(d)
+          state.std.cheZhong = d
+        state.std.cheZhong.forEach(d => dict.cheZhong[d.id] = d)
+      }
       state.jiaoJian = data.jiaoJian
-      data.jiaoJianChuLi.forEach(c => state.fixJiaoJian(c))
       state.jiaoJianChuLi = data.jiaoJianChuLi
+      if(data.state.guZhangTime > state.state.guZhangTime) {
+        this.commit('loading', true)
+        axios.get('api/standard/daBuWei').then(r => {
+          this.commit('loading', false)
+          fixDaBuWei(r.data)
+          state.state.guZhangTime = data.state.guZhangTime
+          localStorage.setItem('state', JSON.stringify(state.state))
+          localStorage.setItem('daBuWei', JSON.stringify(r.data))
+        }).catch(r => {
+          this.commit('loading', false)
+          this.commit('error', r.response.data)
+        })
+      } else
+        fixDaBuWei()
+      if(data.state.cheZhongTime > state.state.cheZhongTime) {
+        this.commit('loading', true)
+        axios.get('api/standard/cheZhong').then(r => {
+          this.commit('loading', false)
+          fixCheZhong(r.data)
+          state.state.cheZhongTime = data.state.cheZhongTime
+          localStorage.setItem('state', JSON.stringify(state.state))
+          localStorage.setItem('cheZhong', JSON.stringify(r.data))
+        }).catch(r => {
+          this.commit('loading', false)
+          this.commit('error', r.response.data)
+        })
+      } else
+        fixCheZhong()
+      data.std.dengJi = dengJi
+      for(let k in data.std)
+        Vue.set(state.std, k, data.std[k])
+
       data.ruKuFuJian.forEach(r => state.fixRuKuFuJian(r))
       state.ruKuFuJian = data.ruKuFuJian
       data.zhiJianYuan.dianWen.forEach(d => state.fixDianWen(d))
