@@ -8,7 +8,7 @@ class Redis {
 
   static function instance(): \Redis {
     if(!static::$redis) {
-      $cfg = Application::app()->getConfig();
+      $cfg = Application::app()->getConfig()->redis;
       static::$redis = new \Redis;
       static::$redis->pconnect($cfg['host'], $cfg['port']);
       static::$redis->select($cfg['select']);

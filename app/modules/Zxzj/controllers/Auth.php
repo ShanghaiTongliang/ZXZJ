@@ -27,57 +27,18 @@ class AuthController extends Yaf\Controller_Abstract {
       $f = "img/user/$u->id.png";
       $u->icon = file_exists(APP_PATH . $f) ? $f : 'img/user16.png';
     }
-    if(UserModel::$user->admin()) {
-      $ds = Table::open('danWei')::get();
-      $cs = CheJianModel::get();
-      $us = UserModel::get();
-      foreach($ds as $d)
-        $d->cheJian = [];
-      foreach($cs as $c) {
-        $c->user = [];
-        foreach($ds as $d) {
-          if($c->danWei == $d->id) {
-            $d->cheJian[] = $c;
-            break;
-          }
-        }
-      }
-    } else {
-      $gx = [];
-      $dx = [];
-      $ds = [];
-      $cx = [];
-      $cs = [];
-      foreach(GroupModel::get() as $g)
-        $gx[$g->id] = $g;
-      foreach(UserModel::$user->groups as $g) {
-        $g = $gx[$g];
-        foreach($g->cheJian as $c0)
-          if(!$c = $cx[$c0->id] ?? null) {
-            $c = CheJianModel::find($c0->id);
-            $c->user = [];
-            $cx[$c->id] = $c;
-          }
-      }
-      $m = Table::open('danWei');
-      foreach($cx as $c) {
-        $cs[] = $c;
-        if(!$d = $dx[$c->danWei] ?? null) {
-          $d = $m::find($c->danWei);
-          $d->cheJian = [];
-          $dx[$d->id] = $d;
-        }
-        $d->cheJian[] = $c;
-      }
-      foreach($dx as $d)
-        $ds[] = $d;
-    }
-    $zcs = JiaoJianCountModel::orderBy('month')->get();
+    $ds = Table::open('danWei')::get();
+    $cs = CheJianModel::get();
+    foreach($ds as $d)
+      $d->cheJian = [];
     foreach($cs as $c) {
-      $c->jiaoJian = [];
-      foreach($zcs as $z)
-        if($z->cheJian == $c->id)
-          $c->jiaoJian[] = $z;
+      $c->user = [];
+      foreach($ds as $d) {
+        if($c->danWei == $d->id) {
+          $d->cheJian[] = $c;
+          break;
+        }
+      }
     }
     foreach($us as $u)
       foreach($cs as $c)
@@ -85,6 +46,13 @@ class AuthController extends Yaf\Controller_Abstract {
           $c->user[] = $u->id;
           break;
         }
+    $zcs = JiaoJianCountModel::orderBy('month')->get();
+    foreach($cs as $c) {
+      $c->jiaoJian = [];
+      foreach($zcs as $z)
+        if($z->cheJian == $c->id)
+          $c->jiaoJian[] = $z;
+    }
     foreach($ps = Table::open('peiJian')::get() as $p)
       $p->xingHao = [];
     foreach(Table::open('xingHao')::get() as $x)
@@ -112,9 +80,8 @@ class AuthController extends Yaf\Controller_Abstract {
       'groups' => $gs,
       'options' => $o->options,
       'state' => $o->state,
-      //单位人员信息
-      'danWei' => $ds,
       'std' => [
+        'danWei' => $ds,
         'xiuCheng' => Table::open('xiuCheng')::get(),
         'peiJian' => $ps,
       ],

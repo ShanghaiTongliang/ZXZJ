@@ -13,6 +13,7 @@ import Tabs from './components/Tabs'
 import Datable from './components/Datable'
 import {sizeFilter} from './components/filters'
 import {mapState, mapMutations} from 'vuex';
+import {PERMISSION_MANAGE} from './global'
 
 const columns = {
   title: {
@@ -45,13 +46,17 @@ export default {
   render(h) {
     let n = this.$route.name, r
     if(n == 'dianWens') {
-      return h('tabs', {props: {tabs: this.tabs}},
-        this.tbls.map((t, i) => h('datable', {props: {table: t}, slot: i}, [h('a', {attrs: {href: '#/zhiJianYuan/dianWen/create', class: 'act'}}, '新建')])))
+      let a, c, p
+      if(this.user.manage.length)
+        a = h('div', {style: 'text-align: left'}, [h('a', {attrs: {href: '#/zhiJianYuan/dianWen/create'}, class: 'act static'}, '新建')])
+      p = h('tabs', {props: {tabs: this.tabs}},
+        this.tbls.map((t, i) => h('datable', {props: {table: t}, slot: i})))
+      return a ? h('div', [a, p]) : p
     } else if(n == 'dianWen')
       return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [
         h('div', {class: 'caption'}, [this.curDianWen.title, h('div', {class: 'act'}, [
           h('a', {attrs: {href: '#/zhiJianYuan/dianWen'}}, '返回'), ' ',
-          h('a', {attrs: {href: `#/zhiJianYuan/dianWen/${this.curDianWen.id}/edit`}}, '编辑')
+          this.user.manage.length ? h('a', {attrs: {href: `#/zhiJianYuan/dianWen/${this.curDianWen.id}/edit`}}, '编辑') : null
         ])]),
         h('pre', {class: 'text'}, this.curDianWen.detail),
         //this.user.permission[]
@@ -88,17 +93,17 @@ export default {
         }}, '保存')])
       ])
     else if(n == 'zhiDaoShu')
-      return h('datable', {props: {table: this.tblZhiDaoShu}, class: 'container'}, [
+      return h('datable', {props: {table: this.tblZhiDaoShu}, class: 'container'}, this.user.manage.length ? [
         h('button', {class: 'act', on: {
           click: () => this.upload('zhiDaoShu')
         }}, '上传')
-      ])
+      ] : null)
     else
-      return h('datable', {props: {table: this.tblZiLiao}, class: 'container'}, [
+      return h('datable', {props: {table: this.tblZiLiao}, class: 'container'}, this.user.manage.length ? [
         h('button', {class: 'act', on: {
           click: () => this.upload('ziLiao')
         }}, '上传')
-      ])
+      ] : null)
   },
   data() {
     return {
@@ -156,9 +161,10 @@ export default {
       return r
     },
     cheJians() {
-      let r = [], d = this.dict.cheJian
-      for(let id in this.user.permission)
-        r.push(d[id])
+      let r = [], d = this.dict.cheJian, c, p = this.user.permission
+      for(c in p)
+        if(p[c] & PERMISSION_MANAGE)
+          r.push(d[c])
       return r
     }
   },

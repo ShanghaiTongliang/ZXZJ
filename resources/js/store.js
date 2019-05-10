@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 import router from './router'
 import routes from './routes'
 import merge from './components/merge'
-import {dengJi, peiJianLeiBie} from './global'
+import {dengJi, peiJianLeiBie, PERMISSION_DATA, PERMISSION_REPAIR, PERMISSION_VIEW, PERMISSION_MANAGE} from './global'
 
 Vue.use(Vuex)
 
@@ -44,40 +44,75 @@ export default new Vuex.Store({
       this.dict.cheJian[c.id] = c
     },
     fixUser(u) {
-      u.permission = {}
-      if(u.groups.includes(255))
-        this.danWei.forEach(d => d.cheJian.forEach(c => u.permission[c.id] = 255))
-      else
-        u.groups.forEach(id => this.dict.groups[id].cheJian.forEach(c =>
-          u.permission[c.id] = u.permission[c.id] === undefined ? c.permission : u.permission[c.id] | c.permission))
       this.dict.user[u.id] = u
+    },
+    fixPermission(u) {
+      u.permission = {}
+      u.data = []
+      u.repair = []
+      //u.view = []
+      u.manage = []
+      if(u.groups.includes(255)) {
+        u.admin = true
+        this.std.danWei.forEach(d0 => {
+          let d = {...d0, cheJian: []}
+          d0.cheJian.forEach(c => {
+            u.permission[c.id] = 255
+            d.cheJian.push(c)
+          })
+          u.data.push(d)
+          u.repair.push(d)
+          //u.view.push(d)
+          u.manage.push(d)
+        })
+      } else {
+        let d, cx = {data: [], repair: [], manage: []}, dx = {data: [], repair: [], manage: []}, dd = this.dict.danWei
+        function addCheJian(c, t) {
+          if(!(d = dx[t][c.danWei])) {
+            d = {...dd[c.danWei], cheJian: []}
+            dx[t][c.danWei] = d
+            u[t].push(d)
+          }
+          if(!cx[t][c.id]) {
+            cx[t][c.id] = 1
+            d.cheJian.push(c)
+          }
+        }
+        u.admin = false
+        u.groups.forEach(id => this.dict.groups[id].cheJian.forEach(c => {
+          u.permission[c.id] = u.permission[c.id] === undefined ? c.permission : u.permission[c.id] | c.permission
+          let t = this.dict.cheJian[c.id]
+          if(c.permission & (PERMISSION_DATA | PERMISSION_VIEW | PERMISSION_MANAGE))
+            addCheJian(t, 'data')
+          if(c.permission & (PERMISSION_REPAIR | PERMISSION_VIEW | PERMISSION_MANAGE))
+            addCheJian(t, 'repair')
+          //if(c.permission & PERMISSION_VIEW)
+          //  addCheJian(t, 'view')
+          if(c.permission & PERMISSION_MANAGE)
+            addCheJian(t, 'manage')
+        }))
+      }
     }
   },
   mutations: {
     auth(state, {data, id, url}) {
-      let dict = {groups: {}, danWei: {}, cheJian: {}, user: {}}
+      let dict = {groups: {}, danWei: {}, cheJian: {}, user: {}}, cs = [], u
       state.dict = dict
       data.groups.forEach(g => state.fixGroup(g))
       state.groups = data.groups
       state.users = data.users
       merge(state.options, data.options)
       //建立字典
-      data.danWei.forEach(d => {
+      data.std.danWei.forEach(d => {
         state.fixDanWei(d)
         d.cheJian.forEach(c => {
+          cs.push(c)
           c.danWei = d.id
           state.fixCheJian(c)
-          c.user = c.user.map(id => {
-            return state.users.find(u => {
-              return u.id == id
-            })
-          })
+          c.user = c.user.map(id => state.users.find(u => u.id == id))
         })
       })
-      let cs = []
-      data.danWei.forEach(d => d.cheJian.forEach(c => cs.push(c)))
-      data.std.cheJian = cs
-      state.danWei = data.danWei
+      state.std.danWei = data.std.danWei
       data.users.forEach(u => state.fixUser(u))
       dict.cheZhong = {}
       dict.dengJi = {}
@@ -153,8 +188,29 @@ export default new Vuex.Store({
       data.zhiJianYuan.ziLiao.forEach(f => state.fixFile(f, 'ziLiao'))
       state.zhiJianYuan = data.zhiJianYuan
 
-      state.user = data.users.find(u => u.id == id)
-      state.user.url = `#/user/${state.user.id}`
+      u = data.users.find(u => u.id == id)
+      u.url = `#/user/${u.id}`
+      if(u.groups.includes(255))
+        state.danWei = state.std.danWei
+      else {
+        let ds = [], dx = []
+        cs = []
+        u.groups.forEach(g => {
+          dict.groups[g].cheJian.forEach(c => !cs[c.id] && (cs[c.id] = dict.cheJian[c.id]))
+        })
+        cs.forEach(c => {
+          let d = dx[c.danWei], d0
+          if(!d) {
+            d = {...dict.danWei[c.danWei], cheJian: []}
+            dx[c.danWei] = d
+          }
+          d.cheJian.push(c)
+        })
+        dx.forEach(d => ds.push(d))
+        state.danWei = ds
+      }
+      state.user = u
+      state.fixPermission(u)
       if(!state.routes) {
         state.routes = true
         router.addRoutes(routes)

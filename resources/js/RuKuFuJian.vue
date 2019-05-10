@@ -1,6 +1,6 @@
 <template>
   <div v-if="$route.name == 'ruKuFuJian'">
-    <chejian-month :danWei="danWei" :cheJian="cheJian" :month="month" :disabled="editing" :state="$store.state" @cheJianChanged="cheJianChanged" @monthChanged="monthChanged"></chejian-month>
+    <chejian-month :danWeis="user.data" :danWei="danWei" :cheJian="cheJian" :month="month" :disabled="editing" :state="$store.state" @cheJianChanged="cheJianChanged" @monthChanged="monthChanged"></chejian-month>
     <moditable :table="table" @edit="edit" @cancel="cancel" @save="save" @delete="del">
       <a href="#/ruKuFuJian/create" class="act">新建</a>
       <span class="dt-info">{{`${this.tbl.data.length}条记录`}}</span>
@@ -91,9 +91,10 @@ const columns = {
 export default {
   components: {Datable, Kvtable, Moditable, ChejianMonth},
   data() {
+    let d = this.$store.state.user.data
     return {
-      danWei: this.$store.state.danWei[0].id,
-      cheJian: this.$store.state.danWei[0].cheJian[0].id,
+      danWei: d.length && d[0].id,
+      cheJian: d.length && d[0].cheJian[0].id,
       month: null,
       tbl: {
         caption: '站修入库配件复检记录表',
@@ -131,7 +132,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['dict', 'ruKuFuJian']),
+    ...mapState(['dict', 'user', 'ruKuFuJian']),
     editing() {
       return this.tbl.editingIndex >= 0
     },

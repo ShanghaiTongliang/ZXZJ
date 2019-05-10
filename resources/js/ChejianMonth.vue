@@ -15,9 +15,10 @@ init()
 
 export default {
   functional: true,
-  props: ['danWei', 'cheJian', 'month', 'disabled', 'state', 'vertical'],
+  props: ['danWeis', 'danWei', 'cheJian', 'month', 'disabled', 'state', 'vertical'],
   render(h, ctx) {
-    let p = ctx.props, l = ctx.listeners, ds = p.state.danWei, cd = ds && ds.find(d => d.id == p.danWei), m = p.month
+    let p = ctx.props, l = ctx.listeners, ds = p.danWeis, cd, m = p.month, u = p.state.user
+    cd = ds && ds.find(d => d.id == p.danWei)
     if(!m) {
       m = months[0]
       if(l.monthChanged)

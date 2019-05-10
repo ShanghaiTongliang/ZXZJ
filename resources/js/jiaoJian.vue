@@ -139,7 +139,7 @@ export default {
     return h('div', {style: 'display: flex; flex-direction: column'}, [
       h('div', {style: {display: 'flex', margin: 'auto', flexShrink: 0, flexDirection: this.vertical ? 'column' : null}}, [
         h('chejian-month', {props: {
-          danWei: this.danWei, cheJian: this.cheJian, month: this.month,
+          danWeis: this.rn == 3 ? this.user.repair : this.user.data, danWei: this.danWei, cheJian: this.cheJian, month: this.month,
           disabled: d, state: this.$store.state, vertical: this.rn == 1 && !this.vertical
         }, on: {
           cheJianChanged: this.cheJianChanged,
@@ -156,8 +156,8 @@ export default {
   data() {
     return {
       rn: null,
-      danWei: this.$store.state.danWei[0].id,
-      cheJian: this.$store.state.danWei[0].cheJian[0].id,
+      danWei: 0,
+      cheJian: 0,
       month: null,
       dateCount: 0,
       count: undefined,
@@ -173,7 +173,7 @@ export default {
         actions: [{
           caption: '下发',
           condition(d) {
-            return this.$route.name == 'jiaoJianXiaFa' && this.editable && this.tbl.editingIndex < 0 && !d.state
+            return this.rn == 1 && this.editable && this.tbl.editingIndex < 0 && !d.state
           },
           onclick(d) {
             if(confirm('是否下发不合格通知单 ?')) {
@@ -279,6 +279,14 @@ export default {
             if(d.length)
               this.selection = d[0]
             this.editingXiaFa = false
+          }
+          let u = this.user
+          if(this.rn == 3) {
+            this.danWei = u.repair.length && u.repair[0].id
+            this.cheJian = u.repair.length && u.repair[0].cheJian[0].id
+          } else {
+            this.danWei = u.data.length && u.data[0].id
+            this.cheJian = u.data.length && u.data[0].cheJian[0].id
           }
         } else
           this.kv.data = {danWei: this.danWei, cheJian: this.cheJian}
@@ -393,8 +401,8 @@ export default {
   },
   created() {
     let d = this.dict.groups
-    this.editable = this.user.groups.find(g => {
-      return g == 255 || d[g].cheJian.find(c => {
+    this.editable = this.user.admin || this.user.groups.find(g => {
+      return d[g].cheJian.find(c => {
         let r = c.id == this.cheJian && c.permission & PERMISSION_DATA
         return r
       })

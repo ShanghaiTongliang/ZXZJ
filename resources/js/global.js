@@ -1,7 +1,7 @@
 export const dengJi = [{id: 1, name: 'A'}, {id: 2, name: 'B'}, {id: 3, name: 'C'}],
 stateColor = ['', 'red', 'orange', 'orange', 'green'],
 //权限掩码: 1 质检员数据输入, 2 检修员签收 4 管理员
-PERMISSION_DATA = 1, PERMISSION_REPAIR = 2, PERMISSION_MANAGE = 4,
+PERMISSION_DATA = 1, PERMISSION_REPAIR = 2, PERMISSION_VIEW = 4, PERMISSION_MANAGE = 128,
 permissions = [{
   id: PERMISSION_DATA,
   name: '数据',
@@ -10,6 +10,10 @@ permissions = [{
   id: PERMISSION_REPAIR,
   name: '检修',
   color: 'blue'
+}, {
+  id: PERMISSION_VIEW,
+  name: '查看',
+  color: 'purple'
 }, {
   id: PERMISSION_MANAGE,
   name: '管理',

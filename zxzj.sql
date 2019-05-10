@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2019-04-23 10:15:15
+-- 生成日期： 2019-05-10 11:00:07
 -- 服务器版本： 10.3.13-MariaDB
 -- PHP 版本： 7.2.16
 
@@ -530,8 +530,8 @@ CREATE TABLE `group` (
 --
 
 INSERT INTO `group` (`id`, `name`, `cheJian`) VALUES
-(1, '杭州北车辆段管理员', '[{\"id\":1,\"permission\":4},{\"id\":2,\"permission\":4},{\"id\":3,\"permission\":4},{\"id\":9,\"permission\":4},{\"id\":10,\"permission\":4},{\"id\":8,\"permission\":4}]'),
-(2, '南京东车辆段管理员', '[{\"id\":4,\"permission\":4},{\"id\":5,\"permission\":4},{\"id\":7,\"permission\":4},{\"id\":6,\"permission\":4}]'),
+(1, '杭州北车辆段管理员', '[{\"id\":1,\"permission\":128},{\"id\":2,\"permission\":128},{\"id\":3,\"permission\":128},{\"id\":9,\"permission\":128},{\"id\":10,\"permission\":128},{\"id\":8,\"permission\":128}]'),
+(2, '南京东车辆段管理员', '[{\"id\":4,\"permission\":128},{\"id\":5,\"permission\":128},{\"id\":7,\"permission\":128},{\"id\":6,\"permission\":128}]'),
 (3, '杭州北-南翔站修质检', '[{\"id\":1,\"permission\":1}]'),
 (4, '杭州北-南翔站修检修', '[{\"id\":1,\"permission\":2}]'),
 (5, '杭州北-阜阳站修质检', '[{\"id\":2,\"permission\":1}]'),
@@ -552,7 +552,7 @@ INSERT INTO `group` (`id`, `name`, `cheJian`) VALUES
 (20, '南京东-蚌埠站修检修', '[{\"id\":6,\"permission\":2}]'),
 (21, '南京东-徐州站修质检', '[{\"id\":5,\"permission\":1}]'),
 (22, '南京东-徐州站修检修', '[{\"id\":5,\"permission\":2}]'),
-(254, '路局领导', '[{\"id\":5,\"permission\":0},{\"id\":1,\"permission\":0},{\"id\":2,\"permission\":0},{\"id\":3,\"permission\":0},{\"id\":8,\"permission\":0},{\"id\":9,\"permission\":0},{\"id\":10,\"permission\":0},{\"id\":4,\"permission\":0},{\"id\":6,\"permission\":0},{\"id\":7,\"permission\":0}]'),
+(254, '路局领导', '[{\"id\":5,\"permission\":4},{\"id\":1,\"permission\":4},{\"id\":2,\"permission\":4},{\"id\":3,\"permission\":4},{\"id\":8,\"permission\":4},{\"id\":9,\"permission\":4},{\"id\":10,\"permission\":4},{\"id\":4,\"permission\":4},{\"id\":6,\"permission\":4},{\"id\":7,\"permission\":4}]'),
 (255, '管理员', '[]');
 
 -- --------------------------------------------------------
@@ -938,7 +938,7 @@ INSERT INTO `jiaoJian` (`id`, `date`, `cheHao`, `xiuCheng`, `cheZhong`, `guZhang
 (7, '2019-01-05', '4444', 1, 5, 318, 1, 3, 5, 3),
 (8, '2019-03-01', '4332', 1, 1, 1, 1, 3, 4, NULL),
 (10, '2019-03-01', 'njd', 2, 3, 169, 2, 4, 4, NULL),
-(11, '2019-03-01', '3344556', 4, 7, 6, 1, 1, 10, 2),
+(11, '2019-03-01', '334455', 4, 7, 6, 1, 1, 10, 2),
 (12, '2019-03-03', '4433356', 3, 132, 172, 1, 1, 10, NULL),
 (13, '2019-03-07', '3322556', 4, 2, 290, 1, 1, 10, 3);
 
@@ -1016,15 +1016,16 @@ INSERT INTO `jiaoJianCount` (`id`, `month`, `cheJian`, `count`, `counts`) VALUES
 
 CREATE TABLE `option` (
   `id` tinyint(3) UNSIGNED NOT NULL,
-  `options` varchar(16384) DEFAULT NULL
+  `options` varchar(16384) DEFAULT NULL,
+  `state` varchar(1024) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 --
 -- 转存表中的数据 `option`
 --
 
-INSERT INTO `option` (`id`, `options`) VALUES
-(0, '{\"zhiJianYuan\":{\"uploadMaxSize\":8388608}}');
+INSERT INTO `option` (`id`, `options`, `state`) VALUES
+(0, '{\"zhiJianYuan\":{\"uploadMaxSize\":4194306}}', '{\"guZhangTime\":\"2019-04-25 03:20:00\",\"cheZhongTime\":\"2019-04-30 16:11:36\"}');
 
 -- --------------------------------------------------------
 
@@ -1154,14 +1155,14 @@ INSERT INTO `user` (`id`, `name`, `password`, `token`, `groups`, `danWei`, `cheJ
 (12, '黄四', 'fdjPkQXbQxVaM', NULL, '[7]', 1, 3, NULL),
 (13, '张一', 'fdjPkQXbQxVaM', NULL, '[9]', 1, 9, NULL),
 (14, '张二', 'fdjPkQXbQxVaM', NULL, '[13]', 1, 8, NULL),
-(15, '张三', 'fdjPkQXbQxVaM', NULL, '[11]', 1, 10, 1),
+(15, '张三', '69qg/jTJe.AEY', NULL, '[11]', 1, 10, 2),
 (16, '张四', 'fdjPkQXbQxVaM', NULL, '[17]', 2, 7, NULL),
 (17, '张五', 'fdjPkQXbQxVaM', NULL, '[19]', 2, 6, NULL),
 (18, '张六', 'fdjPkQXbQxVaM', NULL, '[21]', 2, 5, NULL),
 (19, '张七', 'fdjPkQXbQxVaM', NULL, '[15]', 2, 4, NULL),
 (20, '张八', 'fdjPkQXbQxVaM', NULL, '[4]', 1, 1, NULL),
 (21, '容工', 'fdjPkQXbQxVaM', NULL, '[254]', NULL, NULL, NULL),
-(22, 'test', '49a7DBHlRgrCQ', NULL, '[16,255]', NULL, NULL, NULL);
+(22, 'test', '49a7DBHlRgrCQ', NULL, '[1,15,17,3,4,5,6]', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 

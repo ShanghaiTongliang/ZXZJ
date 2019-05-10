@@ -73,10 +73,11 @@ input[type=month] {width: 9em}
 }
 .close:hover {background-color: rgba(0, 0, 0, .3)
 }
-.red, .orange, .yellow, .green, .blue {font-weight: bold}
+.red, .orange, .yellow, .green, .blue, .purple {font-weight: bold}
 .red {color: red}
 .orange {color: orange}
 .yellow {color: yellow}
 .green {color: green}
 .blue {color: blue}
+.purple {color: purple}
 .gray {background-color: lightgray}

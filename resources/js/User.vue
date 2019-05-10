@@ -2,10 +2,10 @@
   <div style="display: flex; flex-direction: column; position: relative">
     <template v-if="$route.name == 'users'">
       <datable v-if="reset.length" :table="tblReset" style="flex-shrink: 0; max-height: 50%"></datable>
-      <moditable :table="tbl" @save="save" @delete="del"></moditable>
+      <moditable :table="tbl" @editable="editable" @edit="edit" @save="save" @delete="del" @cancel="cancel"></moditable>
     </template>
-    <template v-else-if="$store.state.user == curUser">
-      <a href="#/user" class="act" style="bottom: auto; font-weight: bold">返回</a>
+    <template v-else-if="user == curUser">
+      <a v-if="user.manage.length" href="#/user" class="act" style="bottom: auto; font-weight: bold">返回</a>
       <template v-if="curUser.state == USER_STATE_APPROVED_RESET_PASSWORD">
         请重置您的密码
         <form class="form" @submit.prevent="changePassword">
@@ -58,6 +58,7 @@ const columns = {
     master: ['danWei']
   }
 }
+let groups
 
 export default {
   components: {Datable, Moditable},
@@ -91,7 +92,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['dict', 'users']),
+    ...mapState(['dict', 'groups', 'users', 'user']),
     curUser() {
       return this.users.find(u => u.id == this.$route.params.id)
     },
@@ -122,16 +123,23 @@ export default {
     $route: {
       immediate: true,
       handler(r) {
-        if(r.name == 'curUser' && this.$store.state.user.id != this.curUser.id)
+        if(r.name == 'curUser' && this.user.id != this.curUser.id)
           this.$router.replace('/jiaoJian')
       }
     }
   },
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
+    editable(d) {
+      return this.user.admin || !d.groups.includes(255)
+    },
+    edit() {
+      if(!this.user.admin)
+        columns.groups.items = groups
+    },
     save(d, i, next, o) {
       this.loading(true)
-      axios.put(`api/user/${d.id}`, {name: d.name, groups: d.groups, danWei: d.danWei, cheJian: d.cheJian}).then(res => {
+      axios.put(`api/user/${d.id}`, {name: d.name, groups: d.groups, danWei: d.danWei, cheJian: d.cheJian}).then(() => {
         this.loading(false)
         if(d.cheJian != o.cheJian) {
           let f, t
@@ -149,9 +157,18 @@ export default {
             t.sort((a, b) => a.id - b.id)
           }
         }
+        this.$store.state.fixUser(d)
         next()
+        if(d.id == this.user.id) {
+          this.$store.state.user = d
+          this.$store.state.fixPermission(d)
+        }
+        if(!this.user.admin)
+          columns.groups.items = this.groups
         this.message('保存成功')
       }).catch(res => {
+        if(!this.user.admin)
+          columns.groups.items = this.groups
         this.loading(false)
         this.error(res.response.data)
       })
@@ -169,6 +186,10 @@ export default {
         })
       }
       return false
+    },
+    cancel() {
+      if(!this.user.admin)
+        columns.groups.items = this.groups
     },
     resetPassword(action, d) {
       this.loading(true)
@@ -204,7 +225,9 @@ export default {
     }
   },
   created() {
-    columns.groups.items = this.$store.state.groups
+    groups = [...this.groups]
+    groups.pop()
+    columns.groups.items = this.groups
     columns.danWei.items = this.danWei
   }
 }

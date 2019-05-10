@@ -39,7 +39,10 @@ table.datable {
   border-bottom: 1px solid #ccc;
 }
 .datable-left {text-align: left}
-.datable td label {display: inline-block}
+.datable td label {
+  display: inline-block;
+  margin-right: .5em;
+}
 .datable a, .datable button {margin: 0 .1em}
 .datable button {white-space: nowrap}
 .datable input, .datable select {
@@ -63,6 +66,7 @@ tr.selection {
   background-color: #37f !important;
 }
 .act {
+  font-weight: bold;
   position: absolute;
   left: 0;
   bottom: 0;
@@ -73,6 +77,7 @@ div.act, a.act {
   background-color: white;
 }
 .act>* {margin: .2em !important}
+.act.static {position: static}
 .dt-info {
   position: absolute;
   right: 0;

@@ -12,7 +12,9 @@ export default {
   props: ['menu', 'selection'],
   render(h) {
     let p = this.$parent, r = (menu, f) => {
-      return h('ul', {class: ['menu', f && 'side-menu']}, menu.filter(mi => mi.condition === undefined || mi.condition instanceof Function && mi.condition.call(p) || mi.condition)
+      return h('ul', {class: ['menu', f && 'side-menu']}, menu.filter(mi => {
+        return mi.condition === undefined || mi.condition instanceof Function && mi.condition.call(p) || mi.condition
+      })
       .map((mi, i) => {
         let ct = 'span', ca = {domProps: {innerHTML: mi.caption}}, c
         if(mi.icon) {

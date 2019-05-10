@@ -13,7 +13,8 @@
     }
   ],
   "require": {
-    "oblind/language": "dev-master"
+    "oblind/language": "dev-master",
+    "ralouphie/getallheaders": "^3.0"
   },
   "require-dev": {
   }
