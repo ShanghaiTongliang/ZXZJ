@@ -25,7 +25,7 @@ class ZhiJianYuanController extends Yaf\Controller_Abstract {
     $d = $this->getRequest()->getParams();
     if($d = DianWenModel::find($d['id'])) {
       if(!in_array($id = UserModel::$user->id, $d->checkin)) {
-        $d->checkin[] = $id;
+        $d->checkin[] = ['user' => $id, 'date' => date('Y-m-d')];
         $d->checkin = $d->checkin;
       }
       $d->save();

@@ -32,7 +32,11 @@ const columns = {
   },
   checkin: {
     caption: '已签收',
-    items: null
+    items: null,
+    filter(t) {
+      let us = this.$store.state.dict.user
+      return t.map(u => us[u.user].name).join(', ')
+    }
   },
   state: {
     caption: '状态',
@@ -42,7 +46,23 @@ const columns = {
       return t
     }
   }
-}, colCheckin = {
+}, actions = [{
+  caption: '删除',
+  onclick(d, i, r) {
+    if(confirm(`确定要删除 ${d.title} ?`)) {
+      let p = this.$parent, ds = p.zhiJianYuan.dianWen
+      p.loading(true)
+      axios.delete(`api/zhiJianYuan/dianWen/${d.id}`).then(() => {
+        p.loading(false)
+        for(i = 0; i < ds.length; i++)
+          if(ds[i].id == d.id) {
+            p.zhiJianYuan.dianWen.splice(i, 1)
+            break
+          }
+      })
+    }
+  }
+}], colCheckin = {
   user: '质检员',
   date: '签收日期',
 }, colFiles = {
@@ -70,10 +90,10 @@ export default {
       let a, c, p
       if(this.user.manage.length)
         a = h('div', {style: 'text-align: left'}, [h('a', {attrs: {href: '#/zhiJianYuan/dianWen/create'}, class: 'act static'}, '新建')])
-      p = h('tabs', {props: {tabs: this.tabs}, on: {
+      p = h('tabs', {props: {tabs: this.tabs}, ref: 'tab', on: {
         tabIndex: this.tabIndex
       }}, this.tbls.map((t, i) => h('div', {slot: i}, [
-        h('datable', {props: {table: t}, ref: `tbl${i}`, on: {
+        h('datable', {props: {table: t, selection: t.selection}, ref: `tbl${i}`, on: {
           rowSelect: this.rowSelect
         }}),
         h('datable', {props: {table: this.tblCheckin[i]}})
@@ -193,8 +213,8 @@ export default {
         }).map(u => u.id)
         ds = this.zhiJianYuan.dianWen.filter(d => d.cheJian.includes(id)).map(d => {
           let r = {...d}, c = this.dict.cheJian[id]
-          r.checkin = d.checkin.filter(u => us.includes(u))
-          r.uncheck = d.uncheck.filter(u => us.includes(u))
+          r.checkin = d.checkin.filter(u => us.find(v => v == u.user))
+          r.uncheck = d.uncheck.filter(u => us.find(v => v == u.user))
           return r
         })
         r.push(this.dict.cheJian[id].name)
@@ -204,10 +224,12 @@ export default {
           id,
           caption: this.dict.cheJian[id].name,
           columns: c,
-          data: ds
+          actions,
+          data: ds,
+          selection: null
         })
         this.tblCheckin.push({
-          caption: '签收情况',
+          caption: '已签收情况',
           columns: colCheckin,
           data: null
         })
@@ -220,7 +242,9 @@ export default {
         this.tbls.unshift({
           caption: '全部',
           columns: c,
-          data: this.zhiJianYuan.dianWen
+          actions,
+          data: this.zhiJianYuan.dianWen,
+          selection: null
         })
         this.tblCheckin.unshift({
           caption: '签收情况',
@@ -259,8 +283,10 @@ export default {
     tabIndex(i) {
       setTimeout(() => this.$refs[`tbl${i}`].onScroll(), 0)
     },
-    rowSelect(d, i, r) {
-      console.log(d, i, r)
+    rowSelect(d) {
+      let i = this.$refs.tab.tabIdx, us = this.dict.user
+      this.tbls[i].selection = d
+      this.tblCheckin[this.$refs.tab.tabIdx].data = d.checkin.map(u => ({user: us[u.user].name, date: '2019-05-20'}))
     },
     _save(f, url, cb) {
       this.loading(true)
@@ -367,9 +393,11 @@ export default {
       axios.put(`api/zhiJianYuan/dianWen/${this.curDianWen.id}/checkin`).then(r => {
         this.curDianWen.state = 1
         this.curDianWen.checkin.push(this.user.id)
-        let i = this.curDianWen.uncheck.indexOf(this.user.id)
-        if(i >= 0)
-          this.curDianWen.uncheck.splice(i, 1)
+        for(let i in this.curDianWen.uncheck)
+          if(this.curDianWen.uncheck[i].user == this.user.id) {
+            this.curDianWen.uncheck.splice(i, 1)
+            break
+          }
         this.loading(false)
         this.message('签收成功')
       }).catch(r => {
