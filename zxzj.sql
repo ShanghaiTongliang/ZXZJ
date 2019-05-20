@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2019-05-20 11:37:51
+-- 生成日期： 2019-05-20 16:08:36
 -- 服务器版本： 10.3.13-MariaDB
 -- PHP 版本： 7.2.16
 
@@ -511,9 +511,8 @@ CREATE TABLE `dianWen` (
 --
 
 INSERT INTO `dianWen` (`id`, `poster`, `cheJian`, `title`, `detail`, `attachment`, `date`, `checkin`) VALUES
-(1, 1, '[1,2,8,9]', 'test', 'ssss\nddddd', NULL, '2019-05-01', '[3,4]'),
-(2, 1, '[1,2,3,4]', 'dgdfgdf', 'wetrwetre', NULL, '2019-05-13', '[3]'),
-(3, 1, '[1]', '111', '222', NULL, '2019-05-16', '[3]');
+(1, 1, '[1,2,8,9]', 'test', 'ssss\nddddd', NULL, '2019-05-01', '[{\"user\":4,\"date\":\"2019-05-20\"}]'),
+(2, 1, '[1,2,3,4]', 'dgdfgdf', 'wetrwetre', NULL, '2019-05-13', '[{\"user\":3,\"date\":\"2019-05-20\"}]');
 
 -- --------------------------------------------------------
 
@@ -1554,7 +1553,7 @@ ALTER TABLE `danWei`
 -- 使用表AUTO_INCREMENT `dianWen`
 --
 ALTER TABLE `dianWen`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- 使用表AUTO_INCREMENT `guZhang`
