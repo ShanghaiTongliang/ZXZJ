@@ -1,11 +1,11 @@
 <template>
   <div id="app">
-    <div class="header" style="position: relative">站修质检
+    <div v-show="!login" class="header" style="position: relative">站修质检
       <drop-menu id="menu" v-if="user" :menu="menu"></drop-menu>
     </div>
     <div v-if="!$route.name" id="frame"></div>
     <router-view v-else id="frame"></router-view>
-    <div class="footer">联系电话: 021-51244254</div>
+    <div v-show="!login" class="footer">联系电话: 021-51244254</div>
     <message :message="$store.state.message" :error="$store.state.error"></message>
     <loading :loading="$store.state.loading" :value="$store.state.progress"></loading>
   </div>
@@ -22,6 +22,7 @@ export default {
   components: {Loading, Message, DropMenu},
   data() {
     return {
+      login: true,
       menu: [{
         caption: null,
         icon: null,
@@ -53,6 +54,12 @@ export default {
         this.menu[0].caption = this.user.name
         this.menu[0].icon = this.user.icon
         this.menu[0].items[0].href = this.user.url
+      }
+    },
+    '$route.name': {
+      immediate: true,
+      handler(n) {
+        this.login = ['login', 'register', 'reset'].includes(n)
       }
     }
   },

@@ -37,12 +37,14 @@ const columns = {
   state: {
     caption: '状态',
     filter(t, i, r) {
-      console.log(t, i, r)
       if(t = dianWenState.find(s => s.id == t))
         t = t.id ? t.name : `<span class="red">${t.name}</span>`
       return t
     }
   }
+}, colCheckin = {
+  user: '质检员',
+  date: '签收日期',
 }, colFiles = {
   name: {
     caption: '标题',
@@ -68,12 +70,15 @@ export default {
       let a, c, p
       if(this.user.manage.length)
         a = h('div', {style: 'text-align: left'}, [h('a', {attrs: {href: '#/zhiJianYuan/dianWen/create'}, class: 'act static'}, '新建')])
-      p = h('tabs', {props: {tabs: this.tabs}, ref: 'tab', on: {
-        tabIndex: this.onTabIndex
-      }}, this.tbls.map((t, i) => h('datable', {props: {table: t}, slot: i, ref: `tbl${i}`, on: {
-        rowSelect: this.rowSelect
-      }})))
-      return h('div', [a, p, h('datable', {props: {table: this.tblCheckin}})])
+      p = h('tabs', {props: {tabs: this.tabs}, on: {
+        tabIndex: this.tabIndex
+      }}, this.tbls.map((t, i) => h('div', {slot: i}, [
+        h('datable', {props: {table: t}, ref: `tbl${i}`, on: {
+          rowSelect: this.rowSelect
+        }}),
+        h('datable', {props: {table: this.tblCheckin[i]}})
+      ])))
+      return a ? h('div', [a, p]) : p
     } else if(n == 'dianWen') {
       let m = this.user.manage.find(d => d.cheJian.find(c => this.curDianWen.cheJian.includes(c.id))), cs = this.dict.cheJian
       return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [
@@ -135,16 +140,8 @@ export default {
       dianWen: null,
       curDianWen: null,
       new: true,
-      tabIndex: 0,
-      tbls: [],
-      tblCheckin: {
-        caption: '签收情况',
-        columns: {
-          user: '质检员',
-          date: '签收日期',
-        },
-        data: null
-      },
+      tbls: null,
+      tblCheckin: null,
       tblZhiDaoShu: {
         caption: '质检作业指导书',
         columns: colFiles,
@@ -184,6 +181,7 @@ export default {
     tabs() {
       let r = [], ks = ['uncheck', 'checkin'], c, id, gs = this.dict.groups
       this.tbls = []
+      this.tblCheckin = []
       for(id in this.user.permission) {
         let p = this.user.permission[id] == PERMISSION_DATA, us, ds
         c = {...columns}
@@ -208,6 +206,11 @@ export default {
           columns: c,
           data: ds
         })
+        this.tblCheckin.push({
+          caption: '签收情况',
+          columns: colCheckin,
+          data: null
+        })
       }
       if(r.length > 1) {
         c = {...columns}
@@ -219,9 +222,12 @@ export default {
           columns: c,
           data: this.zhiJianYuan.dianWen
         })
+        this.tblCheckin.unshift({
+          caption: '签收情况',
+          columns: colCheckin,
+          data: null
+        })
       }
-      if(this.tbls[0].data.length)
-        this.tblCheckin.selection = this.tbls[0]
       return r
     },
     cheJians() {
@@ -236,11 +242,7 @@ export default {
     '$route': {
       immediate: true,
       handler(r) {
-        if(r.name == 'dianWens') {
-          if(this.tbls.length && this.tbls[0].data.length)
-            this.tblCheckin.selection = this.tbls[0].data[0]
-        }
-        else if(r.name == 'createDianWen') {
+        if(r.name == 'createDianWen') {
           this.new = true
           this.dianWen = {cheJian: [], checkin: []}
         } else if(r.name == 'dianWen' || r.name == 'editDianWen') {
@@ -254,14 +256,11 @@ export default {
   },
   methods: {
     ...mapMutations(['loading', 'progress', 'message', 'error']),
-    onTabIndex(i) {
-      this.tabIndex = i
-      this.tblCheckin.data = this.tbls[i].selection
+    tabIndex(i) {
       setTimeout(() => this.$refs[`tbl${i}`].onScroll(), 0)
     },
     rowSelect(d, i, r) {
-      this.$refs[`tbl${this.$refs.tab.tabIdx}`].selection = d
-      this.tblCheckin.data = d
+      console.log(d, i, r)
     },
     _save(f, url, cb) {
       this.loading(true)
