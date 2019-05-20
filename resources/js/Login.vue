@@ -5,11 +5,25 @@
   margin: .5em
 }
 .form a {margin: 0 1em}
+
+div.login {
+  margin: auto;
+   }
+.form.inSideBox{
+  background-color:white;
+  }
+.form.inSideBox input
+{
+    margin: 1em;
+    padding: 8px;
+}
 </style>
 <template>
   <div>
-    <div class="container">
-      <form v-if="$route.name == 'login'" class="form" @submit.prevent="login">
+     <div class="container" style="background-image: url(img/loginback.jpg);background-size: 100%,100%;background-repeat:no-repeat;display:flex;min-heigh:100vh;" >
+     <div class="login">
+       <h2 style="color:yellow;text-align:center;font-size:3em;letter-spacing:10px">铁路货车站修质检评价系统</h2>
+      <form v-if="$route.name == 'login'" class="form inSideBox" @submit.prevent="login">
         用户名<input type="text" v-model="data.name"><div class="close" @click="clear"/><br>
         　密码<input type="password" v-model="data.password"><div class="close" @click="clear"/><br>
         <label><input type="checkbox" v-model="data.remember">自动登录</label>
@@ -17,7 +31,7 @@
         <a href="#/auth/register">注册</a> <a href="#/auth/reset">重置密码</a>
         <div class="err">{{err}}</div>
       </form>
-      <form v-else-if="$route.name == 'register'" class="form" @submit.prevent="register">
+      <form v-else-if="$route.name == 'register'" class="form inSideBox" @submit.prevent="register">
         　用户名<input type="text" v-model="data.name"><br>
         　　密码<input type="password" v-model="data.password"><br>
         确认密码<input type="password" v-model="data.password_confirmation"><br>
@@ -25,12 +39,13 @@
         <a href="#/auth/login">登录</a> <a href="#/auth/reset">重置密码</a>
         <div class="err">{{err}}</div>
       </form>
-      <form v-else class="form" @submit.prevent="reset">
+      <form v-else class="form inSideBox" @submit.prevent="reset">
         用户名<input type="text" v-model="data.name"><br>
         <input type="submit" value="重置"><br>
         <a href="#/auth/login">登录</a> <a href="#/auth/register">注册</a>
         <div class="err">{{err}}</div>
       </form>
+     </div>
     </div>
   </div>
 </template>
