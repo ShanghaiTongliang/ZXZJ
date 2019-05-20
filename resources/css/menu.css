@@ -21,6 +21,6 @@ ul.menu {
 .menu>li>span, .menu>li>a {
   display: flex;
   align-items: center;
-  padding: .3em;
+  padding: .5em;
   overflow: hidden;
 }

@@ -131,9 +131,17 @@ export default {
                     if(c.filter)
                       t = c.filter.call(this.$parent, row[j], j, row)
                     else {
-                      t = l.find(v => v[keyName] == row[j])
-                      if(t)
-                        t = t[valueName]
+                      if(row[j] instanceof Array) {
+                        t = row[j].map(d => {
+                          let r = l.find(v => v[keyName] == d)
+                          if(r)
+                            return r[valueName]
+                        }).join(', ')
+                      } else {
+                        t = l.find(v => v[keyName] == row[j])
+                        if(t)
+                          t = t[valueName]
+                      }
                     }
                     break
                   default:
@@ -142,7 +150,8 @@ export default {
                       t = t[valueName]
                       if(c.filter)
                         t = c.filter.call(this.$parent, t, j, row)
-                    }
+                    } else if(t === undefined && c.default !== undefined)
+                      t = c.default
                   }
                 } else
                   t = c.filter ? c.filter.call(this.$parent, row[j], j, row) : row[j]

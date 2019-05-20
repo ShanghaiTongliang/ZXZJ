@@ -10,13 +10,25 @@ class ZhiJianYuanController extends Yaf\Controller_Abstract {
   }
 
   function updateDianWenAction() {
-    $p = $this->getRequest()->getParams();
-    if($p = DianWenModel::find($p['id'])) {
+    $d = $this->getRequest()->getParams();
+    if($d = DianWenModel::find($d['id'])) {
       $a = json_decode(file_get_contents('php://input'));
       unset($a->id);
       foreach($a as $k => $v)
-        $p->$k = $v;
-      $p->save();
+        $d->$k = $v;
+      $d->save();
+    } else
+      response(_('dianWen not found'));
+  }
+
+  function checkinDianWenAction() {
+    $d = $this->getRequest()->getParams();
+    if($d = DianWenModel::find($d['id'])) {
+      if(!in_array($id = UserModel::$user->id, $d->checkin)) {
+        $d->checkin[] = $id;
+        $d->checkin = $d->checkin;
+      }
+      $d->save();
     } else
       response(_('dianWen not found'));
   }

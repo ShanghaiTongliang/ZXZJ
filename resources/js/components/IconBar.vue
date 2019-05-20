@@ -5,6 +5,7 @@
   z-index: 100;
 }
 nav.iconbar {
+  background-color: white;
   display: flex;
   bottom: 0;
   box-shadow: 0 0 1em rgba(0, 0, 0, .5);

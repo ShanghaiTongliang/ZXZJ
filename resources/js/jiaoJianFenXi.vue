@@ -29,7 +29,7 @@ columns = {
     items: null
   },
   cheZhong: {
-    caption: '车种',
+    caption: '车型',
     items: null
   },
   daBuWei: {
@@ -175,11 +175,12 @@ export default {
     ])
   },
   data() {
+    let d = this.$store.state.danWei
     return {
       from: (new Date).toDate().substr(0, 7),
       to: (new Date).toDate().substr(0, 7),
-      danWei: this.$store.state.danWei[0].id,
-      cheJian: 0,
+      danWei: d.length && d[0].id,
+      cheJian: d.length && d[0].cheJian.length && d[0].cheJian[0].id,
       tabIndex: 0,
       mission: null,
       tabs: [
@@ -213,14 +214,16 @@ export default {
   computed: {
     ...mapState(['std', 'dict']),
     danWeis() {
-      let r = [{id: 0, name: '全部', cheJian: [{id: 0, name: '全部'}]}]
+      let d = this.$store.state.danWei, r = d.length == 1 ? [] : [{id: 0, name: '全部', cheJian: [{id: 0, name: '全部'}]}]
       this.$store.state.danWei.forEach(d => r.push(d))
       return r
     },
     curDanWei() {
-      let r = [{id: 0, name: '全部'}], t
+      let r = [], t
       if(t = this.danWeis.find(d => d.id == this.danWei)) {
         if(t.id) {
+          if(t.cheJian.length > 1)
+            r.push({id: 0, name: '全部'})
           t.cheJian.forEach(c => r.push(c))
           return {id: t.id, name: t.name, cheJian: r}
         } else {
@@ -377,8 +380,8 @@ export default {
         })
         //按月份 总计
         if(this.from != this.to) {
-          this.tabTime.push('总计')
-          this.tblTime.push({
+          this.tabTime.unshift('总计')
+          this.tblTime.unshift({
             caption: `${this.from} - ${this.to} 各作业场交检分析`,
             data: dtss
           })

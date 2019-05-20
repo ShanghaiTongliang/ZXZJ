@@ -45,4 +45,11 @@ peiJianLeiBie = [{
 }, {
   id: 2,
   name: '抽检'
+}],
+dianWenState = [{
+  id: 0,
+  name: '未签收',
+}, {
+  id: 1,
+  name: '已签收'
 }]

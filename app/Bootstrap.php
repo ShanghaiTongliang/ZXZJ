@@ -58,7 +58,7 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
 
   public function _initRoute(Dispatcher $dispatcher) {
     Router::init($dispatcher->getRouter(), $dispatcher->getRequest()->method);
-    Router::prefix('zxzj/api', function($router) {
+    Router::prefix('api', function($router) {
       $auth = new Middleware\Auth;
       $p = [
         'module' => 'zxzj',
@@ -189,6 +189,9 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $router->post('zhiJianYuan/dianWen', $p);
         $p['action'] = 'updateDianWen';
         $router->put('zhiJianYuan/dianWen/:id', $p);
+        //签收
+        $p['action'] = 'checkinDianWen';
+        $router->put('zhiJianYuan/dianWen/:id/checkin', $p);
         $p['action'] = 'destroyDianWen';
         $router->delete('zhiJianYuan/dianWen/:id', $p);
         //作业指导书

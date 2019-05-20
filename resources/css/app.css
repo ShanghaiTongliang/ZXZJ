@@ -22,9 +22,13 @@ input[type=month] {width: 9em}
 #menu {
   position: absolute;
   right: .5em;
-  top: .2em;
+  top: 0;
   line-height: 1em;
   z-index: 10;
+}
+#menu>li>ul {
+  left: auto !important;
+  right: 0;
 }
 #frame {
   display: flex;
@@ -56,7 +60,7 @@ input[type=month] {width: 9em}
   font-weight: bold;
 }
 .dt-head, .datable caption {background-color: lightblue !important}
-.page .datable, .page .datable caption {background-color: #eee}
+.page .datable, .page .datable caption {background-color: #eee !important}
 .datable th {background-color: lightcyan !important}
 .url {
   color: blue;

@@ -2,7 +2,7 @@
   <div style="display: flex; flex-direction: column; position: relative">
     <template v-if="$route.name == 'users'">
       <datable v-if="reset.length" :table="tblReset" style="flex-shrink: 0; max-height: 50%"></datable>
-      <moditable :table="tbl" @editable="editable" @edit="edit" @save="save" @delete="del" @cancel="cancel"></moditable>
+      <moditable :table="table" @editable="editable" @edit="edit" @save="save" @delete="del" @cancel="cancel"></moditable>
     </template>
     <template v-else-if="user == curUser">
       <a v-if="user.manage.length" href="#/user" class="act" style="bottom: auto; font-weight: bold">返回</a>
@@ -69,7 +69,7 @@ export default {
       tbl: {
         caption: '用户',
         columns,
-        data: this.$store.state.users
+        data: null
       },
       tblReset: {
         caption: '申请重置密码用户',
@@ -93,6 +93,22 @@ export default {
   },
   computed: {
     ...mapState(['dict', 'groups', 'users', 'user']),
+    table() {
+      let d
+      if(this.user.admin)
+        d = this.users
+      else {
+        let r = [], gs = this.dict.groups
+        this.user.manage.forEach(d => d.cheJian.forEach(c => r.push(c.id)))
+        d = this.users.filter(u => {
+          for(let c of r)
+            if(u.groups.find(g => gs[g].cheJian.find(c0 => c0.id == c)))
+              return true
+        })
+      }
+      this.tbl.data = d
+      return this.tbl
+    },
     curUser() {
       return this.users.find(u => u.id == this.$route.params.id)
     },
@@ -214,6 +230,8 @@ export default {
         let d = {id: this.curUser.id, password: e.password.value, password_confirmation: e.confirm.value}
         if(e.previous)
           d.previous = e.previous.value
+        else
+          d.reset = 1
         axios.put(`api/user/${this.$route.params.id}/password`, d).then(r => {
           this.loading(false)
           this.message('修改成功')

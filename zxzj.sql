@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2019-05-10 11:00:07
+-- 生成日期： 2019-05-20 11:37:51
 -- 服务器版本： 10.3.13-MariaDB
 -- PHP 版本： 7.2.16
 
@@ -501,17 +501,19 @@ CREATE TABLE `dianWen` (
   `cheJian` varchar(1024) DEFAULT NULL,
   `title` varchar(64) DEFAULT NULL,
   `detail` varchar(16384) DEFAULT NULL,
-  `attachment` varchar(1024) DEFAULT NULL
+  `attachment` varchar(1024) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `checkin` varchar(1024) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 
 --
 -- 转存表中的数据 `dianWen`
 --
 
-INSERT INTO `dianWen` (`id`, `poster`, `cheJian`, `title`, `detail`, `attachment`) VALUES
-(1, 1, '[1,2,8,9]', 'test', 'ssss\nddddd', NULL),
-(2, 0, '[1,2,3,4]', 'dgdfgdf', 'wetrwetre', NULL),
-(3, 0, '[1]', '111', '222', NULL);
+INSERT INTO `dianWen` (`id`, `poster`, `cheJian`, `title`, `detail`, `attachment`, `date`, `checkin`) VALUES
+(1, 1, '[1,2,8,9]', 'test', 'ssss\nddddd', NULL, '2019-05-01', '[3,4]'),
+(2, 1, '[1,2,3,4]', 'dgdfgdf', 'wetrwetre', NULL, '2019-05-13', '[3]'),
+(3, 1, '[1]', '111', '222', NULL, '2019-05-16', '[3]');
 
 -- --------------------------------------------------------
 
@@ -940,7 +942,10 @@ INSERT INTO `jiaoJian` (`id`, `date`, `cheHao`, `xiuCheng`, `cheZhong`, `guZhang
 (10, '2019-03-01', 'njd', 2, 3, 169, 2, 4, 4, NULL),
 (11, '2019-03-01', '334455', 4, 7, 6, 1, 1, 10, 2),
 (12, '2019-03-03', '4433356', 3, 132, 172, 1, 1, 10, NULL),
-(13, '2019-03-07', '3322556', 4, 2, 290, 1, 1, 10, 3);
+(13, '2019-03-07', '3322556', 4, 2, 290, 1, 1, 10, 3),
+(14, '2019-05-01', '3322442', 1, 79, 127, 1, 1, 3, NULL),
+(15, '2019-05-09', '4332566', 1, 137, 175, 1, 8, 4, NULL),
+(16, '2019-05-15', '5533446', 1, 365, 222, 1, 8, 4, NULL);
 
 -- --------------------------------------------------------
 
@@ -1006,7 +1011,9 @@ INSERT INTO `jiaoJianCount` (`id`, `month`, `cheJian`, `count`, `counts`) VALUES
 (8, '2018-12', 1, 45, '{}'),
 (9, '2019-02', 1, 333, '{}'),
 (10, '2019-04', 1, 2, '{\"0\":0,\"3\":2}'),
-(11, '2019-01', 2, 5, '{\"0\":5}');
+(11, '2019-01', 2, 5, '{\"0\":5}'),
+(12, '2019-05', 1, 163, '{\"0\":10,\"1\":13,\"2\":12,\"5\":14,\"6\":15,\"7\":13,\"8\":10,\"9\":13,\"12\":14,\"13\":13,\"14\":14,\"15\":22}'),
+(13, '2019-05', 8, 240, '{\"0\":21,\"1\":20,\"2\":19,\"5\":21,\"6\":22,\"7\":23,\"8\":21,\"9\":23,\"12\":24,\"13\":21,\"14\":25}');
 
 -- --------------------------------------------------------
 
@@ -1110,6 +1117,7 @@ CREATE TABLE `ruKuFuJian` (
   `fuJianShuLiang` tinyint(3) UNSIGNED DEFAULT NULL,
   `bianHao` varchar(255) DEFAULT NULL,
   `jieGuo` tinyint(3) UNSIGNED DEFAULT NULL,
+  `remark` varchar(256) DEFAULT NULL,
   `user` smallint(5) UNSIGNED DEFAULT NULL,
   `cheJian` tinyint(3) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1118,11 +1126,14 @@ CREATE TABLE `ruKuFuJian` (
 -- 转存表中的数据 `ruKuFuJian`
 --
 
-INSERT INTO `ruKuFuJian` (`id`, `date`, `xingHao`, `ruKuShuLiang`, `fuJianShuLiang`, `bianHao`, `jieGuo`, `user`, `cheJian`) VALUES
-(1, '2019-03-08', 1, 5, 1, '111', 1, 3, 1),
-(2, '2019-04-12', 48, 2, 2, 'ww', 1, 8, 1),
-(3, '2019-04-15', 197, 299, 6, '333', 1, 10, 1),
-(4, '2019-04-15', 201, 99, 3, NULL, 1, 1, 1);
+INSERT INTO `ruKuFuJian` (`id`, `date`, `xingHao`, `ruKuShuLiang`, `fuJianShuLiang`, `bianHao`, `jieGuo`, `remark`, `user`, `cheJian`) VALUES
+(1, '2019-03-08', 1, 5, 1, '111', 1, NULL, 3, 1),
+(2, '2019-04-12', 48, 2, 2, 'ww', 1, NULL, 8, 1),
+(3, '2019-04-15', 197, 299, 6, '333', 4, NULL, 3, 1),
+(4, '2019-04-15', 201, 99, 3, NULL, 1, NULL, 1, 1),
+(5, '2019-05-16', 46, 100, 100, '33224,44335', 0, 'xxxx', 3, 1),
+(6, '2019-05-17', 194, 66, 66, '333', 4, 'xxxx', 3, 1),
+(7, '2019-05-20', 197, 100, 2, '4433-9', 2, NULL, 3, 1);
 
 -- --------------------------------------------------------
 
@@ -1148,21 +1159,11 @@ CREATE TABLE `user` (
 INSERT INTO `user` (`id`, `name`, `password`, `token`, `groups`, `danWei`, `cheJian`, `state`) VALUES
 (1, 'oblind', '4e3DWFKQHAFsw', 26440, '[255]', NULL, NULL, NULL),
 (2, 'realarzt', '938/kIkECvYAc', 63246, '[255]', NULL, NULL, NULL),
-(8, '李建', 'fdjPkQXbQxVaM', NULL, '[1]', 1, NULL, NULL),
-(9, '毛工', 'fdjPkQXbQxVaM', NULL, '[2]', 2, NULL, NULL),
-(10, '王五', 'fdjPkQXbQxVaM', NULL, '[3]', 1, 1, NULL),
-(11, '田四', 'fdjPkQXbQxVaM', NULL, '[5]', 1, 2, NULL),
-(12, '黄四', 'fdjPkQXbQxVaM', NULL, '[7]', 1, 3, NULL),
-(13, '张一', 'fdjPkQXbQxVaM', NULL, '[9]', 1, 9, NULL),
-(14, '张二', 'fdjPkQXbQxVaM', NULL, '[13]', 1, 8, NULL),
-(15, '张三', '69qg/jTJe.AEY', NULL, '[11]', 1, 10, 2),
-(16, '张四', 'fdjPkQXbQxVaM', NULL, '[17]', 2, 7, NULL),
-(17, '张五', 'fdjPkQXbQxVaM', NULL, '[19]', 2, 6, NULL),
-(18, '张六', 'fdjPkQXbQxVaM', NULL, '[21]', 2, 5, NULL),
-(19, '张七', 'fdjPkQXbQxVaM', NULL, '[15]', 2, 4, NULL),
-(20, '张八', 'fdjPkQXbQxVaM', NULL, '[4]', 1, 1, NULL),
-(21, '容工', 'fdjPkQXbQxVaM', NULL, '[254]', NULL, NULL, NULL),
-(22, 'test', '49a7DBHlRgrCQ', NULL, '[1,15,17,3,4,5,6]', NULL, NULL, NULL);
+(3, 'NXZXZJ', 'b1jM.wkQmyIM6', NULL, '[3]', 1, 1, NULL),
+(4, 'WHZXZJ', '0bMdPEOGGGkWY', NULL, '[13]', 1, 8, NULL),
+(5, 'test', '5d2XhD.NZq4T6', NULL, '[]', NULL, NULL, NULL),
+(6, '111', '15J62OK8A.g3I', NULL, '[]', NULL, NULL, NULL),
+(7, 'HBGLY', '8fSRUyL.fcSqw', NULL, '[1]', 1, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1406,7 +1407,6 @@ INSERT INTO `xiuCheng` (`id`, `name`) VALUES
 (2, '段修'),
 (3, '辅修'),
 (4, '入段厂修'),
-(5, '大修'),
 (6, '新造');
 
 --
@@ -1566,13 +1566,13 @@ ALTER TABLE `guZhang`
 -- 使用表AUTO_INCREMENT `jiaoJian`
 --
 ALTER TABLE `jiaoJian`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- 使用表AUTO_INCREMENT `jiaoJianCount`
 --
 ALTER TABLE `jiaoJianCount`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- 使用表AUTO_INCREMENT `peiJian`
@@ -1584,13 +1584,13 @@ ALTER TABLE `peiJian`
 -- 使用表AUTO_INCREMENT `ruKuFuJian`
 --
 ALTER TABLE `ruKuFuJian`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- 使用表AUTO_INCREMENT `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- 使用表AUTO_INCREMENT `xingHao`

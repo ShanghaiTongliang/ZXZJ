@@ -109,7 +109,7 @@ export default {
           href: '#/standard/xiuCheng'
         }, {
           name: 'cheZhong',
-          caption: '车种',
+          caption: '车型',
           href: '#/standard/cheZhong'
         }, {
           name: 'daBuWei',

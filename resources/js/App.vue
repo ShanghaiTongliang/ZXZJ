@@ -25,7 +25,13 @@ export default {
       menu: [{
         caption: null,
         icon: null,
+        onclick() {
+          this.menu.selection = this.menu[0]
+        },
         items: [{
+          caption: '修改密码',
+          href: null
+        }, {
           caption: '退出',
           onclick() {
             axios.delete('api/auth').then(() => {
@@ -46,7 +52,7 @@ export default {
       if(v) {
         this.menu[0].caption = this.user.name
         this.menu[0].icon = this.user.icon
-        this.menu[0].href = this.user.url
+        this.menu[0].items[0].href = this.user.url
       }
     }
   },

@@ -1,24 +1,28 @@
 <script>
+let year
 const months = []
-function init() {
-  let d = new Date, y = d.getFullYear(), m = d.getMonth() + 1
+{
+  let d = new Date, m = d.getMonth() + 1
+  year = d.getFullYear()
   for(let i = 0; i < 12; i++) {
-    months.push(`${y}-${m > 9 ? m : '0' + m}`)
+    months.push(`${year}-${m > 9 ? m : '0' + m}`)
     if(m > 1) m--
     else {
       m = 12
-      y--
+      year--
     }
   }
 }
-init()
 
 export default {
   functional: true,
-  props: ['danWeis', 'danWei', 'cheJian', 'month', 'disabled', 'state', 'vertical'],
+  props: ['danWeis', 'danWei', 'cheJian', 'month', 'year', 'disabled', 'state', 'vertical'],
   render(h, ctx) {
-    let p = ctx.props, l = ctx.listeners, ds = p.danWeis, cd, m = p.month, u = p.state.user
+    let p = ctx.props, l = ctx.listeners, ds = p.danWeis, cd, m = p.month, u = p.state.user, ms = months.map((m, i) => h('option', {attrs: {value: m}, key: i}, m))
     cd = ds && ds.find(d => d.id == p.danWei)
+    if(p.year)
+      for(let i = year, c = year + p.year; i < c; i++)
+        ms.push(h('option', {attrs: {value: i, year: i}, key: i}, i))
     if(!m) {
       m = months[0]
       if(l.monthChanged)
@@ -44,8 +48,17 @@ export default {
       ]),
       h('div', {class: 'group'}, [
         '月份 ', h('select', {attrs: {disabled: p.disabled}, domProps: {value: m}, on: {
-          change: e => l.monthChanged && l.monthChanged(e.target.value)
-        }}, months.map((m, i) => h('option', {attrs: {value: m}, key: i}, m)))
+          change: e => {
+            if(l.monthChanged) {
+              let y = e.target.selectedOptions[0].attributes.year
+              if(y) {
+                y = y.value
+                l.monthChanged(y, `${y}-01-01`, `${y}-12-31`)
+              } else
+                l.monthChanged(e.target.value)
+            }
+          }
+        }}, ms)
       ]),
       ctx.children
     ])

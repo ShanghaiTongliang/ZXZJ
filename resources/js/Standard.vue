@@ -9,7 +9,7 @@ import {peiJianLeiBie} from './global'
 
 const names = {
   xiuCheng: '修程',
-  cheZhong: '车种',
+  cheZhong: '车型',
   daBuWei: '大部位',
   guZhang: '故障',
   peiJian: '配件',

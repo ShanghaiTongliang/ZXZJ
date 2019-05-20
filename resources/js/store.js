@@ -28,7 +28,21 @@ export default new Vuex.Store({
       f.url = `zhiJianYuan/${t}/${f.name}`
     },
     fixDianWen(d) {
+      let gs = this.dict.groups, us = []
       d.url = `#/zhiJianYuan/dianWen/${d.id}`
+      this.users.forEach(u => {
+        if(u.groups.find(g => gs[g].cheJian.find(c => d.cheJian.includes(c.id) && c.permission & PERMISSION_DATA)))
+          us.push(u.id)
+      })
+      d.users = us
+      Vue.set(d, 'uncheck', us.filter(u => !d.checkin.includes(u)))
+      for(let id in this.user.permission) {
+        id = parseInt(id)
+        if(d.cheJian.includes(id) && this.user.permission[id] & PERMISSION_DATA && !this.user.groups.includes(255)) {
+          Vue.set(d, 'state', d.checkin.includes(this.user.id) ? 1 : 0)
+          break
+        }
+      }
     },
     fixGroup(g) {
       if(g.id != 255)
@@ -183,7 +197,6 @@ export default new Vuex.Store({
 
       data.ruKuFuJian.forEach(r => state.fixRuKuFuJian(r))
       state.ruKuFuJian = data.ruKuFuJian
-      data.zhiJianYuan.dianWen.forEach(d => state.fixDianWen(d))
       data.zhiJianYuan.zhiDaoShu.forEach(f => state.fixFile(f, 'zhiDaoShu'))
       data.zhiJianYuan.ziLiao.forEach(f => state.fixFile(f, 'ziLiao'))
       state.zhiJianYuan = data.zhiJianYuan
@@ -211,6 +224,8 @@ export default new Vuex.Store({
       }
       state.user = u
       state.fixPermission(u)
+      state.zhiJianYuan.dianWen.forEach(d => state.fixDianWen(d))
+
       if(!state.routes) {
         state.routes = true
         router.addRoutes(routes)

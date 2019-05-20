@@ -59,7 +59,7 @@ const colJiaoJian = {
     items: null
   },
   cheZhong: {
-    caption: '车种',
+    caption: '车型',
     type: 'select',
     items: null
   },
@@ -96,6 +96,7 @@ const colJiaoJian = {
   user: {
     caption: '质检员',
     type: 'select',
+    default: '已删除',
     items: null
   }
 }
@@ -173,7 +174,7 @@ export default {
         actions: [{
           caption: '下发',
           condition(d) {
-            return this.rn == 1 && this.editable && this.tbl.editingIndex < 0 && !d.state
+            return this.rn == 2 && this.editable && this.tbl.editingIndex < 0 && !d.state
           },
           onclick(d) {
             if(confirm('是否下发不合格通知单 ?')) {
@@ -266,6 +267,13 @@ export default {
     '$route.name': {
       immediate: true,
       handler(n) {
+        let u = this.user
+        if(!u.data.length && !u.manage.length)
+          if(u.repair.length) {
+            if(n != 'jiaoJianChuLi')
+              this.$router.replace('/jiaoJian/chuLi')
+          } else if(n != 'curUser')
+            this.$router.replace(`/user/${u.id}`)
         const rs = {createJiaoJian: 0, jiaoJian: 1, jiaoJianXiaFa: 2, jiaoJianChuLi: 3, jiaoJianXiaoHao: 4}
         this.rn = rs[n]
         if(this.rn) {
@@ -313,7 +321,7 @@ export default {
       this.danWei = d
       this.cheJian = c
     },
-    monthChanged(m) {
+    monthChanged(m, f, t) {
       this.month = m
       this.dateCount = new Date(m.substr(0, 4), m.substr(5), 0).getDate()
     },

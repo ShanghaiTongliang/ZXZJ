@@ -79,7 +79,9 @@ export default {
                 mi.onclick.call(p, e)
             }
           },
-          mouseenter: () => Vue.set(menu, 'selection', mi)
+          mouseenter: () => {
+            Vue.set(menu, 'selection', mi)
+          }
         }
         return h('li', {key: i}, [h(ct, ca, c), mi.items && r(mi.items, menu.selection == mi)])
       }))

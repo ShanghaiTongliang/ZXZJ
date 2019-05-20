@@ -1,13 +1,15 @@
 <template>
-  <div v-if="$route.name == 'ruKuFuJian'">
-    <chejian-month :danWeis="user.data" :danWei="danWei" :cheJian="cheJian" :month="month" :disabled="editing" :state="$store.state" @cheJianChanged="cheJianChanged" @monthChanged="monthChanged"></chejian-month>
-    <moditable :table="table" @edit="edit" @cancel="cancel" @save="save" @delete="del">
+  <div v-if="$route.name == 'ruKuFuJian' || $route.name == 'ruKuChuZhi'">
+    <chejian-month :danWeis="user.data" :danWei="danWei" :cheJian="cheJian" :month="month" :year="3" :disabled="editing" :state="$store.state" @cheJianChanged="cheJianChanged" @monthChanged="monthChanged"></chejian-month>
+    <moditable v-if="$route.name == 'ruKuFuJian'" :table="table" @edit="edit" @cancel="cancel" @save="save" @delete="del">
       <a href="#/ruKuFuJian/create" class="act">新建</a>
       <span class="dt-info">{{`${this.tbl.data.length}条记录`}}</span>
     </moditable>
+    <moditable v-else :table="tableBuHeGe" @edit="edit" @cancel="cancel" @save="save" @delete="del">
+      <span class="dt-info">{{`${this.tblBuHeGe.data.length}条记录`}}</span>
+    </moditable>
   </div>
-  <kvtable v-else-if="$route.name == 'createRuKuFuJian'" :table="kv"><a href="#/ruKuFuJian" class="act">返回</a></kvtable>
-  <div v-else>不合格处置</div>
+  <kvtable v-else-if="$route.name == 'createRuKuFuJian'" :table="kv" :vertical="$store.state.vertical"><a href="#/ruKuFuJian" class="act">返回</a></kvtable>
 </template>
 
 <script>
@@ -20,7 +22,24 @@ import Moditable from './components/Moditable'
 import ChejianMonth from './ChejianMonth'
 import {peiJianLeiBie} from './global'
 
-const columns = {
+const biJianBuHeGe = 0, biJianHeGe = 1, chouJianYiCiHeGe = 2, chouJianErCiHeGe = 3, chouJianErCiBuHeGe = 4,
+jieGuo = [{
+  id: biJianBuHeGe,
+  name: '部分合格'
+}, {
+  id: biJianHeGe,
+  name: '全部合格'
+}, {
+  id: chouJianYiCiHeGe,
+  name: '一次抽检合格'
+}, {
+  id: chouJianErCiHeGe,
+  name: '二次抽检合格'
+}, {
+  id: chouJianErCiBuHeGe,
+  name: '二次抽检不合格'
+}],
+columns = {
   date: {
     caption: '日期',
     type: 'date'
@@ -35,6 +54,7 @@ const columns = {
       if(l == 1 && r.ruKuShuLiang)
         Vue.set(r, 'fuJianShuLiang', r.ruKuShuLiang)
       Vue.set(r, 'leiBie', l)
+      columns.jieGuo.items = r.leiBie == 1 ? biJianJieGuo : chouJianJieGuo
     }
   },
   xingHao: {
@@ -73,20 +93,26 @@ const columns = {
   jieGuo: {
     caption: '结果',
     type: 'select',
-    items: [{
-      id: 0,
-      name: '不合格'
-    }, {
-      id: 1,
-      name: '合格'
-    }]
+    items: jieGuo,
+    filter(t, i, r) {
+      i = r[i]
+      let c = i == biJianBuHeGe || i == chouJianErCiBuHeGe ? 'red' : i == chouJianErCiHeGe ? 'orange' : 'green'
+      return `<span class="${c}">${t}</span>`
+    }
+  },
+  remark: {
+    caption: '备注',
+    type: 'text'
   },
   user: {
     caption: '复检人',
     type: 'select',
+    default: '已删除',
     items: null
   }
-}
+},
+biJianJieGuo = [jieGuo[0], jieGuo[1]],
+chouJianJieGuo = [jieGuo[2], jieGuo[3], jieGuo[4]]
 
 export default {
   components: {Datable, Kvtable, Moditable, ChejianMonth},
@@ -96,8 +122,15 @@ export default {
       danWei: d.length && d[0].id,
       cheJian: d.length && d[0].cheJian[0].id,
       month: null,
+      from: null,
+      to: null,
       tbl: {
         caption: '站修入库配件复检记录表',
+        columns,
+        data: null
+      },
+      tblBuHeGe: {
+        caption: '站修入库配件复检不合格记录表',
         columns,
         data: null
       },
@@ -143,16 +176,41 @@ export default {
       return r
     },
     table() {
-      this.tbl.data = this.ruKuFuJian.filter(r => r.cheJian == this.cheJian && r.date.substr(0, 7) == this.month)
+      this.tbl.data = this.from
+        ? this.ruKuFuJian.filter(r => {
+          if(r.cheJian == this.cheJian) {
+            let m = r.date.substr(0, 7)
+            return m >= this.from && m <= this.to
+          }
+        }) : this.ruKuFuJian.filter(r => r.cheJian == this.cheJian && r.date.substr(0, 7) == this.month)
       return this.tbl
+    },
+    tableBuHeGe() {
+      this.tblBuHeGe.data = this.from
+        ? this.ruKuFuJian.filter(r => {
+          let j = r.jieGuo, m
+          if(r.cheJian == this.cheJian && (j == biJianBuHeGe || j == chouJianErCiBuHeGe)) {
+            m = r.date.substr(0, 7)
+            return m >= this.from && m <= this.to
+          }
+        }) : this.ruKuFuJian.filter(r => {
+          let j = r.jieGuo
+          return r.cheJian == this.cheJian && (j == biJianBuHeGe || j == chouJianErCiBuHeGe) && r.date.substr(0, 7) == this.month
+        })
+      return this.tblBuHeGe
     }
   },
   watch: {
     '$route.name': {
       immediate: true,
       handler(v) {
-        if(v == 'createRuKuFuJian')
-          this.kv.data = {date: (new Date).toDate()}
+        if(v == 'createRuKuFuJian') {
+          this.kv.data = {date: (new Date).toDate(), user: this.user.id}
+          columns.user.items = this.users
+        } else {
+          columns.user.items = this.$store.state.users
+          columns.jieGuo.items = jieGuo
+        }
       }
     }
   },
@@ -162,8 +220,10 @@ export default {
       this.danWei = d
       this.cheJian = c
     },
-    monthChanged(m) {
+    monthChanged(m, from, to) {
       this.month = m
+      this.from = from
+      this.to = to
     },
     check(d) {
       for(let k of ['ruKuShuLiang', 'fuJianShuLiang'])
@@ -187,13 +247,15 @@ export default {
         this.error(r.response.data)
       })
     },*/
-    edit() {
+    edit(d) {
+      columns.jieGuo.items = d.leiBie == 1 ? biJianJieGuo : chouJianJieGuo
       columns.user.items = this.users
     },
     cancel() {
+      columns.jieGuo.items = jieGuo
       columns.user.items = this.$store.state.users
     },
-    save(d, i, next) {
+    save(d, i, next, o) {
       //todo: 数据检查
       if(this.check(d)) {
         this.loading(true)
@@ -201,12 +263,14 @@ export default {
         delete t.peiJian
         delete t.leiBie
         delete t.danWei
+        columns.jieGuo.items = jieGuo
         columns.user.items = this.$store.state.users
         axios.put(`api/ruKuFuJian/${d.id}`, t).then(r => {
           this.loading(false)
           this.message('保存成功')
           this.$store.state.fixRuKuFuJian(d)
           next()
+          Vue.set(this.$store.state.ruKuFuJian, this.ruKuFuJian.indexOf(o), d)
         }).catch(r => {
           this.loading(false)
           this.error(r.response.data)
@@ -234,7 +298,6 @@ export default {
   },
   created() {
     columns.peiJian.items = this.$store.state.std.peiJian
-    columns.user.items = this.$store.state.users
   }
 }
 </script>
