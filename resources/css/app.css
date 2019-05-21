@@ -11,7 +11,7 @@ input[type=month] {width: 9em}
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: white;
+  background-color: lightblue;
 }
 .header {
   height: 2em;
@@ -67,9 +67,9 @@ input[type=month] {width: 9em}
   position: relative;
   font-weight: bold;
 }
-.dt-head, .datable caption {background-color: white !important}
+.dt-head, .datable caption {background-color: lightblue !important}
 .page .datable, .page .datable caption {background-color: #eee !important}
-/*.datable th {background-color: lightcyan !important}*/
+.datable th {background-color: lightcyan !important}
 .url {
   color: blue;
   text-decoration: underline;

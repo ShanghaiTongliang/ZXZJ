@@ -3,6 +3,10 @@
   flex-grow: 1;
   overflow: auto;
 }
+.side-menu ul {
+  overflow: hidden;
+  transition: all .2s;
+}
 .side-menu>li>span, .side-menu>li>a {padding: .5em}
 .side-menu .menu {margin: 0 0 0 1.5em}
 .click {cursor: pointer}
@@ -14,7 +18,7 @@ export default {
   props: ['menu', 'selection'],
   render(h) {
     let p = this.$parent, r = (menu, root, show) => {
-      return h('ul', {class: ['menu', root && 'side-menu'], style: {display: show ? null: 'none'}},
+      return h('ul', {class: ['menu', root && 'side-menu'], style: {height: show ? `${2.3 * menu.length}em` : 0}},
         menu.filter(mi => mi.condition === undefined || mi.condition instanceof Function && mi.condition.call(p) || mi.condition)
         .map((mi, i) => {
           let ct = 'span', ca = {domProps: {innerHTML: mi.caption}}, c
@@ -38,12 +42,15 @@ export default {
             click: e => {
               let _this = this
               mi.expand = !mi.expand
-              /*if(this.sel) {
-                this.sel.expand = false
-
-              }*/
               if(mi.onclick || mi.href) {
                 this.$emit('select', mi)
+                if(this.sel) {
+                  let m = this.sel
+                  while(m.parent && m.parent != mi.parent) {
+                    m.parent.expand = false
+                    m = m.parent
+                  }
+                }
                 this.sel = mi
                 if(mi.onclick)
                   mi.onclick.call(p, e)
