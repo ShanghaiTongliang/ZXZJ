@@ -1,6 +1,3 @@
-<style>
-#nav {background-color: white}
-</style>
 <template>
   <div>
     <resizer :width="width" :visible="visible" @resize="resize" @toggle="toggle">
@@ -23,38 +20,33 @@ export default {
     return {
       width: this.$store.state.options.frame.width || 140,
       visible: this.$store.state.options.frame.visible,
-      selection: null
-    }
-  },
-  computed: {
-    menu() {
-      let u = this.$store.state.user, data = u.data.length, repair = u.repair.length, manage = u.manage.length
-      return [{
+      selection: null,
+      m: [{
         caption: '整车交检故障',
         items: [{
           name: 'jiaoJian',
           caption: '故障录入',
           href: '#/jiaoJian',
-          condition: data
+          //condition: data
         }, {
           name: 'jiaoJianXiaFa',
           caption: '故障下发不合格通知书',
           href: '#/jiaoJian/xiaFa',
-          condition: data
+          //condition: data
         }, {
           name: 'jiaoJianChuLi',
           caption: '故障处理',
           href: '#/jiaoJian/chuLi',
-          condition: repair
+          //condition: repair
         }, {
           name: 'jiaoJianXiaoHao',
           caption: '故障销号',
           href: '#/jiaoJian/xiaoHao',
-          condition: data
+          //condition: data
         }]
       }, {
         caption: '入库复检记录',
-        condition: data,
+        //condition: data,
         items: [{
           name: 'ruKuFuJian',
           caption: '复检记录',
@@ -68,10 +60,10 @@ export default {
         name: 'jiaoJianFenXi',
         caption: '故障分析',
         href: '#/jiaoJianFenXi',
-        condition: data
+        //condition: data
       }, {
         caption: '质检员技术管理',
-        condition: data,
+        //condition: data,
         items: [{
           name: 'dianWens',
           caption: '电文下发',
@@ -89,20 +81,20 @@ export default {
         name: 'danWei',
         caption: '单位',
         href: '#/danWei',
-        condition: manage
+        //condition: manage
       }, {
         name: 'users',
         caption: '用户',
         href: '#/user',
-        condition: manage
+        //condition: manage
       }, {
         name: 'groups',
         caption: '用户组',
         href: '#/group',
-        condition: manage
+        //condition: manage
       }, {
         caption: '基础数据',
-        condition: manage,
+        //condition: manage,
         items: [{
           name: 'xiuCheng',
           caption: '修程',
@@ -132,8 +124,26 @@ export default {
         name: 'option',
         caption: '系统参数',
         href: '#/option',
-        condition: u.admin
+        //condition: u.admin
       }]
+    }
+  },
+  computed: {
+    menu() {
+      let u = this.$store.state.user, data = u.data.length, repair = u.repair.length, manage = u.manage.length
+      this.m[0].items[0].condition = data
+      this.m[0].items[1].condition = data
+      this.m[0].items[2].condition = repair
+      this.m[0].items[3].condition = data
+      this.m[1].condition = data
+      this.m[2].condition = data
+      this.m[3].condition = data
+      this.m[4].condition = manage
+      this.m[5].condition = manage
+      this.m[6].condition = manage
+      this.m[7].condition = manage
+      this.m[8].condition = u.admin
+      return this.m
     }
   },
   watch: {

@@ -1,6 +1,6 @@
 const mix = require('laravel-mix');
 const webpack = require('webpack')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+//const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 /*
  |--------------------------------------------------------------------------

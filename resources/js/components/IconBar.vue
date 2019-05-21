@@ -46,8 +46,6 @@ nav.iconbar {
   </div>
 </template>
 <script>
-import SideMenu from './SideMenu'
-
 export default {
   props: ['icon', 'text', 'width', 'right', 'show'],
   data() {

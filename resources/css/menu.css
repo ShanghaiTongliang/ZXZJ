@@ -15,12 +15,23 @@ ul.menu {
   background-color: #37f;
 }
 .menu>li>.select {
-  color: white;
-  background-color: blue;
+  color: white !important;
+  background-color: blue !important;
+  font-weight: bold;
 }
 .menu>li>span, .menu>li>a {
   display: flex;
   align-items: center;
   padding: .5em;
   overflow: hidden;
+}
+.collapse {
+  cursor: pointer;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjE1IiBoZWlnaHQ9IjE1IiBzdHlsZT0iZmlsbDojZmZmIi8+CiAgPGxpbmUgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIiB4MT0iNyIgeTE9IjEiIHgyPSI3IiB5Mj0iMTMiLz4KICA8bGluZSBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiIHgxPSIxIiB5MT0iNyIgeDI9IjEzIiB5Mj0iNyIvPgo8L3N2Zz4=);
+  background-position: center;
+}
+.expand {
+  cursor: pointer;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjE1IiBoZWlnaHQ9IjE1IiBzdHlsZT0iZmlsbDojZmZmIi8+CiAgPGxpbmUgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIiB4MT0iMSIgeTE9IjciIHgyPSIxMyIgeTI9IjciLz4KPC9zdmc+);
+  background-position: center;
 }

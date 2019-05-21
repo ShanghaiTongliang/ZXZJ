@@ -83,7 +83,7 @@ const colJiaoJian = {
     show: true,
     filter(l, i, v) {
       let d = this.dict
-      return v.guZhang && d.dengJi[d.guZhang[v.guZhang].dengJi].name
+      return v.guZhang && d.guZhang[v.guZhang] && d.dengJi[d.guZhang[v.guZhang].dengJi].name
     }
   },
   state: {

@@ -35,11 +35,11 @@ export default new Vuex.Store({
           us.push(u.id)
       })
       d.users = us
-      Vue.set(d, 'uncheck', us.filter(u => !d.checkin.find(v => v.user == u)))
+      Vue.set(d, 'uncheck', us.filter(u => !d.checkin.find(v => v.id == u)))
       for(let id in this.user.permission) {
         id = parseInt(id)
         if(d.cheJian.includes(id) && this.user.permission[id] & PERMISSION_DATA && !this.user.groups.includes(255)) {
-          Vue.set(d, 'state', d.checkin.find(u => u.user == this.user.id) ? 1 : 0)
+          Vue.set(d, 'state', d.checkin.find(u => u.id == this.user.id) ? 1 : 0)
           break
         }
       }

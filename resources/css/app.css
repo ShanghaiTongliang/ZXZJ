@@ -11,7 +11,7 @@ input[type=month] {width: 9em}
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: lightblue;
+  background-color: white;
 }
 .header {
   height: 2em;
@@ -30,11 +30,19 @@ input[type=month] {width: 9em}
   left: auto !important;
   right: 0;
 }
+.resizer {background-color: #069 !important}
 #frame {
   display: flex;
   flex-grow: 1;
   overflow: hidden;
 }
+#nav {background-color: #1a6cb9}
+#nav>li>span, #nav>li>a {
+  background-color: #0f4679;
+  border-bottom: solid 1px black;
+}
+#nav li>span {color: white}
+#nav li>a {color: yellow}
 .container {
   flex-grow: 1;
   margin: .2em;
@@ -59,9 +67,9 @@ input[type=month] {width: 9em}
   position: relative;
   font-weight: bold;
 }
-.dt-head, .datable caption {background-color: lightblue !important}
+.dt-head, .datable caption {background-color: white !important}
 .page .datable, .page .datable caption {background-color: #eee !important}
-.datable th {background-color: lightcyan !important}
+/*.datable th {background-color: lightcyan !important}*/
 .url {
   color: blue;
   text-decoration: underline;

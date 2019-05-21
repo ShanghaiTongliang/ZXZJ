@@ -24,9 +24,18 @@ class ZhiJianYuanController extends Yaf\Controller_Abstract {
   function checkinDianWenAction() {
     $d = $this->getRequest()->getParams();
     if($d = DianWenModel::find($d['id'])) {
-      if(!in_array($id = UserModel::$user->id, $d->checkin)) {
-        $d->checkin[] = ['user' => $id, 'date' => date('Y-m-d')];
+      $f = false;
+      $id = UserModel::$user->id;
+      foreach($d->checkin as $u)
+        if($u->id == $id) {
+          $f = true;
+          break;
+        }
+      if(!$f) {
+        $c = (object)['id' => $id, 'date' => date('Y-m-d')];
+        $d->checkin[] = $c;
         $d->checkin = $d->checkin;
+        echo json_encode($c);
       }
       $d->save();
     } else

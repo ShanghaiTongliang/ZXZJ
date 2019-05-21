@@ -14,6 +14,7 @@ import Datable from './components/Datable'
 import {sizeFilter} from './components/filters'
 import {mapState, mapMutations} from 'vuex';
 import {timeFilter} from './components/filters'
+import {clone} from './components/merge'
 import {PERMISSION_DATA, PERMISSION_MANAGE, dianWenState} from './global'
 
 const columns = {
@@ -35,7 +36,7 @@ const columns = {
     items: null,
     filter(t) {
       let us = this.$store.state.dict.user
-      return t.map(u => us[u.user].name).join(', ')
+      return t.map(u => us[u.id].name).join(', ')
     }
   },
   state: {
@@ -48,9 +49,12 @@ const columns = {
   }
 }, actions = [{
   caption: '删除',
-  onclick(d, i, r) {
+  condition(d) {
+    return this.$parent.user.manage.length
+  },
+  onclick(d) {
     if(confirm(`确定要删除 ${d.title} ?`)) {
-      let p = this.$parent, ds = p.zhiJianYuan.dianWen
+      let i, p = this.$parent, ds = p.zhiJianYuan.dianWen
       p.loading(true)
       axios.delete(`api/zhiJianYuan/dianWen/${d.id}`).then(() => {
         p.loading(false)
@@ -112,26 +116,33 @@ export default {
           click: this.checkin
         }}, '签收')]) : null
       ])
-    } else if(n == 'createDianWen' || n == 'editDianWen')
+    } else if(n == 'createDianWen' || n == 'editDianWen') {
+      let cs = this.cheJians.map(c => h('label', [
+        h('input', {attrs: {type: 'checkbox', value: c.id}, domProps: {checked: this.dianWen.cheJian.includes(c.id)}, on: {
+          change: e => {
+            let i, v = parseInt(e.target.value)
+            if(e.target.checked) {
+              this.dianWen.cheJian.push(v)
+              this.dianWen.cheJian.sort()
+            } else {
+              i = this.dianWen.cheJian.indexOf(v)
+              this.dianWen.cheJian.splice(i, 1)
+            }
+          }
+        }}), c.name
+      ]))
+      cs.push(h('label', [h('input', {attrs: {type: 'checkbox'}, domProps: {checked: this.all}, on: {
+        change: e => {
+          this.all = e.target.checked
+          this.dianWen.cheJian = this.all ? this.cheJians.map(c => c.id) : []
+        }
+      }}), '全部']))
       return h('div', {style: {display: 'flex', flexDirection: 'column'}}, [
         h('div', {class: 'caption'}, [
           `${this.new ? '新建' : '编辑'}质检员工作评价`,
           h('a', {attrs: {href: `#/zhiJianYuan/dianWen${this.new ? '' : '/' + this.curDianWen.id}`, class: 'act'}}, '返回')
         ]),
-        h('div', {class: 'group tc-chk'}, this.cheJians.map(c => h('label', [
-          h('input', {attrs: {type: 'checkbox', value: c.id}, domProps: {checked: this.dianWen.cheJian.includes(c.id)}, on: {
-            change: e => {
-              let i, v = parseInt(e.target.value)
-              if(e.target.checked) {
-                this.dianWen.cheJian.push(v)
-                this.dianWen.cheJian.sort()
-              } else {
-                i = this.dianWen.cheJian.indexOf(v)
-                this.dianWen.cheJian.splice(i, 1)
-              }
-            }
-          }}), c.name
-        ]))),
+        h('div', {class: 'group tc-chk'}, cs),
         h('div', {style: {display: 'flex'}}, ['标题', h('input', {style: {flexGrow: 1, marginLeft: '.5em'}, domProps: {value: this.dianWen.title}, on: {
           input: e => this.dianWen.title = e.target.value
         }})]),
@@ -142,7 +153,7 @@ export default {
           click: this.save
         }}, '保存')])
       ])
-    else if(n == 'zhiDaoShu')
+    } else if(n == 'zhiDaoShu')
       return h('datable', {props: {table: this.tblZhiDaoShu}, class: 'container'}, this.user.manage.length ? [
         h('button', {class: 'act', on: {
           click: () => this.upload('zhiDaoShu')
@@ -160,6 +171,7 @@ export default {
       dianWen: null,
       curDianWen: null,
       new: true,
+      all: true,
       tbls: null,
       tblCheckin: null,
       tblZhiDaoShu: {
@@ -213,8 +225,8 @@ export default {
         }).map(u => u.id)
         ds = this.zhiJianYuan.dianWen.filter(d => d.cheJian.includes(id)).map(d => {
           let r = {...d}, c = this.dict.cheJian[id]
-          r.checkin = d.checkin.filter(u => us.find(v => v == u.user))
-          r.uncheck = d.uncheck.filter(u => us.find(v => v == u.user))
+          r.checkin = d.checkin.filter(u => us.find(v => v == u.id))
+          r.uncheck = d.uncheck.filter(u => us.includes(u))
           return r
         })
         r.push(this.dict.cheJian[id].name)
@@ -268,12 +280,13 @@ export default {
       handler(r) {
         if(r.name == 'createDianWen') {
           this.new = true
-          this.dianWen = {cheJian: [], checkin: []}
+          this.all = true
+          this.dianWen = {poster: this.user.id, date: (new Date).toDate(), cheJian: this.cheJians.map(c => c.id), checkin: []}
         } else if(r.name == 'dianWen' || r.name == 'editDianWen') {
           this.new = false
           this.curDianWen = this.zhiJianYuan.dianWen.find(p => p.id == r.params.id)
           if(r.name == 'editDianWen')
-            this.dianWen = {...this.curDianWen}
+            this.dianWen = clone(this.curDianWen)
         }
       }
     }
@@ -286,7 +299,7 @@ export default {
     rowSelect(d) {
       let i = this.$refs.tab.tabIdx, us = this.dict.user
       this.tbls[i].selection = d
-      this.tblCheckin[this.$refs.tab.tabIdx].data = d.checkin.map(u => ({user: us[u.user].name, date: '2019-05-20'}))
+      this.tblCheckin[this.$refs.tab.tabIdx].data = d.checkin.map(u => ({user: us[u.id].name, date: '2019-05-20'}))
     },
     _save(f, url, cb) {
       this.loading(true)
@@ -309,12 +322,12 @@ export default {
           this._save(axios.post, 'api/zhiJianYuan/dianWen', r => {
             this.dianWen.id = r.data.id
             this.zhiJianYuan.dianWen.push(this.dianWen)
-            this.$router.push('/zhiJianYuan/dianWen')
+            this.$store.state.fixDianWen.call(this.$store.state, this.dianWen)
+            this.$router.push(`/zhiJianYuan/dianWen/${this.dianWen.id}`)
           })
         else {
-          let id = this.dianWen.id
-          delete this.dianWen.id
-          delete this.dianWen.url
+          let id = this.dianWen.id, ks = ['id', 'url', 'users', 'uncheck']
+          ks.forEach(k => delete this.dianWen[k])
           this._save(axios.put, `api/zhiJianYuan/dianWen/${id}`, r => {
             for(let k in this.dianWen)
               this.curDianWen[k] = this.dianWen[k]
@@ -392,9 +405,9 @@ export default {
       this.loading(true)
       axios.put(`api/zhiJianYuan/dianWen/${this.curDianWen.id}/checkin`).then(r => {
         this.curDianWen.state = 1
-        this.curDianWen.checkin.push(this.user.id)
+        this.curDianWen.checkin.push(r.data)
         for(let i in this.curDianWen.uncheck)
-          if(this.curDianWen.uncheck[i].user == this.user.id) {
+          if(this.curDianWen.uncheck[i].id == this.user.id) {
             this.curDianWen.uncheck.splice(i, 1)
             break
           }

@@ -5,49 +5,40 @@
   margin: .5em
 }
 .form a {margin: 0 1em}
-
-
-.form.inSideBox{
-  background-color:white;
-  }
-.form.inSideBox input
-{
-    margin: 1em;
-    padding: 8px;
+.form.inSideBox {background-color:white}
+.form.inSideBox input {
+  margin: 1em 0 1em 1em;
+  padding: .5em;
 }
-.loginmessage {
-    margin: 10px 0 0 -58px;
-    padding: 18px 10px 18px 60px;
-    background: #27A9E3;
-    position: relative;
-    color: #fff;
-    font-size: 22px;
+#login-msg {
+  margin: 10px 0 0 -58px;
+  padding: 18px 10px 18px 60px;
+  background: #27A9E3;
+  color: #fff;
+  font-size: 22px;
 }
-
 #darkbannerwrap {
-    width: 18px;
-    height: 10px;
-    margin: 0 0 20px -58px;
-    position: relative;
+  width: 18px;
+  height: 10px;
+  margin: 0 0 20px -58px;
 }
 .login{
-    margin:auto;
-    min-height: 420px;
-    max-width: 420px;
-    padding: 40px;
-    background-color: #ffffff;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 4px;
-    /* overflow-x: hidden; */
-    box-sizing: border-box;
+  margin:auto;
+  min-height: 420px;
+  max-width: 420px;
+  padding: 40px;
+  background-color: #ffffff;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 </style>
 <template>
   <div>
-     <div class="container" style="background-image: url(img/loginback.jpg);background-size: 100%,100%;background-repeat:repeat;display:flex;min-heigh:100vh;" >
+     <div class="container" style="background-image: url(img/loginback.jpg);background-size: 100% 100%; display: flex; min-heigh:100vh" >
      <div class="login">
-      <div class="loginmessage">铁路货车站修质检评价系统</div>
+      <div id="login-msg">铁路货车站修质检评价系统</div>
       <div id="darkbannerwrap" style="background: url(img/aiwrap.png)"></div>
       <form v-if="$route.name == 'login'" class="form inSideBox" @submit.prevent="login">
         用户名<input type="text" placeholder="用户名" v-model="data.name"><div class="close" @click="clear"/><br>
