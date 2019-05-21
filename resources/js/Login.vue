@@ -6,9 +6,7 @@
 }
 .form a {margin: 0 1em}
 
-div.login {
-  margin: auto;
-   }
+
 .form.inSideBox{
   background-color:white;
   }
@@ -17,15 +15,43 @@ div.login {
     margin: 1em;
     padding: 8px;
 }
+.loginmessage {
+    margin: 10px 0 0 -58px;
+    padding: 18px 10px 18px 60px;
+    background: #27A9E3;
+    position: relative;
+    color: #fff;
+    font-size: 22px;
+}
+
+#darkbannerwrap {
+    width: 18px;
+    height: 10px;
+    margin: 0 0 20px -58px;
+    position: relative;
+}
+.login{
+    margin:auto;
+    min-height: 420px;
+    max-width: 420px;
+    padding: 40px;
+    background-color: #ffffff;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 4px;
+    /* overflow-x: hidden; */
+    box-sizing: border-box;
+}
 </style>
 <template>
   <div>
-     <div class="container" style="background-image: url(img/loginback.jpg);background-size: 100%,100%;background-repeat:no-repeat;display:flex;min-heigh:100vh;" >
+     <div class="container" style="background-image: url(img/loginback.jpg);background-size: 100%,100%;background-repeat:repeat;display:flex;min-heigh:100vh;" >
      <div class="login">
-       <h2 style="color:yellow;text-align:center;font-size:3em;letter-spacing:10px">铁路货车站修质检评价系统</h2>
+      <div class="loginmessage">铁路货车站修质检评价系统</div>
+      <div id="darkbannerwrap" style="background: url(img/aiwrap.png)"></div>
       <form v-if="$route.name == 'login'" class="form inSideBox" @submit.prevent="login">
-        用户名<input type="text" v-model="data.name"><div class="close" @click="clear"/><br>
-        　密码<input type="password" v-model="data.password"><div class="close" @click="clear"/><br>
+        用户名<input type="text" placeholder="用户名" v-model="data.name"><div class="close" @click="clear"/><br>
+        　密码<input type="password"  placeholder="密码" v-model="data.password"><div class="close" @click="clear"/><br>
         <label><input type="checkbox" v-model="data.remember">自动登录</label>
         <input type="submit" value="登录"><br>
         <a href="#/auth/register">注册</a> <a href="#/auth/reset">重置密码</a>
