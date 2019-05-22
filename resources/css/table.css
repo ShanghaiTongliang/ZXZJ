@@ -61,7 +61,7 @@ table.datable {
   min-height: 2em;
   white-space: pre-wrap;
 }
-tr.selection {
+tr.select {
   color: white;
   background-color: #37f !important;
 }

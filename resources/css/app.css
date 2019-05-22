@@ -39,7 +39,7 @@ input[type=month] {width: 9em}
 #nav {background-color: #1a6cb9}
 #nav>li>span, #nav>li>a {
   background-color: #0f4679;
-  border-bottom: solid 1px black;
+  border-bottom: solid .1em black;
 }
 #nav li>span {color: white}
 #nav li>a {color: yellow}
@@ -85,7 +85,6 @@ input[type=month] {width: 9em}
 }
 .close:hover {background-color: rgba(0, 0, 0, .3)
 }
-.red, .orange, .yellow, .green, .blue, .purple {font-weight: bold}
 .red {color: red}
 .orange {color: orange}
 .yellow {color: yellow}
@@ -93,3 +92,5 @@ input[type=month] {width: 9em}
 .blue {color: blue}
 .purple {color: purple}
 .gray {background-color: lightgray}
+.red, .orange, .yellow, .green, .blue, .purple {font-weight: bold}
+.select .red, .select .orange, .select .yellow, .select .green, .select .blue, .select .purple {text-shadow: -1px -1px white}

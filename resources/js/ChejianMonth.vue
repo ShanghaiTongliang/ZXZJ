@@ -2,14 +2,14 @@
 let year
 const months = []
 {
-  let d = new Date, m = d.getMonth() + 1
-  year = d.getFullYear()
-  for(let i = 0; i < 12; i++) {
-    months.push(`${year}-${m > 9 ? m : '0' + m}`)
+  let d = new Date, m = d.getMonth() + 1, i = 0, y
+  year = y = d.getFullYear()
+  for(i = 0; i < 12; i++) {
+    months.push(`${y}-${m > 9 ? m : '0' + m}`)
     if(m > 1) m--
     else {
       m = 12
-      year--
+      y--
     }
   }
 }
@@ -21,7 +21,7 @@ export default {
     let p = ctx.props, l = ctx.listeners, ds = p.danWeis, cd, m = p.month, u = p.state.user, ms = months.map((m, i) => h('option', {attrs: {value: m}, key: i}, m))
     cd = ds && ds.find(d => d.id == p.danWei)
     if(p.year)
-      for(let i = year, c = year + p.year; i < c; i++)
+      for(let i = year, c = year - p.year; i > c; i--)
         ms.push(h('option', {attrs: {value: i, year: i}, key: i}, i))
     if(!m) {
       m = months[0]

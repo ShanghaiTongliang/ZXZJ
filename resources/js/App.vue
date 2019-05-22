@@ -1,11 +1,11 @@
 <template>
   <div id="app">
-    <div v-show="!login" class="header" style="position: relative">站修质检
+    <div v-show="!login" class="header" style="position: relative"><span style="font-weight: bold">货车站修质检评价系统</span>
       <drop-menu id="menu" v-if="user" :menu="menu"></drop-menu>
     </div>
     <div v-if="!$route.name" id="frame"></div>
     <router-view v-else id="frame"></router-view>
-    <div v-show="!login" class="footer">联系电话: 021-51244254</div>
+    <div v-show="!login" class="footer">copyright 2019</div>
     <message :message="$store.state.message" :error="$store.state.error"></message>
     <loading :loading="$store.state.loading" :value="$store.state.progress"></loading>
   </div>
@@ -73,14 +73,14 @@ export default {
       axios.get('api/auth').then(res => {
         this.loading(false)
         this.auth({data: res.data, id})
-      }).catch(res => {
+      })/*.catch(res => {
         let a = location.hash.match(/\?.*url=(.*)/), url = a ? decodeURIComponent(a[1]) : location.hash
         if(url[0] == '#')
           url = url.substr(1)
         this.$router.push({name: 'login', query: url ? {url} : null})
         this.loading(false)
         this.error(res.response.data)
-      })
+      })*/
     } else if(!this.$route.name || this.$route.matched.length && this.$route.matched[0].name != 'auth') {
       let url = location.hash
       if(url[0] == '#')

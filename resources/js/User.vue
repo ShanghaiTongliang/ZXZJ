@@ -32,7 +32,7 @@ import Vue from 'vue'
 import Datable from './components/Datable'
 import Moditable from './components/Moditable'
 import { mapState, mapMutations } from 'vuex'
-import {USER_STATE_APPLY_RESET_PASSWORD, USER_STATE_APPROVED_RESET_PASSWORD} from './global'
+import {USER_STATE_APPLY_RESET_PASSWORD, USER_STATE_APPROVED_RESET_PASSWORD, PERMISSION_MANAGE} from './global'
 
 const columns = {
   id: 'id',
@@ -101,6 +101,8 @@ export default {
         let r = [], gs = this.dict.groups
         this.user.manage.forEach(d => d.cheJian.forEach(c => r.push(c.id)))
         d = this.users.filter(u => {
+          if(!u.groups.length)
+            return true
           for(let c of r)
             if(u.groups.find(g => gs[g].cheJian.find(c0 => c0.id == c)))
               return true
@@ -243,8 +245,15 @@ export default {
     }
   },
   created() {
-    groups = [...this.groups]
-    groups.pop()
+    if(!this.user.admin) {
+      let gs = this.dict.groups, cs = []
+      groups = []
+      for(let c in this.user.permission)
+        if(this.user.permission[c] & PERMISSION_MANAGE)
+          cs.push(parseInt(c))
+      this.groups.forEach(g => g.cheJian.find(c => cs.includes(c.id)) && groups.push(g))
+    }
+    //groups.pop()
     columns.groups.items = this.groups
     columns.danWei.items = this.danWei
   }

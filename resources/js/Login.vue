@@ -11,7 +11,7 @@
   padding: .5em;
 }
 #login-msg {
-  margin: 10px 0 0 -58px;
+  margin: 10px 0 0 -18px;
   padding: 18px 10px 18px 60px;
   background: #27A9E3;
   color: #fff;
@@ -20,18 +20,15 @@
 #darkbannerwrap {
   width: 18px;
   height: 10px;
-  margin: 0 0 20px -58px;
+  margin: 0 0 20px -18px;
 }
 .login{
-  margin:auto;
+  margin: auto;
   min-height: 420px;
+  width: 100%;
   max-width: 420px;
-  padding: 40px;
-  background-color: #ffffff;
-  margin-left: auto;
-  margin-right: auto;
+  background-color: white;
   border-radius: 4px;
-  box-sizing: border-box;
 }
 </style>
 <template>

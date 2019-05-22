@@ -47,10 +47,15 @@ export default [{
       path: 'chuZhi'
     }]
   }, {
-    name: 'jiaoJianFenXi',
-    path: 'jiaoJianFenXi',
+    name: 'jiaoJianChaXun',
+    path: 'jiaoJianChaXun',
     component: JiaoJianFenXi,
-    meta: {keepAlive: true}
+    meta: {keepAlive: true},
+    children: [{
+      name: 'jiaoJianFunXi',
+      path: 'fenXi',
+      meta: {keepAlive: true},
+    }]
   }, {
     name: 'zhiJianYuan',
     path: 'zhiJianYuan',

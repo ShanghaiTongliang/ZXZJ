@@ -95,7 +95,7 @@ const colJiaoJian = {
   },
   user: {
     caption: '质检员',
-    type: 'select',
+    //type: 'select',
     default: '已删除',
     items: null
   }
@@ -114,7 +114,11 @@ export default {
       }
       if(this.rn > 2)
         on.rowSelect = this.rowSelect
-      gs = h('moditable', {attrs: {id: 'list'}, props: {table: this.table, selection: this.selection}, on}, [this.rn == 1 ? t && t.count ? h('a', {attrs: {href: '#/jiaoJian/create', class: 'act'}}, '新建') : h('div', {class: 'act'}, '请输入检修数量') : null, h('div', {class: 'dt-info'}, `${this.tbl.data.length}条记录`)])
+      gs = h('moditable', {attrs: {id: 'list'}, props: {table: this.table, selection: this.selection}, on},
+        this.user.permission[this.cheJian] & PERMISSION_DATA ? [
+          this.rn == 1 ? t && t.count ? h('a', {attrs: {href: '#/jiaoJian/create', class: 'act'}}, '新建')
+          : h('div', {class: 'act'}, '请输入检修数量') : null, h('div', {class: 'dt-info'}, `${this.tbl.data.length}条记录`)
+        ] : null)
     } else {
       d = true
       gs = h('kvtable', {style: 'flex-grow: 1', props: {table: this.kv, vertical: this.vertical}},
@@ -132,7 +136,8 @@ export default {
             input: this.countInput
           }}
         )]))
-      ds.push(h('button', {style: 'float: right'}, '保存'))
+      if(this.user.permission[this.cheJian] & PERMISSION_DATA)
+        ds.push(h('button', {style: 'float: right'}, '保存'))
       ds = h('div', {style: {margin: 'auto', flexShrink: 0, display: this.vertical ? null : 'flex'}}, [h('div', {style: this.vertical ? null : 'width: 1em; margin: 0 .2em 0 .5em'}, '日检修量'), h('form', {class: 'group jj-calendar', on: {
         submit: e => this.saveCount(e, t, c)
       }}, ds)])
@@ -296,8 +301,16 @@ export default {
             this.danWei = u.data.length && u.data[0].id
             this.cheJian = u.data.length && u.data[0].cheJian[0].id
           }
-        } else
-          this.kv.data = {danWei: this.danWei, cheJian: this.cheJian}
+        } else {
+          this.kv.data = {
+            date: (new Date).toDate(),
+            danWei: this.danWei,
+            cheJian: this.cheJian,
+            user: this.user.id
+          }
+          if(!this.cheJian)
+            this.$router.replace('/jiaoJian')
+        }
       }
     },
     std: {

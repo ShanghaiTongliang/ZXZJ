@@ -18,10 +18,13 @@ export default {
   props: ['menu', 'selection'],
   render(h) {
     let p = this.$parent, r = (menu, root, show) => {
-      return h('ul', {class: ['menu', root && 'side-menu'], style: {height: show ? `${2.3 * menu.length}em` : 0}},
-        menu.filter(mi => mi.condition === undefined || mi.condition instanceof Function && mi.condition.call(p) || mi.condition)
-        .map((mi, i) => {
+      let ms = menu.filter(mi => mi.condition === undefined || mi.condition instanceof Function && mi.condition.call(p) || mi.condition)
+      return h('ul', {class: ['menu', root && 'side-menu'], style: {height: show ? `${2.3 * ms.length}em` : 0}},
+        ms.map((mi, i) => {
           let ct = 'span', ca = {domProps: {innerHTML: mi.caption}}, c
+
+          let _this = this
+
           if(mi.icon) {
             c = [h('img', {attrs: {src: mi.icon}}), h(ct, ca)]
             ca = {}
@@ -40,7 +43,6 @@ export default {
               ca.class.deny = true
           ca.on = {
             click: e => {
-              let _this = this
               mi.expand = !mi.expand
               if(mi.onclick || mi.href) {
                 this.$emit('select', mi)

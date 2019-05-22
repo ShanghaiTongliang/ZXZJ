@@ -1,11 +1,11 @@
 <template>
   <div v-if="$route.name == 'ruKuFuJian' || $route.name == 'ruKuChuZhi'">
     <chejian-month :danWeis="user.data" :danWei="danWei" :cheJian="cheJian" :month="month" :year="3" :disabled="editing" :state="$store.state" @cheJianChanged="cheJianChanged" @monthChanged="monthChanged"></chejian-month>
-    <moditable v-if="$route.name == 'ruKuFuJian'" :table="table" @edit="edit" @cancel="cancel" @save="save" @delete="del">
-      <a href="#/ruKuFuJian/create" class="act">新建</a>
+    <moditable v-if="$route.name == 'ruKuFuJian'" :table="table" @editable="editable" @edit="edit" @cancel="cancel" @save="save" @delete="del">
+      <a v-if="user.permission[cheJian] & PERMISSION_DATA" href="#/ruKuFuJian/create" class="act">新建</a>
       <span class="dt-info">{{`${this.tbl.data.length}条记录`}}</span>
     </moditable>
-    <moditable v-else :table="tableBuHeGe" @edit="edit" @cancel="cancel" @save="save" @delete="del">
+    <moditable v-else :table="tableBuHeGe" @editable="editable" @edit="edit" @cancel="cancel" @save="save" @delete="del">
       <span class="dt-info">{{`${this.tblBuHeGe.data.length}条记录`}}</span>
     </moditable>
   </div>
@@ -20,7 +20,7 @@ import Datable from './components/Datable'
 import Kvtable from './components/Kvtable'
 import Moditable from './components/Moditable'
 import ChejianMonth from './ChejianMonth'
-import {peiJianLeiBie} from './global'
+import {peiJianLeiBie, PERMISSION_DATA} from './global'
 
 const biJianBuHeGe = 0, biJianHeGe = 1, chouJianYiCiHeGe = 2, chouJianErCiHeGe = 3, chouJianErCiBuHeGe = 4,
 jieGuo = [{
@@ -96,7 +96,7 @@ columns = {
     items: jieGuo,
     filter(t, i, r) {
       i = r[i]
-      let c = i == biJianBuHeGe || i == chouJianErCiBuHeGe ? 'red' : i == chouJianErCiHeGe ? 'orange' : 'green'
+      let c = i == chouJianErCiBuHeGe ? 'red' : i == biJianBuHeGe || i == chouJianErCiHeGe ? 'orange' : 'green'
       return `<span class="${c}">${t}</span>`
     }
   },
@@ -119,6 +119,7 @@ export default {
   data() {
     let d = this.$store.state.user.data
     return {
+      PERMISSION_DATA,
       danWei: d.length && d[0].id,
       cheJian: d.length && d[0].cheJian[0].id,
       month: null,
@@ -189,13 +190,13 @@ export default {
       this.tblBuHeGe.data = this.from
         ? this.ruKuFuJian.filter(r => {
           let j = r.jieGuo, m
-          if(r.cheJian == this.cheJian && (j == biJianBuHeGe || j == chouJianErCiBuHeGe)) {
+          if(r.cheJian == this.cheJian && (j == biJianBuHeGe || j == chouJianErCiBuHeGe || j == chouJianErCiHeGe)) {
             m = r.date.substr(0, 7)
             return m >= this.from && m <= this.to
           }
         }) : this.ruKuFuJian.filter(r => {
           let j = r.jieGuo
-          return r.cheJian == this.cheJian && (j == biJianBuHeGe || j == chouJianErCiBuHeGe) && r.date.substr(0, 7) == this.month
+          return r.cheJian == this.cheJian && (j == biJianBuHeGe || j == chouJianErCiBuHeGe || j == chouJianErCiHeGe) && r.date.substr(0, 7) == this.month
         })
       return this.tblBuHeGe
     }
@@ -247,6 +248,9 @@ export default {
         this.error(r.response.data)
       })
     },*/
+    editable() {
+      return this.user.permission[this.cheJian] & PERMISSION_DATA
+    },
     edit(d) {
       columns.jieGuo.items = d.leiBie == 1 ? biJianJieGuo : chouJianJieGuo
       columns.user.items = this.users

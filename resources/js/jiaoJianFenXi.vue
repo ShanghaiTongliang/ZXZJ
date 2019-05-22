@@ -61,11 +61,12 @@ columns = {
   },
   danWei: {
     caption: '单位',
+    itemName: 'cheJian',
     items: null
   },
   cheJian: {
     caption: '作业场',
-    items: null
+    master: ['danWei']
   },
   user: {
     caption: '质检员',
@@ -145,7 +146,7 @@ export default {
             change: e => this.from = e.target.value
           }}), ' 到 ',
           h('input', {attrs: {type: 'month'}, domProps: {value: this.to}, on: {
-            change: e => this.from = e.target.value
+            change: e => this.to = e.target.value
           }}),
         ]),
         h('div', {class: 'group'}, ['单位 ',
@@ -237,7 +238,7 @@ export default {
     ...mapMutations(['loading', 'message', 'error']),
     query() {
       if(this.from > this.to)
-        this.from = this.to
+        [this.from, this.to] = [this.to, this.from]
       let q = {from: this.from, to: this.to}
       if(this.danWei)
         q.danWei = this.danWei
@@ -414,16 +415,16 @@ export default {
     }
   },
   created() {
-    let d
-    if(d = this.$store.state.danWei.length && this.$store.state.danWei[0])
+    let d, s = this.$store.state
+    if(d = s.danWei.length && s.danWei[0])
       this.danWei = d.id
     this.std.daBuWei.forEach(d => dbw[d.id] = {name: d.name})
     dbw.pop()
     for(let k in columns)
       if(this.std[k])
         columns[k].items = this.std[k]
-    columns.danWei.items = this.$store.state.danWei
-    columns.user.items = this.$store.state.users
+    columns.danWei.items = s.danWei
+    columns.user.items = s.users
 
     window.gz = this
   }

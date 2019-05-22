@@ -36,7 +36,10 @@ const columns = {
     items: null,
     filter(t) {
       let us = this.$store.state.dict.user
-      return t.map(u => us[u.id].name).join(', ')
+      return t.map(u => {
+        let v = us[u.id]
+        return v ? v.name : '已删除'
+      }).join(', ')
     }
   },
   state: {

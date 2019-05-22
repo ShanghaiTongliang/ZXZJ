@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2019-05-20 16:08:36
+-- 生成日期： 2019-05-22 16:41:25
 -- 服务器版本： 10.3.13-MariaDB
 -- PHP 版本： 7.2.16
 
@@ -511,8 +511,9 @@ CREATE TABLE `dianWen` (
 --
 
 INSERT INTO `dianWen` (`id`, `poster`, `cheJian`, `title`, `detail`, `attachment`, `date`, `checkin`) VALUES
-(1, 1, '[1,2,8,9]', 'test', 'ssss\nddddd', NULL, '2019-05-01', '[{\"user\":4,\"date\":\"2019-05-20\"}]'),
-(2, 1, '[1,2,3,4]', 'dgdfgdf', 'wetrwetre', NULL, '2019-05-13', '[{\"user\":3,\"date\":\"2019-05-20\"}]');
+(1, 1, '[1,2,8,9]', 'test', 'ssss\nddddd', NULL, '2019-05-01', '[{\"id\":4,\"date\":\"2019-05-20\"},{\"id\":3,\"date\":\"2019-05-20\"}]'),
+(2, 1, '[1,2,3,4]', 'dgdfgdf', 'wetrwetre', NULL, '2019-05-13', '[{\"id\":3,\"date\":\"2019-05-20\"}]'),
+(3, 7, '[1,2,3,8,9,10]', '试试看', '    看来还是可以的，但是需要增加附件的功能', NULL, '2019-05-22', '[{\"id\":3,\"date\":\"2019-05-22\"}]');
 
 -- --------------------------------------------------------
 
@@ -942,9 +943,11 @@ INSERT INTO `jiaoJian` (`id`, `date`, `cheHao`, `xiuCheng`, `cheZhong`, `guZhang
 (11, '2019-03-01', '334455', 4, 7, 6, 1, 1, 10, 2),
 (12, '2019-03-03', '4433356', 3, 132, 172, 1, 1, 10, NULL),
 (13, '2019-03-07', '3322556', 4, 2, 290, 1, 1, 10, 3),
-(14, '2019-05-01', '3322442', 1, 79, 127, 1, 1, 3, NULL),
+(14, '2019-05-01', '3322442', 1, 79, 127, 1, 1, 3, 4),
 (15, '2019-05-09', '4332566', 1, 137, 175, 1, 8, 4, NULL),
-(16, '2019-05-15', '5533446', 1, 365, 222, 1, 8, 4, NULL);
+(16, '2019-05-15', '5533446', 1, 365, 222, 1, 8, 4, NULL),
+(17, '2019-05-15', '4433552', 1, 247, 128, 1, 1, 3, 4),
+(18, '2019-05-22', '5555', 1, 202, 313, 1, 1, 3, NULL);
 
 -- --------------------------------------------------------
 
@@ -979,7 +982,9 @@ INSERT INTO `jiaoJianChuLi` (`id`, `state`, `cheHao`, `xiuCheng`, `danWei`, `che
 (6, 4, '3333', 1, 1, 2, 2, '2019-03-07 11:30:24', 4, '2019-03-07 13:15:00', 7, NULL, NULL, '2019-03-07 13:15:00', 3),
 (7, 3, '4444', 1, 1, 3, 318, '2019-03-12 13:13:41', 5, '2019-03-17 18:44:00', 7, NULL, NULL, '2019-03-17 18:51:00', 3),
 (11, 2, '3344556', 4, 1, 1, 4, '2019-03-18 05:57:44', 10, '2019-04-08 09:39:00', 1, 'test', NULL, NULL, NULL),
-(13, 3, '3322556', 4, 1, 1, 290, '2019-03-19 01:50:41', 10, '2019-03-19 01:53:00', 20, NULL, NULL, '2019-03-19 01:55:00', 10);
+(13, 3, '3322556', 4, 1, 1, 290, '2019-03-19 01:50:41', 10, '2019-03-19 01:53:00', 20, NULL, NULL, '2019-03-19 01:55:00', 10),
+(14, 4, '3322442', 1, 1, 1, 127, '2019-05-22 03:47:34', 3, '2019-05-22 03:48:00', 9, '已修复', NULL, '2019-05-22 03:48:00', 3),
+(17, 4, '4433552', 1, 1, 1, 128, '2019-05-22 03:49:13', 3, '2019-05-22 03:50:00', 9, '已修复', NULL, '2019-05-22 03:50:00', 3);
 
 -- --------------------------------------------------------
 
@@ -1132,7 +1137,8 @@ INSERT INTO `ruKuFuJian` (`id`, `date`, `xingHao`, `ruKuShuLiang`, `fuJianShuLia
 (4, '2019-04-15', 201, 99, 3, NULL, 1, NULL, 1, 1),
 (5, '2019-05-16', 46, 100, 100, '33224,44335', 0, 'xxxx', 3, 1),
 (6, '2019-05-17', 194, 66, 66, '333', 4, 'xxxx', 3, 1),
-(7, '2019-05-20', 197, 100, 2, '4433-9', 2, NULL, 3, 1);
+(7, '2019-05-20', 197, 100, 2, '4433-9', 2, NULL, 3, 1),
+(8, '2019-05-22', 194, 133, 3, '3322,55678', 3, '5555', 3, 1);
 
 -- --------------------------------------------------------
 
@@ -1159,10 +1165,10 @@ INSERT INTO `user` (`id`, `name`, `password`, `token`, `groups`, `danWei`, `cheJ
 (1, 'oblind', '4e3DWFKQHAFsw', 26440, '[255]', NULL, NULL, NULL),
 (2, 'realarzt', '938/kIkECvYAc', 63246, '[255]', NULL, NULL, NULL),
 (3, 'NXZXZJ', 'b1jM.wkQmyIM6', NULL, '[3]', 1, 1, NULL),
-(4, 'WHZXZJ', '0bMdPEOGGGkWY', NULL, '[13]', 1, 8, NULL),
-(5, 'test', '5d2XhD.NZq4T6', NULL, '[]', NULL, NULL, NULL),
-(6, '111', '15J62OK8A.g3I', NULL, '[]', NULL, NULL, NULL),
-(7, 'HBGLY', '8fSRUyL.fcSqw', NULL, '[1]', 1, NULL, NULL);
+(7, 'HBGLY', '8fSRUyL.fcSqw', NULL, '[1]', 1, NULL, NULL),
+(8, 'NJDGLY', 'eeEwBNf04p1x6', NULL, '[2]', 2, NULL, NULL),
+(9, 'NXZXJX', '07kSvYb.tDtV2', NULL, '[4]', 1, 1, NULL),
+(10, 'LJLD', '15J62OK8A.g3I', NULL, '[]', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1553,7 +1559,7 @@ ALTER TABLE `danWei`
 -- 使用表AUTO_INCREMENT `dianWen`
 --
 ALTER TABLE `dianWen`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- 使用表AUTO_INCREMENT `guZhang`
@@ -1565,7 +1571,7 @@ ALTER TABLE `guZhang`
 -- 使用表AUTO_INCREMENT `jiaoJian`
 --
 ALTER TABLE `jiaoJian`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- 使用表AUTO_INCREMENT `jiaoJianCount`
@@ -1583,13 +1589,13 @@ ALTER TABLE `peiJian`
 -- 使用表AUTO_INCREMENT `ruKuFuJian`
 --
 ALTER TABLE `ruKuFuJian`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- 使用表AUTO_INCREMENT `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- 使用表AUTO_INCREMENT `xingHao`

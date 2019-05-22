@@ -110,7 +110,7 @@ export default new Vuex.Store({
   },
   mutations: {
     auth(state, {data, id, url}) {
-      let dict = {groups: {}, danWei: {}, cheJian: {}, user: {}}, cs = [], u
+      let dict = {groups: {}, danWei: {}, cheJian: {}, user: {}, xiuCheng: {}, cheZhong: {}, dengJi: {}, peiJian: {}, xingHao: {}}, cs = [], u
       state.dict = dict
       data.groups.forEach(g => state.fixGroup(g))
       state.groups = data.groups
@@ -128,11 +128,9 @@ export default new Vuex.Store({
       })
       state.std.danWei = data.std.danWei
       data.users.forEach(u => state.fixUser(u))
-      dict.cheZhong = {}
-      dict.dengJi = {}
+      //////////////
+      data.std.xiuCheng.forEach(x => dict.xiuCheng[x.id] = x)
       dengJi.forEach(d => dict.dengJi[d.id] = d)
-      dict.peiJian = {}
-      dict.xingHao = {}
       data.std.xingHao = []
       data.std.peiJian.forEach(p => {
         dict.peiJian[p.id] = p

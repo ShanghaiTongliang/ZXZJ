@@ -57,10 +57,17 @@ export default {
           href: '#/ruKuFuJian/chuZhi'
         }]
       }, {
-        name: 'jiaoJianFenXi',
-        caption: '故障分析',
-        href: '#/jiaoJianFenXi',
-        //condition: data
+        caption: '故障查询分析',
+        //condition: data,
+        items: [{
+          name: 'jiaoJianChaXun',
+          caption: '故障查询',
+          href: '#/jiaoJianChaXun'
+        }, {
+          name: 'jiaoJianFunXi',
+          caption: '故障分析',
+          href: '#/jiaoJianChaXun/fenXi',
+        }]
       }, {
         caption: '质检员技术管理',
         //condition: data,
@@ -77,21 +84,6 @@ export default {
           caption: '学习资料',
           href: '#/zhiJianYuan/ziLiao'
         }]
-      }, {
-        name: 'danWei',
-        caption: '单位',
-        href: '#/danWei',
-        //condition: manage
-      }, {
-        name: 'users',
-        caption: '用户',
-        href: '#/user',
-        //condition: manage
-      }, {
-        name: 'groups',
-        caption: '用户组',
-        href: '#/group',
-        //condition: manage
       }, {
         caption: '基础数据',
         //condition: manage,
@@ -121,10 +113,26 @@ export default {
           href: '#/standard/xingHao'
         }]
       }, {
-        name: 'option',
-        caption: '系统参数',
-        href: '#/option',
-        //condition: u.admin
+        caption: '参数设置',
+        //condition: u.manage,
+        items: [{
+          name: 'danWei',
+          caption: '单位',
+          href: '#/danWei',
+        }, {
+          name: 'users',
+          caption: '用户',
+          href: '#/user',
+        }, {
+          name: 'groups',
+          caption: '用户组',
+          href: '#/group',
+        }, {
+          name: 'option',
+          caption: '系统参数',
+          href: '#/option',
+          //condition: manage
+        }]
       }]
     }
   },
@@ -140,9 +148,9 @@ export default {
       this.m[3].condition = data
       this.m[4].condition = manage
       this.m[5].condition = manage
-      this.m[6].condition = manage
-      this.m[7].condition = manage
-      this.m[8].condition = u.admin
+      this.m[5].items[0].condition = u.admin
+      this.m[5].items[2].condition = u.admin
+      this.m[5].items[3].condition = u.admin
       return this.m
     }
   },

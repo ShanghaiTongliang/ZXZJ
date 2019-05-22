@@ -139,8 +139,7 @@ export default {
                         }).join(', ')
                       } else {
                         t = l.find(v => v[keyName] == row[j])
-                        if(t)
-                          t = t[valueName]
+                        t = t ? t[valueName] : c.default
                       }
                     }
                     break
@@ -203,7 +202,7 @@ export default {
             )
           }
           /*body.push(h('tr', {
-            class: row == this.selection ? ['selection'] : null,
+            class: row == this.selection ? ['select'] : null,
             on: {
               click: () => row != this.selection && this.$emit('rowSelect', row, i)
             },
@@ -229,7 +228,7 @@ export default {
       tbl.push(h('tbody', e ? body : body.map((td, j) => {
         let row = this.table.data[j]
         return h('tr', {
-          class: row == this.selection ? ['selection'] : null,
+          class: row == this.selection ? ['select'] : null,
           on: {
             click: () => row != this.selection && this.$emit('rowSelect', row, j)
           },

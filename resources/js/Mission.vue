@@ -33,7 +33,7 @@ export default {
         h('caption', '货车检修质量不合格通知书'),
         h('tbody', [
           h('tr', [h('td', '状态'), h('td', sState[g.state]), h('td', '下发人'), h('td', this.getUser(g.xiaFaRen)), h('td', {attrs: {colspan: 2}}, this.dict.cheJian[g.cheJian].name)]),
-          h('tr', [h('td', '车号'), h('td', g.cheHao), h('td', '修程'), h('td', this.std.xiuCheng[g.xiuCheng].name), h('td', '下发时间'), h('td', g.xiaFaShiJian.substr(0, 16))]),
+          h('tr', [h('td', '车号'), h('td', g.cheHao), h('td', '修程'), h('td', this.dict.xiuCheng[g.xiuCheng].name), h('td', '下发时间'), h('td', g.xiaFaShiJian.substr(0, 16))]),
           h('tr', [h('td', '故障'), h('td', {attrs: {colspan: 5}}, `${this.std.daBuWei[g.daBuWei].name} ${this.std.guZhang[g.guZhang].name}`)]),
           h('tr', [h('td', '处理方式'),
             h('td', f && this.stage == checking && g.state != resolved ? [h('input', {domProps: {value: g.chuLi}, on: {
