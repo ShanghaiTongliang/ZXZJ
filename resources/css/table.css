@@ -65,6 +65,7 @@ tr.select {
   color: white;
   background-color: #37f !important;
 }
+tr.select a {color: white}
 .act {
   font-weight: bold;
   position: absolute;

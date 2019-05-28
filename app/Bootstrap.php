@@ -60,25 +60,17 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
     Router::init($dispatcher->getRouter(), $dispatcher->getRequest()->method);
     Router::prefix('api', function($router) {
       $auth = new Middleware\Auth;
+      //注册
       $p = [
         'module' => 'zxzj',
-        'controller' => 'index',
-        'action' => 'calc'
+        'controller' => 'user',
+        'action' => 'store'
       ];
-      $router->post('calc', $p);
-      $p['action'] = 'list';
-      $router->get('list', $p);
-      $p['action'] = 'cheXing';
-      $router->get('cheXing', $p);
-
-      //注册
-      $p['controller'] = 'user';
-      $p['action'] = 'store';
       $router->post('user', $p);
-
+      /*
       $p['action'] = 'upgrade';
-      $router->get('user', $p);
-
+      $router->get('user/upgrade', $p);
+      */
       //重置密码
       $p['action'] = 'resetPassword';
       $router->post('user/password', $p);
@@ -139,8 +131,8 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $p['controller'] = 'standard';
         $p['action'] = 'indexDaBuWei';
         $router->get('standard/daBuWei', $p);
-        $p['action'] = 'indexCheZhong';
-        $router->get('standard/cheZhong', $p);
+        $p['action'] = 'indexCheXing';
+        $router->get('standard/cheXing', $p);
         $p['action'] = 'store';
         $router->post('standard/:type', $p);
         $p['action'] = 'update';
@@ -188,7 +180,9 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         $p['action'] = 'storeDianWen';
         $router->post('zhiJianYuan/dianWen', $p);
         $p['action'] = 'updateDianWen';
-        $router->put('zhiJianYuan/dianWen/:id', $p);
+        //PUT没有 $_FILES变量
+        //$router->put('zhiJianYuan/dianWen/:id', $p);
+        $router->post('zhiJianYuan/dianWen/:id', $p);
         $p['action'] = 'destoyDianWen';
         $router->delete('zhiJianYuan/dianWen/:id', $p);
         //签收

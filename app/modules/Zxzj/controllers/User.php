@@ -1,13 +1,17 @@
 <?php
+use Zxzj\Redis;
 
 class UserController extends Yaf\Controller_Abstract {
   //新建用户
   function storeAction() {
     if($u = UserModel::register($_POST, $err)) {
       $t = time();
+      $token = rand(1, 0xffff);
+      $redis = Redis::instance();
+      $redis->set("token$u->id", $token, 86400 * 7);
       setcookie('id', $u->id, $t + 1800, PATH);
       //setcookie('token', $u->token, $t + 86400 * 365, PATH, '', false, true);
-      setcookie('token', JWT::encode(['id' => $u->id], 'tongliang'), $t + 86400 * 365, PATH, '', false, true);
+      setcookie('token', JWT::encode(['id' => $u->id, 'token' => $token], 'tongliang'), $t + 86400 * 365, PATH, '', false, true);
       $this->forward('auth', 'index');
     } else
       response($err);
@@ -26,8 +30,20 @@ class UserController extends Yaf\Controller_Abstract {
   //删除用户
   function destroyAction() {
     if($u = UserModel::find($id = $this->getRequest()->getParams()['id'])) {
-      //if(UserModel::$user->admin($u)) {
-        if(UserModel::$user->admin()) {
+      if(UserModel::$user->admin()) {
+        //清理关联表
+        foreach(DianWenModel::get() as $d) {
+          $cs = $d->checkin;
+          $i = 0; $c = count($cs);
+          while($i < $c)
+            if($cs[$i]->id == $id) {
+              array_splice($cs, $i, 1);
+              $d->checkin = $cs;
+              $d->save();
+              break;
+            } else
+              $i++;
+        }
         $u->delete();
         $u::resetAutoIncrement();
         return;
@@ -91,7 +107,7 @@ class UserController extends Yaf\Controller_Abstract {
     response(_('user does not exists'));
   }
 
-  function upgradeAction() {
+  /*function upgradeAction() {
     $cs = [];
     foreach(Table::open('cheJian')::get() as $c)
       $cs[$c->id] = $c;
@@ -101,5 +117,5 @@ class UserController extends Yaf\Controller_Abstract {
         $u->save();
       }
     }
-  }
+  }*/
 }

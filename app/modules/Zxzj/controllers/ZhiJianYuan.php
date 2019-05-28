@@ -5,15 +5,33 @@ class ZhiJianYuanController extends Yaf\Controller_Abstract {
     $p = new DianWenModel;
     foreach($_POST as $k => $v)
       $p->$k = $v;
-    $p->save();
+    //$p->save();
     echo json_encode(['id' => $p->id]);
   }
 
   function updateDianWenAction() {
     $d = $this->getRequest()->getParams();
     if($d = DianWenModel::find($d['id'])) {
-      $a = json_decode(file_get_contents('php://input'));
-      unset($a->id);
+      $a = json_decode($_POST['dianWen']);
+      $base = 'zhiJianYuan/dianWen/';
+      //删除文件
+      foreach($d->attachments as $old) {
+        $b = false;
+        foreach($a->attachments as $new)
+          if($old->name == $new->name) {
+            $b = true;
+            break;
+          }
+        if(!$b && file_exists($p = "$base$d->id/$old->name"))
+          unlink($p);
+      }
+      $p = "$base$d->id";
+      if(count($_FILES)) {
+        if(!is_dir($p))
+          mkdir($p);
+        foreach($_FILES as $f)
+          move_uploaded_file($f['tmp_name'], "$base$d->id/{$f['name']}");
+      }
       foreach($a as $k => $v)
         $d->$k = $v;
       $d->save();
@@ -55,7 +73,9 @@ class ZhiJianYuanController extends Yaf\Controller_Abstract {
   function storeZhiDaoShuAction() {
     if($f = $_FILES['file'] ?? null) {
       $n = $_POST['name'] ?? $f['name'];
-      move_uploaded_file($f['tmp_name'], "zhiJianYuan/zhiDaoShu/$n");
+      if($n != $f['name'])
+        unlink("zhiJianYuan/zhiDaoShu/$n");
+      move_uploaded_file($f['tmp_name'], "zhiJianYuan/zhiDaoShu/{$f['name']}");
     } else
       response(_('format incorrect'));
   }

@@ -133,10 +133,10 @@ export default [{
         path: 'create'
       }]
     }, {
-      name: 'cheZhong',
-      path: 'cheZhong',
+      name: 'cheXing',
+      path: 'cheXing',
       children: [{
-        name: 'createCheZhong',
+        name: 'createCheXing',
         path: 'create'
       }]
     }, {

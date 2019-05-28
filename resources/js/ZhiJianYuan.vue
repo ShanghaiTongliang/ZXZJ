@@ -6,15 +6,28 @@
   font-size: 1.1em;
   text-align: left;
 }
+.attachment {
+  display: inline-block;
+  margin: .1em .2em;
+  padding: .2em;
+  background-color: rgba(0, 0, 0, .2);
+  border-radius: .5em;
+}
+.attachment div {
+  max-width: 10em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.attachment button {float: right}
 </style>
 <script>
 import axios from 'axios';
 import Tabs from './components/Tabs'
 import Datable from './components/Datable'
-import {sizeFilter} from './components/filters'
+import Uploader, {addFile} from './components/Uploader'
 import {mapState, mapMutations} from 'vuex';
-import {timeFilter} from './components/filters'
-import {clone} from './components/merge'
+import {sizeFilter, timeFilter} from './components/filters'
+import {clone, exclude} from './components/merge'
 import {PERMISSION_DATA, PERMISSION_MANAGE, dianWenState} from './global'
 
 const columns = {
@@ -89,8 +102,9 @@ const columns = {
     filter: sizeFilter
   }
 }
+
 export default {
-  components: {Tabs, Datable},
+  components: {Tabs, Datable, Uploader},
   render(h) {
     let n = this.$route.name, r
     if(n == 'dianWens') {
@@ -115,6 +129,7 @@ export default {
         ])]),
         m ? h('div', `下发至: ${this.curDianWen.cheJian.map(c => cs[c].name).join(', ')}`) : null,
         h('pre', {class: 'text'}, this.curDianWen.detail),
+        h('div', [h('span', {style: 'float: left'}, '附件'), this.curDianWen.attachments.map(a => h('div', {class: 'uploader'}, [h('div', [h('a', {attrs: {href: a.url, target: '_blank'}}, a.name)]), h('span', sizeFilter(a.size))]))]),
         this.curDianWen.state === 0 ? h('div', [h('button', {on: {
           click: this.checkin
         }}, '签收')]) : null
@@ -152,9 +167,17 @@ export default {
         h('textarea', {style: {flexGrow: 1, margin: '.2em 0'}, domProps: {value: this.dianWen.detail}, on: {
           input: e => this.dianWen.detail = e.target.value
         }}),
-        h('div', [h('button', {on: {
-          click: this.save
-        }}, '保存')])
+        h('uploader', {props: {files: this.dianWen.attachments, maxSize: this.options.zhiJianYuan.uploadMaxSize}, on: {
+          error: e => this.error(e)
+        }, ref: 'uploader'}, [
+          h('div', {style: 'float: right'}, [
+            this.dianWen.attachments.length < 5 && h('button', {on: {
+              click: this.addAttachment
+            }}, '添加附件'), ' ', h('button', {on: {
+              click: this.save
+            }}, '保存')
+          ])
+        ])
       ])
     } else if(n == 'zhiDaoShu')
       return h('datable', {props: {table: this.tblZhiDaoShu}, class: 'container'}, this.user.manage.length ? [
@@ -182,11 +205,17 @@ export default {
         columns: colFiles,
         actions: [{
           caption: '更新',
+          condition() {
+            return this.user.manage.length
+          },
           onclick(d) {
             this.update('zhiDaoShu', d)
           }
         }, {
           caption: '删除',
+          condition() {
+            return this.user.manage.length
+          },
           onclick(d) {
             this.delete('zhiDaoShu', d)
           }
@@ -198,16 +227,25 @@ export default {
         columns: colFiles,
         actions: [{
           caption: '更新',
+          condition() {
+            return this.user.manage.length
+          },
           onclick(d) {
             this.update('ziLiao', d)
           }
         }, {
           caption: '删除',
+          condition() {
+            return this.user.manage.length
+          },
           onclick(d) {
             this.delete('ziLiao', d)
           }
         }],
         data: this.$store.state.zhiJianYuan.ziLiao
+      },
+      uploadOption: {
+        onUploadProgress: e => e.total && this.progress(e.loaded / e.total)
       }
     }
   },
@@ -244,7 +282,7 @@ export default {
           selection: null
         })
         this.tblCheckin.push({
-          caption: '已签收情况',
+          caption: '签收情况',
           columns: colCheckin,
           data: null
         })
@@ -284,7 +322,7 @@ export default {
         if(r.name == 'createDianWen') {
           this.new = true
           this.all = true
-          this.dianWen = {poster: this.user.id, date: (new Date).toDate(), cheJian: this.cheJians.map(c => c.id), checkin: []}
+          this.dianWen = {poster: this.user.id, date: (new Date).toDate(), cheJian: this.cheJians.map(c => c.id), attachments: [], checkin: []}
         } else if(r.name == 'dianWen' || r.name == 'editDianWen') {
           this.new = false
           this.curDianWen = this.zhiJianYuan.dianWen.find(p => p.id == r.params.id)
@@ -302,11 +340,22 @@ export default {
     rowSelect(d) {
       let i = this.$refs.tab.tabIdx, us = this.dict.user
       this.tbls[i].selection = d
-      this.tblCheckin[this.$refs.tab.tabIdx].data = d.checkin.map(u => ({user: us[u.id].name, date: '2019-05-20'}))
+      this.tblCheckin[this.$refs.tab.tabIdx].data = d.checkin.map(u => ({user: us[u.id].name, date: u.date}))
+    },
+    addAttachment() {
+      this.$refs.uploader.addFile()
     },
     _save(f, url, cb) {
       this.loading(true)
-      f.call(axios, url, this.dianWen).then(r => {
+      let fd = new FormData
+      this.$refs.uploader.added.forEach((f, i) => fd.append(`attachment${i}`, f.file, f.name))
+      fd.append('dianWen', JSON.stringify({
+        ...exclude(this.dianWen, ['url', 'users', 'uncheck']),
+        attachments: this.dianWen.attachments.filter(a => !a.deleted).map(a => ({name: a.name, size: a.size}))
+      }))
+      f.call(axios, url, fd, this.uploadOption).then(r => {
+        this.$refs.uploader.deleted.forEach(a => this.dianWen.attachments.splice(this.dianWen.attachments.indexOf(a), 1))
+        this.$refs.uploader.added.forEach(a => a.url = `zhiJianYuan/dianWen/${this.dianWen.id}/${a.name}`)
         cb(r)
         this.loading(false)
         this.message('保存成功')
@@ -329,9 +378,8 @@ export default {
             this.$router.push(`/zhiJianYuan/dianWen/${this.dianWen.id}`)
           })
         else {
-          let id = this.dianWen.id, ks = ['id', 'url', 'users', 'uncheck']
-          ks.forEach(k => delete this.dianWen[k])
-          this._save(axios.put, `api/zhiJianYuan/dianWen/${id}`, r => {
+          let id = this.dianWen.id
+          this._save(axios.post, `api/zhiJianYuan/dianWen/${id}`, r => {
             for(let k in this.dianWen)
               this.curDianWen[k] = this.dianWen[k]
             this.$router.push(`/zhiJianYuan/dianWen/${id}`)
@@ -339,31 +387,16 @@ export default {
         }
       }
     },
-    check(cb) {
-      let i = document.createElement('input')
-      i.type = 'file'
-      i.addEventListener('change', e => {
-        let f = e.target.files[0]
-        if(f.size > this.options.zhiJianYuan.uploadMaxSize)
-          this.error(`文件不能大于${sizeFilter(this.options.zhiJianYuan.uploadMaxSize)}`)
-        else {
-          let fd = new FormData
-          fd.append('file', f)
-          cb(fd, f)
-        }
-      })
-      i.click()
-    },
     upload(t) {
-      this.check((fd, f) => {
+      addFile(f => {
         if(this.zhiJianYuan[t].find(d => d.name == f.name)) {
           this.error(`${f.name} 已经存在`)
           return
         }
         this.loading(true)
-        axios.post(`api/zhiJianYuan/${t}`, fd, {
-          onUploadProgress: e => e.total && this.progress(e.loaded / e.total)
-        }).then(() => {
+        let fd = new FormData
+        fd.append('file', f)
+        axios.post(`api/zhiJianYuan/${t}`, fd, this.uploadOption).then(() => {
           let d = {name: f.name, time: f.lastModifiedDate.getTime() / 1000, size: f.size}
           this.$store.state.fixFile(d, t)
           this.zhiJianYuan[t].push(d)
@@ -373,22 +406,30 @@ export default {
           this.loading(false)
           this.error(r.response.data)
         })
-      })
+      }, e => this.error(e), this.options.zhiJianYuan.uploadMaxSize)
     },
     update(t, d) {
-      this.check((fd, f) => {
+      addFile(f => {
+        if(this.zhiJianYuan[t].find(d => d.name == f.name)) {
+          this.error(`${f.name} 已经存在`)
+          return
+        }
         this.loading(true)
+        let fd = new FormData
+        fd.append('file', f)
         fd.append('name', d.name)
         axios.post(`api/zhiJianYuan/${t}`, fd).then(() => {
+          d.name = f.name
           d.time = f.lastModifiedDate.getTime() / 1000
           d.size = f.size
+          d.url = `zhiJianYuan/${t}/${f.name}`
           this.loading(false)
           this.message('更新成功')
         }).catch(r => {
           this.loading(false)
           this.error(r.response.data)
         })
-      })
+      }, e => this.error(e), this.options.zhiJianYuan.uploadMaxSize)
     },
     delete(t, d) {
       if(confirm(`确定要删除 ${d.name} ?`)) {

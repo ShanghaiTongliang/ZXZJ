@@ -80,7 +80,7 @@ class JiaoJianController extends Yaf\Controller_Abstract {
       }
       $g->state = static::DISPATCHED;
       $g->save();
-      foreach(['state', 'cheHao', 'xiuCheng', 'danWei', 'cheJian', 'guZhang'] as $k)
+      foreach(['state', 'cheHao', 'cheXing', 'xiuCheng', 'danWei', 'cheJian', 'guZhang'] as $k)
         $c->$k = $g->$k;
       $c->xiaFaShiJian = date('Y-m-d H:i:s');
       $c->xiaFaRen = $g->user;

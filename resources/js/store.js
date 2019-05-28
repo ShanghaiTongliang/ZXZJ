@@ -30,6 +30,7 @@ export default new Vuex.Store({
     fixDianWen(d) {
       let gs = this.dict.groups, us = []
       d.url = `#/zhiJianYuan/dianWen/${d.id}`
+      d.attachments.forEach(a => a.url = `zhiJianYuan/dianWen/${d.id}/${a.name}`)
       this.users.forEach(u => {
         if(u.groups.find(g => gs[g].cheJian.find(c => d.cheJian.includes(c.id) && c.permission & PERMISSION_DATA)))
           us.push(u.id)
@@ -110,7 +111,7 @@ export default new Vuex.Store({
   },
   mutations: {
     auth(state, {data, id, url}) {
-      let dict = {groups: {}, danWei: {}, cheJian: {}, user: {}, xiuCheng: {}, cheZhong: {}, dengJi: {}, peiJian: {}, xingHao: {}}, cs = [], u
+      let dict = {groups: {}, danWei: {}, cheJian: {}, user: {}, xiuCheng: {}, cheXing: {}, dengJi: {}, peiJian: {}, xingHao: {}}, cs = [], u
       state.dict = dict
       data.groups.forEach(g => state.fixGroup(g))
       state.groups = data.groups
@@ -154,10 +155,10 @@ export default new Vuex.Store({
         state.std.guZhang = t
         state.jiaoJian.forEach(g => state.fixJiaoJian(g))
         state.jiaoJianChuLi.forEach(c => state.fixJiaoJian(c))
-      }, fixCheZhong = d => {
+      }, fixCheXing = d => {
         if(d)
-          state.std.cheZhong = d
-        state.std.cheZhong.forEach(d => dict.cheZhong[d.id] = d)
+          state.std.cheXing = d
+        state.std.cheXing.forEach(d => dict.cheXing[d.id] = d)
       }
       state.jiaoJian = data.jiaoJian
       state.jiaoJianChuLi = data.jiaoJianChuLi
@@ -175,20 +176,20 @@ export default new Vuex.Store({
         })
       } else
         fixDaBuWei()
-      if(data.state.cheZhongTime > state.state.cheZhongTime) {
+      if(data.state.cheXingTime > state.state.cheXingTime) {
         this.commit('loading', true)
-        axios.get('api/standard/cheZhong').then(r => {
+        axios.get('api/standard/cheXing').then(r => {
           this.commit('loading', false)
-          fixCheZhong(r.data)
-          state.state.cheZhongTime = data.state.cheZhongTime
+          fixCheXing(r.data)
+          state.state.cheXingTime = data.state.cheXingTime
           localStorage.setItem('state', JSON.stringify(state.state))
-          localStorage.setItem('cheZhong', JSON.stringify(r.data))
+          localStorage.setItem('cheXing', JSON.stringify(r.data))
         }).catch(r => {
           this.commit('loading', false)
           this.commit('error', r.response.data)
         })
       } else
-        fixCheZhong()
+        fixCheXing()
       data.std.dengJi = dengJi
       for(let k in data.std)
         Vue.set(state.std, k, data.std[k])

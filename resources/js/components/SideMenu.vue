@@ -22,9 +22,6 @@ export default {
       return h('ul', {class: ['menu', root && 'side-menu'], style: {height: show ? `${2.3 * ms.length}em` : 0}},
         ms.map((mi, i) => {
           let ct = 'span', ca = {domProps: {innerHTML: mi.caption}}, c
-
-          let _this = this
-
           if(mi.icon) {
             c = [h('img', {attrs: {src: mi.icon}}), h(ct, ca)]
             ca = {}

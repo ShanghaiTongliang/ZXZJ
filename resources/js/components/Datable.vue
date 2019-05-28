@@ -196,7 +196,12 @@ export default {
               : h('button', {
                 domProps: {innerHTML: a.caption},
                 on: {
-                  click: e => a.onclick && a.onclick.call(this.$parent, row, i)
+                  click: e => {
+                    if(a.onclick) {
+                      e.preventDefault()
+                      a.onclick.call(this.$parent, row, i)
+                    }
+                  }
                 }})
               )
             )

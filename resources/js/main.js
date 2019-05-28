@@ -23,9 +23,9 @@ o = localStorage.getItem('state')
 if(o) {
   store.state.state = JSON.parse(o)
   store.state.std.daBuWei = JSON.parse(localStorage.getItem('daBuWei'))
-  store.state.std.cheZhong = JSON.parse(localStorage.getItem('cheZhong'))
+  store.state.std.cheXing = JSON.parse(localStorage.getItem('cheXing'))
 } else
-  store.state.state = {guZhangTime: '', cheZhongTime: ''}
+  store.state.state = {guZhangTime: '', cheXingTime: ''}
 window.root = root
 
 orientation(v => store.state.vertical = v)

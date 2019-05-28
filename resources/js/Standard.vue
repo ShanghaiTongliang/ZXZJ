@@ -9,11 +9,11 @@ import {peiJianLeiBie} from './global'
 
 const names = {
   xiuCheng: '修程',
-  cheZhong: '车型',
+  cheXing: '车型',
   daBuWei: '大部位',
   guZhang: '故障',
   peiJian: '配件',
-  xingHao: '型号',
+  xingHao: '配件型号',
 },
 contain = {},
 columns = {
@@ -92,7 +92,7 @@ export default {
         },
         delete: (d, i, next) => {
           if(n == 'peiJian' && this.$store.state.dict.peiJian[d.id].xingHao.length)
-            this.error(`请先删除 ${d.name} 下所有 型号`)
+            this.error(`请先删除 ${d.name} 下所有 配件型号`)
           else if(this.$store.state[contain[n]].find(g => g[n] == d.id))
             this.error(`${names[n]}: ${d.name} 已被使用, 不能删除`)
           else if(confirm(`确定要删除 ${names[n]}: ${d.name} ?`)) {

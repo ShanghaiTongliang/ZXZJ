@@ -3,16 +3,16 @@
 class StandardController extends Yaf\Controller_Abstract {
   function getParams() {
     $p = $this->getRequest()->getParams();
-    if(in_array($p['type'], ['xiuCheng', 'cheZhong', 'daBuWei', 'guZhang', 'peiJian', 'xingHao']))
+    if(in_array($p['type'], ['xiuCheng', 'cheXing', 'daBuWei', 'guZhang', 'peiJian', 'xingHao']))
       return $p;
     else
       response(_('standard type not found'), RES_NOT_FOUND);
   }
 
   function checkStandard(string $t) {
-    if(in_array($t, ['daBuWei', 'guZhang', 'cheZhong'])) {
+    if(in_array($t, ['daBuWei', 'guZhang', 'cheXing'])) {
       $o = OptionModel::first();
-      $t = $t == 'cheZhong' ? 'cheZhongTime' : 'guZhangTime';
+      $t = $t == 'cheXing' ? 'cheXingTime' : 'guZhangTime';
       $o->state->$t = date('Y-m-d H:i:s');
       $o->state = $o->state;
       $o->save();
@@ -32,8 +32,8 @@ class StandardController extends Yaf\Controller_Abstract {
     echo json_encode($ds, JSON_UNESCAPED_UNICODE);
   }
 
-  function indexCheZhongAction() {
-    echo json_encode(Table::open('cheZhong')::get(), JSON_UNESCAPED_UNICODE);
+  function indexCheXingAction() {
+    echo json_encode(Table::open('cheXing')::get(), JSON_UNESCAPED_UNICODE);
   }
 
   function storeAction() {

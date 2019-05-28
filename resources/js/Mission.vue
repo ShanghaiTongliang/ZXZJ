@@ -5,6 +5,16 @@
   margin: 0 auto;
 }
 .mission>table {margin-bottom: .2em}
+.mission-print input {
+  font-size: 1em;
+  min-height: 1.9em;
+  box-sizing: border-box;
+}
+.mission-print input[type=text] {width: 100%}
+.mission-print textarea {
+  width: 100%;
+  font-size: 1.5em;
+}
 </style>
 <script>
 import axios from 'axios'
@@ -20,7 +30,7 @@ export default {
   props: ['mission', 'role', 'editing'], //role: 0: 无, 1: 检修, 2: 质检
   render(h) {
     if(this.mission) {
-      let cl, cb, g = this.mission, f = this.editing, bs = []
+      let tbl, pnl, g = this.mission, f = this.editing, bs = []
       if(this.chuLiEditable(g))
         bs.push(h('button', {on: {
           click: e => this.edit(g)
@@ -29,8 +39,10 @@ export default {
         bs.push(' ', h('button', {on: {
           click: e => this.$emit('onEditing', false)
         }}, '取消'))
-      cl = h('table', {class: 'datable'}, [
-        h('caption', '货车检修质量不合格通知书'),
+      tbl = h('table', {class: 'datable'}, [
+        h('caption', ['货车检修质量不合格通知书', !this.printing && h('button', {class: 'act', on: {
+          click: () => open(`#/mission/${g.id}`)
+        }}, '打印')]),
         h('tbody', [
           h('tr', [h('td', '状态'), h('td', sState[g.state]), h('td', '下发人'), h('td', this.getUser(g.xiaFaRen)), h('td', {attrs: {colspan: 2}}, this.dict.cheJian[g.cheJian].name)]),
           h('tr', [h('td', '车号'), h('td', g.cheHao), h('td', '修程'), h('td', this.dict.xiuCheng[g.xiuCheng].name), h('td', '下发时间'), h('td', g.xiaFaShiJian.substr(0, 16))]),
@@ -46,23 +58,27 @@ export default {
             h('td', f && this.stage == reviewing && (g.state == checkedin || g.state == rejected)
               ? [rejected, resolved].map((v, k) => h('label', {key: k}, [
                 h('input', {attrs: {type: 'radio', value: v}, domProps: {checked: v == this.fuJian}, on: {
-                  change: e => this.fuJian = e.target.value
+                  change: e => this.fuJian = parseInt(e.target.value)
                 }}), sState[v]
               ]))
               : g.state >= rejected ? sState[g.state] : null),
             h('td', '复检人'), h('td', this.getUser(g.fuJianRen)),
             h('td', '复检时间'), h('td', g.fuJianShiJian && g.fuJianShiJian.substr(0, 16))]
-          )
+          ),
+          h('tr', [h('td', '延滞原因'), h('td', {attrs: {colspan: 5}}, f && this.stage == checking && g.state != resolved ? [h('input', {domProps: {value: g.yanZhiYuanYin}, on: {
+            input: e => this.yanZhiYuanYin = e.target.value
+          }})] : g.yanZhiYuanYin)])
         ])
       ])
-      cb = bs.length ? h('div', bs): null
-      return h('div', {class: 'mission'}, [cl, cb])
+      pnl = bs.length ? h('div', bs): null
+      return h('div', {class: 'mission'}, [tbl, pnl])
     }
   },
   data() {
     return {
       stage: 0,
       chuLi: null,
+      yanZhiYuanYin: null,
       fuJian: null
     }
   },
@@ -88,17 +104,16 @@ export default {
     },
     edit(g) {
       if(this.editing) {
-        const s = ['', '处理方式', '复检结果']
-        if(this.chuLi === null) {
-          this.error(`请选择${s[g.state]}`)
-          return
-        }
-        this.$emit('onEditing', false)
         let t = (new Date).toDateTime().substr(0, 16)
         //签收
         if(this.stage == checking) {
+          if(!this.chuLi) {
+            this.error('请填写处理方式')
+            return
+          }
+          this.$emit('onEditing', false)
           this.loading(true)
-          let d = {state: checkedin, chuLi: this.chuLi, chuLiRen: this.user.id, chuLiShiJian: t}
+          let d = {state: checkedin, chuLi: this.chuLi, chuLiRen: this.user.id, chuLiShiJian: t, yanZhiYuanYin: this.yanZhiYuanYin}
           axios.put(`api/jiaoJian/${g.id}/chuLi`, d).then(() => {
             this.$store.state.jiaoJian.find(v => v.id == g.id).state = d.state
             for(let k in d)
@@ -110,6 +125,11 @@ export default {
             this.error(r.response.data)
           })
         } else {  //复检
+          if(this.fuJian < rejected) {
+            this.error('请选择复检结果')
+            return
+          }
+          this.$emit('onEditing', false)
           this.loading(true)
           let d = {state: this.fuJian, fuJianRen: this.user.id, fuJianShiJian: t}
           axios.put(`api/jiaoJian/${g.id}/chuLi`, d).then(() => {
@@ -126,6 +146,7 @@ export default {
       } else {
         this.$emit('onEditing', true)
         this.chuLi = g.chuLi
+        this.yanZhiYuanYin = g.yanZhiYuanYin
         this.fuJian = g.state
       }
     }

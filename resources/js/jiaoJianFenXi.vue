@@ -28,7 +28,7 @@ columns = {
     caption: '修程',
     items: null
   },
-  cheZhong: {
+  cheXing: {
     caption: '车型',
     items: null
   },
@@ -84,7 +84,7 @@ export default {
       this.tabTime.length && h('tabs', {props: {tabs: this.tabTime, tabIndex: this.tiTime}, on: {
           tabIndex: i => this.timeTabIndex(i)
         }, slot: 1},
-        this.tblTime.map((t, i) => {
+        this.tblTime.filter(t => t.enabled).map((t, i) => {
           let th = [[h('th', {attrs: {rowspan: 2}}, '单位'), h('th', {attrs: {rowspan: 2}}, '作业场')], []],
             a = [{attrs: {colspan: 3, width: '12.5%'}}], b = [{}], d = [...dbw, {name: '总计'}], r
           a[1] = {...a[0], class: 'odd'}
@@ -250,8 +250,8 @@ export default {
         res.data.forEach(g => this.$store.state.fixJiaoJian(g))
         this.tbl.data = res.data
         //各单位, 按月份总计
-        let ds, dtss = []
-        if(this.danWei == 0)
+        let ds, dtss = [], total = []
+        if(this.danWei == 0)  //局总计
           ds = this.$store.state.danWei.map(d => ({...d}))
         else {
           let d = {...this.dict.danWei[this.danWei]}
@@ -264,7 +264,6 @@ export default {
         let ms = [], m = new Date(this.from), y = 1900 + m.getYear(), mb = m.getMonth(), i = mb, t
         while((t = (new Date(y, i++)).toDate().substr(0, 7)) <= this.to) {
           ms.push(t)
-          this.tabTime.push(t)
           this.tblTime.push({
             caption: `${t} 各作业场交检分析`,
             data: []
@@ -272,7 +271,16 @@ export default {
         }
         this.tabCheJian = []
         this.tblCheJian = []
-        ds.forEach(d => {
+        ds.forEach((d, di) => {
+          //总计, 一次合格数, a, b, c: abc类故障数, 一次合格率, 故障率
+          let tt = []
+          ms.forEach((t, i) => {
+            i += mb
+            tt.push([t, 0, 0, 0, 0, 0, 0])
+            if((mb + i) % 3 == 2)
+              tt.push([`第${num[i % 4]}季度`, 0, 0, 0, 0, 0, 0])
+          })
+          total.push(tt)
           d.cheJian = d.cheJian.map(c => {
             let r = {...c}
             r.jiaoJian = {
@@ -344,7 +352,7 @@ export default {
               } else
                 r.push(t)
               i += mb
-              if((i + 1) % 3 == 0) {
+              if(i % 3 == 2) {
                 tb.push(r)
                 i = Math.floor(i / 3)
                 r = [`第${num[i % 4]}季度`]
@@ -364,6 +372,9 @@ export default {
               tb.push(r)
             })
             dtss.push(dts)
+            //for(let i = 0; i < total.length; i++)
+            //  total[di]
+            //  d.total[i] = sum[i + 1]
             if(sum[1]) {
               sum[6] = Math.round(sum[6] * 100 / sum[1]) + '%'
               sum[7] = Math.round(sum[7] * 100 / sum[1]) + '%'
@@ -379,10 +390,16 @@ export default {
             })
           })
         })
+        this.tblTime.forEach((d, i) => {
+          d.enabled = d.data.find(d => d.data[20] || d.data[21] || d.data[22])
+          if(d.enabled)
+            this.tabTime.push(ms[i])
+        })
         //按月份 总计
         if(this.from != this.to) {
           this.tabTime.unshift('总计')
           this.tblTime.unshift({
+            enabled: true,
             caption: `${this.from} - ${this.to} 各作业场交检分析`,
             data: dtss
           })

@@ -19,6 +19,10 @@ input[type=month] {width: 9em}
   color: white;
   background: linear-gradient(10deg, darkblue, lightblue);
 }
+.vertical {
+  width: 1em;
+  margin: auto;
+}
 #menu {
   position: absolute;
   right: .5em;

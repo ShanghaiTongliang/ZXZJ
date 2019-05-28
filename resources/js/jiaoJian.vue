@@ -2,7 +2,6 @@
 #list {
   min-height: 5.5em;
   margin-bottom: .5em;
-  flex-grow: 1;
 }
 .jj-calendar {
   text-align: left;
@@ -58,7 +57,7 @@ const colJiaoJian = {
     type: 'select',
     items: null
   },
-  cheZhong: {
+  cheXing: {
     caption: '车型',
     type: 'select',
     items: null
@@ -138,12 +137,12 @@ export default {
         )]))
       if(this.user.permission[this.cheJian] & PERMISSION_DATA)
         ds.push(h('button', {style: 'float: right'}, '保存'))
-      ds = h('div', {style: {margin: 'auto', flexShrink: 0, display: this.vertical ? null : 'flex'}}, [h('div', {style: this.vertical ? null : 'width: 1em; margin: 0 .2em 0 .5em'}, '日检修量'), h('form', {class: 'group jj-calendar', on: {
+      ds = h('div', {style: {flexShrink: 0, display: this.vertical ? null : 'flex'}}, [h('div', {style: this.vertical ? null : 'width: 1em; margin: 0 .2em 0 .5em'}, '日检修量'), h('form', {class: 'group jj-calendar', on: {
         submit: e => this.saveCount(e, t, c)
       }}, ds)])
     }
     return h('div', {style: 'display: flex; flex-direction: column'}, [
-      h('div', {style: {display: 'flex', margin: 'auto', flexShrink: 0, flexDirection: this.vertical ? 'column' : null}}, [
+      h('div', {style: {display: 'flex', justifyContent: 'center', flexDirection: this.vertical ? 'column' : null, flexShrink: 0}}, [
         h('chejian-month', {props: {
           danWeis: this.rn == 3 ? this.user.repair : this.user.data, danWei: this.danWei, cheJian: this.cheJian, month: this.month,
           disabled: d, state: this.$store.state, vertical: this.rn == 1 && !this.vertical
@@ -209,7 +208,7 @@ export default {
         caption: '故障',
         columns: colJiaoJian,
         editing: true,
-        data: null,
+        data: {},
         actions: [{
           caption: '保存',
           onclick(d) {
@@ -273,12 +272,17 @@ export default {
       immediate: true,
       handler(n) {
         let u = this.user
-        if(!u.data.length && !u.manage.length)
+        if(!u.data.length && !u.manage.length) {
           if(u.repair.length) {
-            if(n != 'jiaoJianChuLi')
+            if(n != 'jiaoJianChuLi') {
               this.$router.replace('/jiaoJian/chuLi')
-          } else if(n != 'curUser')
+              return
+            }
+          } else if(n != 'curUser') {
             this.$router.replace(`/user/${u.id}`)
+            return
+          }
+        }
         const rs = {createJiaoJian: 0, jiaoJian: 1, jiaoJianXiaFa: 2, jiaoJianChuLi: 3, jiaoJianXiaoHao: 4}
         this.rn = rs[n]
         if(this.rn) {
@@ -318,7 +322,7 @@ export default {
       immediate: true,
       handler(v) {
         colJiaoJian.xiuCheng.items = v.xiuCheng
-        colJiaoJian.cheZhong.items = v.cheZhong
+        colJiaoJian.cheXing.items = v.cheXing
         colJiaoJian.daBuWei.items = v.daBuWei
         colJiaoJian.dengJi.items = v.dengJi
       },

@@ -92,9 +92,9 @@ export default {
           caption: '修程',
           href: '#/standard/xiuCheng'
         }, {
-          name: 'cheZhong',
+          name: 'cheXing',
           caption: '车型',
-          href: '#/standard/cheZhong'
+          href: '#/standard/cheXing'
         }, {
           name: 'daBuWei',
           caption: '大部位',
@@ -109,7 +109,7 @@ export default {
           href: '#/standard/peiJian'
         }, {
           name: 'xingHao',
-          caption: '型号',
+          caption: '配件型号',
           href: '#/standard/xingHao'
         }]
       }, {

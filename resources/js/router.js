@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from './Login.vue'
+import MissionPrint from './MissionPrint.vue'
 
 Vue.use(VueRouter)
 
@@ -19,5 +20,8 @@ export default new VueRouter({
       name: 'reset',
       path: 'reset'
     }]
+  }, {
+    name: 'mission',
+    path: '/mission/:id'
   }]
 })

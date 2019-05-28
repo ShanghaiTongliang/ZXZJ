@@ -1,5 +1,6 @@
 <template>
-  <div id="app">
+  <mission-print v-if="$route.name == 'mission'" :mission="mission"></mission-print>
+  <div v-else id="app">
     <div v-show="!login" class="header" style="position: relative"><span style="font-weight: bold">货车站修质检评价系统</span>
       <drop-menu id="menu" v-if="user" :menu="menu"></drop-menu>
     </div>
@@ -17,9 +18,10 @@ import {mapMutations, mapState} from 'vuex'
 import Loading from './components/Loading'
 import Message from './components/Message'
 import DropMenu from './components/DropMenu'
+import MissionPrint from './MissionPrint'
 
 export default {
-  components: {Loading, Message, DropMenu},
+  components: {Loading, Message, DropMenu, MissionPrint},
   data() {
     return {
       login: true,
@@ -42,7 +44,8 @@ export default {
             }).catch(res => this.error(res.response.data))
           }
         }]
-      }]
+      }],
+      mission: null
     }
   },
   computed: {
@@ -66,13 +69,17 @@ export default {
   methods: {
     ...mapMutations(['auth', 'loading', 'message', 'error'])
   },
-  mounted() {
+  created() {
     let id = parseInt(cookie.get('id'))
     if(id) {
       this.loading(true)
       axios.get('api/auth').then(res => {
         this.loading(false)
         this.auth({data: res.data, id})
+        if(this.$route.name == 'mission') {
+          let id = this.$route.params.id
+          this.mission = this.$store.state.jiaoJianChuLi.find(m => m.id == id)
+        }
       })/*.catch(res => {
         let a = location.hash.match(/\?.*url=(.*)/), url = a ? decodeURIComponent(a[1]) : location.hash
         if(url[0] == '#')

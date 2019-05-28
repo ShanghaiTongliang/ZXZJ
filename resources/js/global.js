@@ -38,10 +38,10 @@ chuLiStates = [{
   name: '已处理'
 }, {
   id: rejected,
-  name: '复检不合格'
+  name: '不合格'
 }, {
   id: resolved,
-  name: '复检合格'
+  name: '合格'
 }],
 peiJianLeiBie = [{
   id: 1,

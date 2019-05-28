@@ -13,6 +13,22 @@ function clone(o) {
     return o
 }
 
+function include(o, ks) {
+  let r = {}
+  for(let k in o)
+    if(ks.includes(k))
+      r[k] = o[k]
+  return r
+}
+
+function exclude(o, ks) {
+  let r = {}
+  for(let k in o)
+    if(!ks.includes(k))
+      r[k] = o[k]
+  return r
+}
+
 function merge(t, s) {
   for(let k in s)
     if(t[k] instanceof Object && !(t[k] instanceof Array))
@@ -22,5 +38,5 @@ function merge(t, s) {
   return t
 }
 
-export {clone}
+export {clone, include, exclude}
 export default merge
