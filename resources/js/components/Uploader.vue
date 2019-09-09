@@ -12,7 +12,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.uploader button {float: right}
+.uploader button {margin: .5em 0 0 .5em}
 .uploader .del {text-decoration: line-through}
 </style>
 <script>

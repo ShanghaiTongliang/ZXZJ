@@ -1,12 +1,30 @@
 <?php
 
 class ZhiJianYuanController extends Yaf\Controller_Abstract {
+
+  static function checkDir(int $id) {
+    $base = 'zhiJianYuan/dianWen/';
+    $p = "$base$id";
+    if(!is_dir($p))
+      mkdir($p);
+    return $p;
+  }
+
   function storeDianWenAction() {
-    $p = new DianWenModel;
-    foreach($_POST as $k => $v)
-      $p->$k = $v;
-    //$p->save();
-    echo json_encode(['id' => $p->id]);
+    $d = new DianWenModel;
+    if(!($ds = json_decode($_POST['dianWen']))) {
+      response(_('format incorrect'));
+      return;
+    }
+    foreach($ds as $k => $v)
+      $d->$k = $v;
+    $d->save();
+    if(count($_FILES)) {
+      $p = static::checkDir($d->id);
+      foreach($_FILES as $f)
+        move_uploaded_file($f['tmp_name'], "$p/{$f['name']}");
+    }
+    echo json_encode(['id' => $d->id]);
   }
 
   function updateDianWenAction() {
@@ -25,12 +43,10 @@ class ZhiJianYuanController extends Yaf\Controller_Abstract {
         if(!$b && file_exists($p = "$base$d->id/$old->name"))
           unlink($p);
       }
-      $p = "$base$d->id";
       if(count($_FILES)) {
-        if(!is_dir($p))
-          mkdir($p);
+        $p = static::checkDir($d->id);
         foreach($_FILES as $f)
-          move_uploaded_file($f['tmp_name'], "$base$d->id/{$f['name']}");
+          move_uploaded_file($f['tmp_name'], "$p/{$f['name']}");
       }
       foreach($a as $k => $v)
         $d->$k = $v;

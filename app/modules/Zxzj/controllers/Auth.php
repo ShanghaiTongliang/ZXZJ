@@ -17,6 +17,9 @@ class AuthController extends Yaf\Controller_Abstract {
         }
       }
     }
+    usort($r, function($a, $b) {
+      return $b['time'] - $a['time'];
+    });
     return $r;
   }
 
@@ -89,7 +92,7 @@ class AuthController extends Yaf\Controller_Abstract {
       'ruKuFuJian' => Table::open('ruKuFuJian')::where($sql)->get(),
       'jiaoJianChuLi' => Table::open('jiaoJianChuLi')::orderBy('xiaFaShiJian', 'desc')->get(),
       'zhiJianYuan' => [
-        'dianWen' => DianWenModel::get(),
+        'dianWen' => DianWenModel::orderBy('date', true)->get(),
         'zhiDaoShu' => $zds,
         'ziLiao' => $zl
       ]

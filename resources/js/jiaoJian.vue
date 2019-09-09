@@ -126,8 +126,10 @@ export default {
     c = this.curCheJian
     if(this.rn == 1) {
       ds = ['一', '二', '三', '四', '五', '六', '日'].map(t => h('div', {class: 'jj-date'}, t))
-      let i, d = (new Date(`${this.month}-01`)).getDay()
-      for(i = 1; i < d; i++)
+      let i, fd = (new Date(`${this.month}-01`)).getDay()
+      if(!fd)
+        fd = 7
+      for(i = 1; i < fd; i++)
         ds.push(h('div', {class: 'jj-date'}))
       for(i = 0; i < this.dateCount; i++)
         ds.push(h('div', {class: 'jj-date'}, [h('span', i + 1), h('input',

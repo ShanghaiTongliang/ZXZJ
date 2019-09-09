@@ -167,12 +167,14 @@ export default {
   methods: {
     ...mapMutations(['loading', 'message', 'error']),
     check(d, n, c) {
-      for(let k in c)
+      let k, t
+      for(k in c)
         if(c[k] instanceof Object && !d[k] && isNaN(parseInt(d[k]))) {
           this.error(`请输入${names[n]}${c[k].caption}`)
           return
         }
-      if(this.std[n].find(s => s.id != d.id && s.name == d.name))
+      //不同配件允许相同型号
+      if((t = this.std[n].find(s => s.id != d.id && s.name == d.name)) && (n != 'xingHao' || t.peiJian == d.peiJian))
         this.error(`${d.name} 已经存在`)
       else
         return true

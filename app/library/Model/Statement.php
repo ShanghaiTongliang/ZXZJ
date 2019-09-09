@@ -50,8 +50,9 @@ class Statement {
     return $this;
   }
 
-  function orderBy($by, $order = false) {
-    $this->orderBy = [$by, $order ? strtolower($order) : $order];
+  function orderBy($by, $desc = false) {
+    //$this->orderBy = [$by, $order ? strtolower($order) : $order];
+    $this->orderBy = [$by, $desc ? 'desc' : null];
     return $this;
   }
 

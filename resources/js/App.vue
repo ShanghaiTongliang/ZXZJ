@@ -80,14 +80,14 @@ export default {
           let id = this.$route.params.id
           this.mission = this.$store.state.jiaoJianChuLi.find(m => m.id == id)
         }
-      })/*.catch(res => {
+      }).catch(res => {
         let a = location.hash.match(/\?.*url=(.*)/), url = a ? decodeURIComponent(a[1]) : location.hash
         if(url[0] == '#')
           url = url.substr(1)
         this.$router.push({name: 'login', query: url ? {url} : null})
         this.loading(false)
         this.error(res.response.data)
-      })*/
+      })
     } else if(!this.$route.name || this.$route.matched.length && this.$route.matched[0].name != 'auth') {
       let url = location.hash
       if(url[0] == '#')

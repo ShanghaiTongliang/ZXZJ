@@ -129,12 +129,20 @@ export default {
         ])]),
         m ? h('div', `下发至: ${this.curDianWen.cheJian.map(c => cs[c].name).join(', ')}`) : null,
         h('pre', {class: 'text'}, this.curDianWen.detail),
-        h('div', [h('span', {style: 'float: left'}, '附件'), this.curDianWen.attachments.map(a => h('div', {class: 'uploader'}, [h('div', [h('a', {attrs: {href: a.url, target: '_blank'}}, a.name)]), h('span', sizeFilter(a.size))]))]),
+        h('div', [
+          h('span', {style: 'float: left'}, '附件'),
+          this.curDianWen.attachments.length
+          ? this.curDianWen.attachments.map(a => h('div', {class: 'uploader'}, [
+            h('div', [h('a', {attrs: {href: a.url, target: '_blank'}}, a.name)]),
+            h('span', sizeFilter(a.size))
+          ]))
+          : '无'
+        ]),
         this.curDianWen.state === 0 ? h('div', [h('button', {on: {
           click: this.checkin
         }}, '签收')]) : null
       ])
-    } else if(n == 'createDianWen' || n == 'editDianWen') {
+    } else if(n == 'createDianWen' || n == 'editDianWen') { //电文
       let cs = this.cheJians.map(c => h('label', [
         h('input', {attrs: {type: 'checkbox', value: c.id}, domProps: {checked: this.dianWen.cheJian.includes(c.id)}, on: {
           change: e => {
@@ -179,13 +187,13 @@ export default {
           ])
         ])
       ])
-    } else if(n == 'zhiDaoShu')
+    } else if(n == 'zhiDaoShu') //指导书
       return h('datable', {props: {table: this.tblZhiDaoShu}, class: 'container'}, this.user.manage.length ? [
         h('button', {class: 'act', on: {
           click: () => this.upload('zhiDaoShu')
         }}, '上传')
       ] : null)
-    else
+    else  //学习资料
       return h('datable', {props: {table: this.tblZiLiao}, class: 'container'}, this.user.manage.length ? [
         h('button', {class: 'act', on: {
           click: () => this.upload('ziLiao')
@@ -372,8 +380,10 @@ export default {
       else {
         if(this.new)
           this._save(axios.post, 'api/zhiJianYuan/dianWen', r => {
+            let _this = this
             this.dianWen.id = r.data.id
             this.zhiJianYuan.dianWen.push(this.dianWen)
+            this.zhiJianYuan.dianWen.sort((a, b) => a.date < b.date ? 1 : a.date > a.date ? -1 : 0)
             this.$store.state.fixDianWen.call(this.$store.state, this.dianWen)
             this.$router.push(`/zhiJianYuan/dianWen/${this.dianWen.id}`)
           })
@@ -397,9 +407,11 @@ export default {
         let fd = new FormData
         fd.append('file', f)
         axios.post(`api/zhiJianYuan/${t}`, fd, this.uploadOption).then(() => {
-          let d = {name: f.name, time: f.lastModifiedDate.getTime() / 1000, size: f.size}
+          //let d = {name: f.name, time: f.lastModifiedDate.getTime() / 1000, size: f.size}
+          let d = {name: f.name, time: (new Date).getTime() / 1000, size: f.size}
           this.$store.state.fixFile(d, t)
           this.zhiJianYuan[t].push(d)
+          this.zhiJianYuan[t].sort((a, b) => b.time - a.time)
           this.loading(false)
           this.message('上传成功')
         }).catch(r => {
