@@ -25,7 +25,7 @@ export default {
       if(!p.table.actions)
         p.table.actions = []
       p.table.actions.splice(p.table.actions.length, 0, ...[{
-        caption: '编辑',
+        caption: '修改',
         condition(d, i) {
           let h, r
           r = !p.table.readonly && (p.table.editingIndex === undefined || p.table.editingIndex < 0) && ((h = ctx.listeners.editable) === undefined || h(d, i))
@@ -35,9 +35,8 @@ export default {
         onclick(d, i) {
           event.preventDefault()
           Vue.set(p.table, '__tmp', clone(p.table.data[i]))
-          Vue.set(p.table, 'editingIndex', i)
-          if(ctx.listeners.edit)
-            ctx.listeners.edit(p.table.__tmp, i)
+          if(!ctx.listeners.edit || ctx.listeners.edit(p.table.__tmp, i))
+            Vue.set(p.table, 'editingIndex', i)
         }
       }, {
         caption: '保存',

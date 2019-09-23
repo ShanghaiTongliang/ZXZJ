@@ -41,6 +41,7 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
       'please delete all subitems first' => '请先删除所有子项目',
       'user already exists' => '用户已存在',
       'user does not exists' => '用户不存在',
+      'delete the notice first' => '请先删除处理通知单',
       'dianWen not found' => '电文未找到',
       'zhiDaoShu not found' => '指导书未找到',
       'ziLiao not found' => '资料未找到',
@@ -155,12 +156,15 @@ class Bootstrap extends Yaf\Bootstrap_Abstract {
         //查询
         $p['action'] = 'query';
         $router->post('jiaoJian/query', $p);
-        //下发，新建处理
+        //下发，新建处理通知单
         $p['action'] = 'storeChuLi';
         $router->post('jiaoJian/:id/chuLi', $p);
-        //签收/复检，更新处理
+        //签收/复检，更新处理通知单
         $p['action'] = 'updateChuLi';
         $router->put('jiaoJian/:id/chuLi', $p);
+        //删除处理通知单
+        $p['action'] = 'destroyChuLi';
+        $router->delete('jiaoJian/:id/chuLi', $p);
 
         //入库复检
         $p['controller'] = 'ruKuFuJian';

@@ -33,12 +33,16 @@ export default {
       let tbl, pnl, g = this.mission, f = this.editing, bs = []
       if(this.chuLiEditable(g))
         bs.push(h('button', {on: {
-          click: e => this.edit(g)
+          click: () => this.edit(g)
         }}, f ? '保存' : '处理'))
       if(f)
         bs.push(' ', h('button', {on: {
           click: e => this.$emit('onEditing', false)
         }}, '取消'))
+      else if(this.role == 2 && !g.chuLiRen)
+        bs.push(' ', h('button', {on: {
+          click: () => this.del(g)
+        }}, '删除'))
       tbl = h('table', {class: 'datable'}, [
         h('caption', ['货车检修质量不合格通知书', !this.printing && h('button', {class: 'act', on: {
           click: () => open(`#/mission/${g.id}`)
@@ -46,7 +50,7 @@ export default {
         h('tbody', [
           h('tr', [h('td', '状态'), h('td', sState[g.state]), h('td', '下发人'), h('td', this.getUser(g.xiaFaRen)), h('td', {attrs: {colspan: 2}}, this.dict.cheJian[g.cheJian].name)]),
           h('tr', [h('td', '车号'), h('td', g.cheHao), h('td', '修程'), h('td', this.dict.xiuCheng[g.xiuCheng].name), h('td', '下发时间'), h('td', g.xiaFaShiJian.substr(0, 16))]),
-          h('tr', [h('td', '故障'), h('td', {attrs: {colspan: 5}}, `${this.std.daBuWei[g.daBuWei].name} ${this.std.guZhang[g.guZhang].name}`)]),
+          h('tr', [h('td', '故障'), h('td', {attrs: {colspan: 5}}, `${this.dict.daBuWei[g.daBuWei].name} ${this.dict.guZhang[g.guZhang].name}`)]),
           h('tr', [h('td', '处理方式'),
             h('td', f && this.stage == checking && g.state != resolved ? [h('input', {domProps: {value: g.chuLi}, on: {
               input: e => this.chuLi = e.target.value
@@ -148,6 +152,18 @@ export default {
         this.chuLi = g.chuLi
         this.yanZhiYuanYin = g.yanZhiYuanYin
         this.fuJian = g.state
+      }
+    },
+    del(g) {
+      if(confirm('确定要删除不合格通知书?')) {
+        this.loading(true)
+        axios.delete(`api/jiaojian/${g.id}/chuLi`).then(() => {
+          this.loading(false)
+          this.$emit('delete', g)
+        }).catch(r => {
+          this.loading(false)
+          this.error(r.response.data)
+        })
       }
     }
   }

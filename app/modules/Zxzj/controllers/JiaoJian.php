@@ -26,8 +26,12 @@ class JiaoJianController extends Yaf\Controller_Abstract {
   function destroyAction() {
     $p = $this->getRequest()->getParams();
     if($g = JiaoJianModel::find($p['id'])) {
-      $g->delete();
-      $g::resetAutoIncrement();
+      if(Table::open('jiaoJianChuLi')::find($p['id']))
+        response(_('delete the notice first'), RES_FORBIDEN);
+      else {
+        $g->delete();
+        $g::resetAutoIncrement();
+      }
     } else
       response(_('guZhang not found'), RES_NOT_FOUND);
   }
@@ -70,7 +74,7 @@ class JiaoJianController extends Yaf\Controller_Abstract {
       response(_('format incorrect'));
   }
 
-  /**下发，新建处理 */
+  /**下发，新建处理通知单 */
   function storeChuLiAction() {
     $p = $this->getRequest()->getParams();
     if($g = JiaoJianModel::find($p['id'])) {
@@ -90,7 +94,7 @@ class JiaoJianController extends Yaf\Controller_Abstract {
       response(_('guZhang not found'), RES_NOT_FOUND);
   }
 
-  /**签收/复检，更新处理*/
+  /**签收/复检，更新处理通知单*/
   function updateChuLiAction() {
     $p = $this->getRequest()->getParams();
     if(($g = JiaoJianModel::find($p['id'])) && ($c = Table::open('jiaoJianChuLi')::find($p['id']))) {
@@ -100,6 +104,24 @@ class JiaoJianController extends Yaf\Controller_Abstract {
       foreach($a as $k => $v)
         $c->$k = $v;
       $c->save();
+    } else
+      response(_('guZhang not found'), RES_NOT_FOUND);
+  }
+
+  /**删除处理通知单 */
+  function destroyChuLiAction() {
+    $p = $this->getRequest()->getParams();
+    if($c = Table::open('jiaoJianChuLi')::find($p['id'])) {
+      if($c->state > static::DISPATCHED) {
+        response(_('unable to delete a checked notice'), RES_FORBIDEN);
+        return;
+      }
+      if($g = JiaoJianModel::find($p['id'])) {
+        $g->state = 0;
+        $g->save();
+      }
+      $c->delete();
+      $c::resetAutoIncrement();
     } else
       response(_('guZhang not found'), RES_NOT_FOUND);
   }

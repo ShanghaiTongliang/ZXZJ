@@ -89,7 +89,7 @@ const colJiaoJian = {
     caption: '状态',
     items: chuLiStates,
     filter(t) {
-      return t && `<span class="${stateColor[t]}">${chuLiStates.find(s => s.id == t).name}</span>`
+      return t ? `<span class="${stateColor[t]}">${chuLiStates.find(s => s.id == t).name}</span>` : null
     }
   },
   user: {
@@ -108,6 +108,7 @@ export default {
       d = this.tbl.editingIndex >= 0
       on = {
         editable: this.isEditable,
+        edit: this.edit,
         save: this.save,
         delete: this.del
       }
@@ -155,7 +156,13 @@ export default {
       ])
       , gs, h('mission', {
         props: {mission: this.mission, role: this.role, editing: this.editingXiaFa}, on: {
-          onEditing: v => this.editingXiaFa = v
+          onEditing: v => this.editingXiaFa = v,
+          delete: d => {
+            let g
+            this.jiaoJianChuLi.splice(this.jiaoJianChuLi.indexOf(d), 1)
+            if(g = this.jiaoJian.find(g => g.id == d.id))
+              g.state = 0
+          }
         }, key: 'm'
       })
     ])
@@ -385,6 +392,13 @@ export default {
     isEditable() {
       return this.editable && this.$route.name == 'jiaoJian'
     },
+    edit(d) {
+      let g
+      if(g = this.jiaoJianChuLi.find(g => g.id == d.id))
+        this.error(g.chuLiRen ? '不能修改或删除已处理故障' : '故障已下发, 请先删除不合格通知书')
+      else
+        return true
+    },
     saveFields(d, next) {
       let std = this.std, r
       if(!d.date)
@@ -414,7 +428,7 @@ export default {
       })
     },
     del(d, i, next) {
-      if(confirm('确定要删除数据 ?')) {
+      if(this.edit(d) && confirm('确定要删除数据 ?'))
         axios.delete(`api/jiaoJian/${d.id}`).then(() => {
           this.loading(false)
           this.message('删除成功')
@@ -423,7 +437,6 @@ export default {
           this.loading(false)
           this.error(r.response.data)
         })
-      }
     },
   },
   created() {

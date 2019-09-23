@@ -141,17 +141,21 @@ export default new Vuex.Store({
         })
       })
       dict.leiBie = {}
+      dict.daBuWei = {}
       dict.guZhang = {}
       peiJianLeiBie.forEach(l => dict.leiBie[l.id] = l)
       let fixDaBuWei = d => {
         let t = []
         if(d)
           state.std.daBuWei = d
-        state.std.daBuWei.forEach(d => d.guZhang.forEach(g => {
-          dict.guZhang[g.id] = g
-          g.daBuWei = d.id
-          t.push(g)
-        }))
+        state.std.daBuWei.forEach(d => {
+          dict.daBuWei[d.id] = d
+          d.guZhang.forEach(g => {
+            dict.guZhang[g.id] = g
+            g.daBuWei = d.id
+            t.push(g)
+          })
+        })
         state.std.guZhang = t
         state.jiaoJian.forEach(g => state.fixJiaoJian(g))
         state.jiaoJianChuLi.forEach(c => state.fixJiaoJian(c))
